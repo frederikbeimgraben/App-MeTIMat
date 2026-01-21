@@ -1,0 +1,110 @@
+<div class="min-h-screen bg-gray-50">
+  <app-header-common titleKey="prescription.selectPrescription"></app-header-common>
+
+  <!-- Content -->
+  <div class="max-w-md mx-auto px-4 py-6">
+    <!-- Loading State -->
+    @if (loading) {
+      <div class="flex justify-center items-center py-12">
+        <div class="spinner"></div>
+      </div>
+    }
+
+    <!-- Active Prescriptions -->
+    @if (!loading && activePrescriptions.length > 0) {
+      <div>
+        <p class="text-sm text-gray-600 mb-4">
+          {{ 'prescription.selectPrescriptionInstruction' | transloco }}
+        </p>
+
+        <div class="space-y-3">
+          @for (prescription of activePrescriptions; track prescription.id) {
+            <div
+              (click)="selectPrescription(prescription)"
+              class="bg-white rounded-lg shadow-sm border-2 border-gray-200 p-4 hover:border-blue-900 hover:bg-blue-50 cursor-pointer transition-all"
+            >
+              <div class="flex justify-between items-start mb-3">
+                <div>
+                  <p class="font-semibold text-gray-900">
+                    {{
+                      prescription.requester?.display || prescription.requester?.reference || 'N/A'
+                    }}
+                  </p>
+                  <p class="text-sm text-gray-600">
+                    {{ 'prescription.issued' | transloco }}:
+                    {{ prescription.authoredOn || 'N/A' | date: 'short' }}
+                  </p>
+                </div>
+                <span
+                  class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800"
+                >
+                  {{ prescription.status | transloco }}
+                </span>
+              </div>
+
+              <div class="space-y-2 mb-3">
+                <div class="text-sm">
+                  <p class="font-medium text-gray-900">
+                    {{
+                      prescription.medicationCodeableConcept?.coding?.[0]?.display ||
+                        prescription.medicationReference?.display ||
+                        'Medikament'
+                    }}
+                  </p>
+                  <div class="text-gray-600">
+                    @for (dosage of prescription.dosageInstruction; track $index) {
+                      <p>
+                        @if (dosage.text) {
+                          {{ dosage.text }}
+                        } @else if (dosage.doseAndRate && dosage.doseAndRate.length > 0) {
+                          {{ dosage.doseAndRate[0].doseQuantity?.value }}
+                          {{ dosage.doseAndRate[0].doseQuantity?.unit }}
+                        }
+                      </p>
+                    }
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex justify-between items-center pt-3 border-t border-gray-100">
+                <p class="text-xs text-gray-500">
+                  {{ 'prescription.validUntil' | transloco }}:
+                  {{ prescription.dispenseRequest?.validityPeriod?.end || 'N/A' | date: 'short' }}
+                </p>
+                <div class="flex items-center text-blue-900">
+                  <span class="text-sm font-medium mr-1">{{
+                    'prescription.select' | transloco
+                  }}</span>
+                  <mat-icon style="width: 16px; height: 16px; font-size: 16px"
+                    >arrow_forward</mat-icon
+                  >
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Empty State -->
+    @if (!loading && activePrescriptions.length === 0) {
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center mt-8">
+        <mat-icon
+          class="text-gray-400 mx-auto mb-4 block"
+          style="width: 64px; height: 64px; font-size: 64px"
+        >
+          description
+        </mat-icon>
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">
+          {{ 'prescription.noPrescriptions' | transloco }}
+        </h3>
+        <p class="text-sm text-gray-600 mb-6">
+          {{ 'prescription.noPrescriptionsDescription' | transloco }}
+        </p>
+        <button (click)="goBack()" class="btn btn-primary">
+          {{ 'prescription.importNew' | transloco }}
+        </button>
+      </div>
+    }
+  </div>
+</div>

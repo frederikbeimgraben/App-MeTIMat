@@ -1,0 +1,195 @@
+<div class="flex flex-col h-screen bg-gray-100">
+  <!-- Header -->
+  <header class="bg-white header-blur shadow-sm border-b-2 border-gray-200 flex-shrink-0">
+    <div class="max-w-md mx-auto px-4 py-3 flex items-center">
+      <button
+        (click)="goBack()"
+        class="icon-btn mr-3"
+        [attr.aria-label]="'common.back' | transloco"
+      >
+        <mat-icon class="text-gray-700" style="width: 24px; height: 24px; font-size: 24px"
+          >arrow_back</mat-icon
+        >
+      </button>
+
+      @if (consultation) {
+        <div class="flex-1">
+          <h1 class="text-lg font-bold text-gray-900">{{ consultation.doctorName }}</h1>
+          <p class="text-sm text-gray-600">{{ consultation.specialty }}</p>
+        </div>
+      }
+
+      <div class="flex items-center space-x-2">
+        <button
+          (click)="scheduleVideoCall()"
+          class="icon-btn"
+          [attr.aria-label]="'consultation.scheduleVideo' | transloco"
+        >
+          <mat-icon class="text-gray-700" style="width: 24px; height: 24px; font-size: 24px"
+            >videocam</mat-icon
+          >
+        </button>
+
+        <button
+          (click)="makePhoneCall()"
+          class="icon-btn"
+          [attr.aria-label]="'consultation.startCall' | transloco"
+        >
+          <mat-icon class="text-gray-700" style="width: 24px; height: 24px; font-size: 24px"
+            >phone</mat-icon
+          >
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Messages Area -->
+  <div #scrollContainer class="flex-1 overflow-y-auto px-4 py-4" style="padding-bottom: 100px">
+    @if (consultation) {
+      <div class="max-w-md mx-auto space-y-3">
+        <!-- Date separators and messages -->
+        @for (
+          message of consultation.messages;
+          track trackByMessageId($index, message);
+          let i = $index
+        ) {
+          <div>
+            <!-- Date separator -->
+            @if (shouldShowDateSeparator(i)) {
+              <div class="flex items-center justify-center my-4">
+                <span class="bg-gray-200 text-gray-600 text-xs px-3 py-1 rounded-full">
+                  {{ getMessageDate(message.timestamp) }}
+                </span>
+              </div>
+            }
+
+            <!-- Message bubble -->
+            <div [ngClass]="getMessageContainerClass(message.sender)">
+              <div [ngClass]="getMessageBubbleClass(message.sender)">
+                <!-- System message -->
+                @if (isSystemMessage(message)) {
+                  <div class="text-center">
+                    <p class="text-sm italic">{{ message.content }}</p>
+                  </div>
+                }
+
+                <!-- Regular message -->
+                @if (!isSystemMessage(message)) {
+                  <div>
+                    <p class="text-sm whitespace-pre-wrap">{{ message.content }}</p>
+                    <p class="text-xs mt-1 opacity-70">
+                      {{ message.timestamp | date: 'short' }}
+                    </p>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Typing indicator -->
+        @if (isTyping) {
+          <div class="flex items-center space-x-2 text-gray-500">
+            <div class="chat-bubble-received p-3">
+              <div class="flex space-x-1">
+                <div
+                  class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                  style="animation-delay: 0ms"
+                ></div>
+                <div
+                  class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                  style="animation-delay: 150ms"
+                ></div>
+                <div
+                  class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                  style="animation-delay: 300ms"
+                ></div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Loading State -->
+    @if (loading) {
+      <div class="flex justify-center items-center py-12">
+        <div class="spinner"></div>
+      </div>
+    }
+  </div>
+
+  <!-- Input Area -->
+  <div
+    class="bg-white border-t-2 border-gray-200 flex-shrink-0 fixed bottom-0 left-0 right-0 z-10"
+    style="padding-bottom: 64px"
+  >
+    <div class="max-w-md mx-auto px-4 py-3">
+      <div class="flex items-end space-x-2">
+        <div class="flex-1">
+          <textarea
+            [(ngModel)]="newMessage"
+            (keypress)="handleKeyPress($event)"
+            [placeholder]="'consultation.typeMessage' | transloco"
+            class="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl resize-none focus:outline-none focus:border-blue-900 transition-colors"
+            rows="1"
+            [disabled]="!isConsultationActive()"
+            #messageInput
+            style="max-height: 120px"
+          ></textarea>
+        </div>
+
+        <button
+          (click)="sendMessage()"
+          [disabled]="!newMessage.trim() || !isConsultationActive()"
+          class="send-btn p-3 rounded-full transition-all"
+          [ngClass]="
+            newMessage.trim()
+              ? 'bg-blue-900 text-white hover:bg-blue-800'
+              : 'bg-gray-200 text-gray-400'
+          "
+        >
+          <mat-icon style="width: 24px; height: 24px; font-size: 24px">send</mat-icon>
+        </button>
+      </div>
+
+      <!-- Consultation ended message -->
+      @if (isConsultationCompleted()) {
+        <div class="mt-2 text-center text-sm text-gray-500">
+          {{ 'consultation.ended' | transloco }}
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- End Consultation Button -->
+  @if (isConsultationActive()) {
+    <button
+      (click)="showEndConfirmation = true"
+      class="fixed top-20 right-4 bg-red-600 text-white px-4 py-2 rounded-lg shadow-lg text-sm font-medium hover:bg-red-700 transition-colors"
+    >
+      {{ 'consultation.endConsultation' | transloco }}
+    </button>
+  }
+
+  <!-- End Consultation Confirmation Modal -->
+  @if (showEndConfirmation) {
+    <div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-lg shadow-xl max-w-sm w-full p-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">
+          {{ 'consultation.confirmEnd' | transloco }}
+        </h2>
+        <p class="text-sm text-gray-600 mb-6">{{ 'consultation.confirmEndMessage' | transloco }}</p>
+
+        <div class="flex space-x-3">
+          <button (click)="endConsultation()" class="btn btn-error flex-1">
+            {{ 'common.confirm' | transloco }}
+          </button>
+          <button (click)="showEndConfirmation = false" class="btn btn-secondary flex-1">
+            {{ 'common.cancel' | transloco }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

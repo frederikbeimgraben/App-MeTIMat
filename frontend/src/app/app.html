@@ -1,0 +1,72 @@
+<div class="min-h-screen bg-white flex flex-col">
+  <!-- Main content area -->
+  <main class="flex-1 absolute top-0 left-0 right-0 bottom-16">
+    <router-outlet></router-outlet>
+  </main>
+
+  <!-- Bottom Navigation Bar -->
+  <nav class="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-gray-200 z-50">
+    <div class="max-w-md mx-auto">
+      <div class="flex justify-around items-center h-16">
+        <!-- Orders -->
+        <button
+          (click)="navigateTo('orders')"
+          [class.text-blue-900]="isActive('orders')"
+          [class.text-gray-600]="!isActive('orders')"
+          class="flex flex-col items-center justify-center w-[64px] py-2 px-3 transition-colors"
+          [attr.aria-label]="'navigation.orders' | transloco"
+        >
+          <mat-icon class="mb-1" style="width: 24px; height: 24px; font-size: 24px"
+            >shopping_bag</mat-icon
+          >
+          <span class="text-xs font-medium">{{ 'navigation.orders' | transloco }}</span>
+          @if (cartItemCount > 0) {
+          <span
+            class="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold"
+          >
+            {{ cartItemCount }}
+          </span>
+          }
+        </button>
+
+        <!-- Home -->
+        <button
+          (click)="navigateTo('')"
+          [class.text-blue-900]="isActive('home')"
+          [class.text-gray-600]="!isActive('home')"
+          class="flex flex-col items-center justify-center w-[64px] py-2 px-3 transition-colors"
+          [attr.aria-label]="'navigation.home' | transloco"
+        >
+          <div
+            class="w-12 h-12 rounded-full flex items-center justify-center -mt-2"
+            [class.bg-blue-900]="isActive('home')"
+            [class.bg-gray-600]="!isActive('home')"
+          >
+            <mat-icon class="text-white" style="width: 28px; height: 28px; font-size: 28px"
+              >home</mat-icon
+            >
+          </div>
+        </button>
+
+        <!-- Consultations -->
+        <button
+          (click)="navigateTo('consultation')"
+          [class.text-blue-900]="isActive('consultation')"
+          [class.text-gray-600]="!isActive('consultation')"
+          class="flex flex-col items-center justify-center w-[64px] py-2 px-3 transition-colors relative"
+          [attr.aria-label]="'navigation.consultations' | transloco"
+        >
+          <mat-icon class="mb-1" style="width: 24px; height: 24px; font-size: 24px">chat</mat-icon>
+          <span class="text-xs font-medium">{{ 'navigation.consultations' | transloco }}</span>
+          @if (unreadMessages > 0) {
+          <span
+            class="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold"
+          >
+            {{ unreadMessages }}
+          </span>
+          }
+        </button>
+      </div>
+    </div>
+  </nav>
+</div>

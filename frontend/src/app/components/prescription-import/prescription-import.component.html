@@ -1,0 +1,216 @@
+<div class="min-h-screen bg-gray-50">
+  <app-header-common titleKey="order.newOrder"></app-header-common>
+
+  <!-- Content -->
+  <div class="max-w-md mx-auto px-4 py-6">
+    <!-- Selection Options -->
+    <div class="space-y-4 mb-6">
+      <!-- Top row: Select Prescription and Prescription-free -->
+      <div class="grid grid-cols-2 gap-4">
+        <!-- Select Prescription -->
+        <button
+          (click)="selectPrescription()"
+          class="bg-white rounded-lg shadow-sm border-2 border-gray-200 p-4 hover:border-blue-900 hover:bg-blue-50 transition-all"
+        >
+          <div class="flex flex-col items-center">
+            <div class="w-14 h-14 bg-blue-600 rounded-full flex items-center justify-center mb-2">
+              <mat-icon class="text-white" style="width: 28px; height: 28px; font-size: 28px"
+                >description</mat-icon
+              >
+            </div>
+            <h3 class="font-semibold text-gray-900 text-sm">
+              {{ 'prescription.selectPrescription' | transloco }}
+            </h3>
+            <p class="text-xs text-gray-600 mt-1 text-center">
+              {{ 'prescription.selectPrescriptionDescription' | transloco }}
+            </p>
+          </div>
+        </button>
+
+        <!-- Prescription-free -->
+        <button
+          (click)="goToPrescriptionFree()"
+          class="bg-white rounded-lg shadow-sm border-2 border-gray-200 p-4 hover:border-green-600 hover:bg-green-50 transition-all"
+        >
+          <div class="flex flex-col items-center">
+            <div class="w-14 h-14 bg-green-600 rounded-full flex items-center justify-center mb-2">
+              <mat-icon class="text-white" style="width: 28px; height: 28px; font-size: 28px"
+                >medication</mat-icon
+              >
+            </div>
+            <h3 class="font-semibold text-gray-900 text-sm">
+              {{ 'prescription.prescriptionFree' | transloco }}
+            </h3>
+            <p class="text-xs text-gray-600 mt-1 text-center">
+              {{ 'prescription.prescriptionFreeDescription' | transloco }}
+            </p>
+          </div>
+        </button>
+      </div>
+
+      <!-- Bottom: eGK Import full width -->
+      <button
+        (click)="startNFCImport()"
+        [disabled]="isScanning || showPinInput"
+        class="bg-white rounded-lg shadow-sm border-2 border-gray-200 p-6 hover:border-blue-900 hover:bg-blue-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed w-full"
+      >
+        <div class="flex items-center">
+          <div class="w-16 h-16 bg-blue-900 rounded-full flex items-center justify-center mr-4">
+            <mat-icon class="text-white" style="width: 32px; height: 32px; font-size: 32px"
+              >credit_card</mat-icon
+            >
+          </div>
+          <div class="flex-1 text-left">
+            <h3 class="font-semibold text-gray-900 text-lg">
+              {{ 'prescription.importWithEGK' | transloco }}
+            </h3>
+            <p class="text-sm text-gray-600 mt-1">
+              {{ 'prescription.egkDescription' | transloco }}
+            </p>
+          </div>
+        </div>
+      </button>
+    </div>
+
+    <!-- NFC Scanning Modal -->
+    @if (isScanning) {
+      <div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-sm w-full p-6">
+          <div class="text-center">
+            <div
+              class="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4"
+            >
+              <mat-icon
+                class="text-blue-900 animate-pulse"
+                style="width: 48px; height: 48px; font-size: 48px"
+                >nfc</mat-icon
+              >
+            </div>
+            <h2 class="text-lg font-semibold text-gray-900 mb-2">
+              {{ 'prescription.scanningEGK' | transloco }}
+            </h2>
+            <p class="text-sm text-gray-600 mb-4">{{ 'prescription.holdEGK' | transloco }}</p>
+            <div class="spinner mx-auto mb-4"></div>
+            <button (click)="cancelNFCImport()" class="btn btn-secondary w-full">
+              {{ 'common.cancel' | transloco }}
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- PIN Input Modal -->
+    @if (showPinInput) {
+      <div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-sm w-full p-6">
+          <div class="text-center">
+            <div
+              class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4"
+            >
+              <mat-icon class="text-blue-900" style="width: 40px; height: 40px; font-size: 40px"
+                >pin</mat-icon
+              >
+            </div>
+            <h2 class="text-lg font-semibold text-gray-900 mb-2">
+              {{ 'prescription.enterPin' | transloco }}
+            </h2>
+            <p class="text-sm text-gray-600 mb-6">
+              {{ 'prescription.enterPinDescription' | transloco }}
+            </p>
+
+            <div class="mb-6">
+              <input
+                type="text"
+                [(ngModel)]="pinCode"
+                (input)="onPinInput($event)"
+                maxlength="6"
+                placeholder="••••••"
+                class="w-full text-center text-2xl tracking-widest font-mono p-3 border-2 rounded-lg"
+                [class.border-gray-300]="!pinError"
+                [class.border-red-500]="pinError"
+                [class.bg-red-50]="pinError"
+                autocomplete="off"
+                inputmode="numeric"
+                pattern="[0-9]*"
+              />
+              @if (pinError) {
+                <p class="text-red-500 text-sm mt-2">
+                  {{ 'prescription.pinError' | transloco }}
+                </p>
+              }
+            </div>
+
+            <div class="flex space-x-3">
+              <button
+                (click)="submitPin()"
+                [disabled]="pinCode.length !== 6"
+                class="btn btn-primary flex-1"
+                [class.opacity-50]="pinCode.length !== 6"
+              >
+                {{ 'common.confirm' | transloco }}
+              </button>
+              <button (click)="cancelNFCImport()" class="btn btn-secondary flex-1">
+                {{ 'common.cancel' | transloco }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Success Modal -->
+    @if (showSuccess) {
+      <div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-sm w-full p-6">
+          <div class="text-center">
+            <div
+              class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4"
+            >
+              <mat-icon class="text-green-600" style="width: 48px; height: 48px; font-size: 48px"
+                >check_circle</mat-icon
+              >
+            </div>
+            <h2 class="text-lg font-semibold text-gray-900 mb-2">
+              {{ 'prescription.importSuccess' | transloco }}
+            </h2>
+            <p class="text-sm text-gray-600 mb-4">
+              <span class="font-semibold">{{ importedCount }}</span>
+              {{
+                importedCount === 1
+                  ? ('prescription.prescriptionImported' | transloco)
+                  : ('prescription.prescriptionsImported' | transloco)
+              }}
+            </p>
+            <button (click)="viewPrescriptions()" class="btn btn-primary w-full">
+              {{ 'prescription.viewPrescriptions' | transloco }}
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Error Modal -->
+    @if (showError) {
+      <div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-sm w-full p-6">
+          <div class="text-center">
+            <div
+              class="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4"
+            >
+              <mat-icon class="text-red-600" style="width: 48px; height: 48px; font-size: 48px"
+                >error</mat-icon
+              >
+            </div>
+            <h2 class="text-lg font-semibold text-gray-900 mb-2">
+              {{ 'prescription.importError' | transloco }}
+            </h2>
+            <p class="text-sm text-gray-600 mb-4">{{ errorMessage }}</p>
+            <button (click)="closeError()" class="btn btn-primary w-full">
+              {{ 'common.ok' | transloco }}
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>

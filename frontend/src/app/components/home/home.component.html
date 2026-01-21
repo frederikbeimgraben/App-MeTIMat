@@ -1,0 +1,130 @@
+<div class="min-h-screen bg-gray-50">
+  <!-- Header -->
+  <header class="border-b-2 border-gray-200 header-blur absolute y-0">
+    <div class="background"></div>
+    <div class="background"></div>
+    <div class="background"></div>
+    <div class="max-w-md mx-auto px-4 py-4">
+      <h1 class="text-2xl font-bold text-gray-900">
+        <span class="text-blue-900">MeTI</span><span class="text-teal-500">Mat</span>
+      </h1>
+      <p class="text-sm text-gray-600">{{ 'app.subtitle' | transloco }}</p>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <div class="max-w-md mx-auto px-4 py-8 overflow-hidden">
+    <!-- Start New Order Flow -->
+    <div class="bg-white rounded-lg shadow-sm border-2 border-blue-900 mb-4">
+      <button
+        (click)="startNewOrder()"
+        class="w-full p-6 text-left flex items-center justify-between hover:bg-blue-50 transition-colors rounded-lg"
+      >
+        <div class="flex items-center">
+          <div class="w-12 h-12 bg-blue-900 rounded-full flex items-center justify-center mr-4">
+            <mat-icon class="text-white" style="width: 24px; height: 24px; font-size: 24px"
+              >add</mat-icon
+            >
+          </div>
+          <div>
+            <h3 class="font-semibold text-gray-900">{{ 'home.startFlow' | transloco }}</h3>
+            <p class="text-sm text-gray-600 mt-1">
+              {{ 'home.importPrescription' | transloco }} /
+              {{ 'home.searchMedication' | transloco }}
+            </p>
+          </div>
+        </div>
+        <mat-icon class="text-gray-400" style="width: 20px; height: 20px; font-size: 20px"
+          >chevron_right</mat-icon
+        >
+      </button>
+    </div>
+
+    <!-- Additional Quick Actions Grid -->
+    <div class="grid grid-cols-2 gap-4">
+      <!-- Start New Consultation -->
+      <button
+        (click)="startNewConsultation()"
+        class="bg-white rounded-lg shadow-sm border-2 border-gray-200 p-4 hover:border-blue-900 hover:bg-blue-50 transition-all"
+      >
+        <div class="flex flex-col items-center">
+          <mat-icon class="text-blue-900 mb-2" style="width: 32px; height: 32px; font-size: 32px"
+            >chat</mat-icon
+          >
+          <span class="text-sm font-medium text-gray-900">{{
+            'consultation.startNew' | transloco
+          }}</span>
+        </div>
+      </button>
+
+      <!-- Show Locations -->
+      <button
+        (click)="showMachineLocations()"
+        class="bg-white rounded-lg shadow-sm border-2 border-gray-200 p-4 hover:border-blue-900 hover:bg-blue-50 transition-all"
+      >
+        <div class="flex flex-col items-center">
+          <mat-icon class="text-blue-900 mb-2" style="width: 32px; height: 32px; font-size: 32px"
+            >location_on</mat-icon
+          >
+          <span class="text-sm font-medium text-gray-900">{{
+            'home.showLocations' | transloco
+          }}</span>
+        </div>
+      </button>
+
+      <!-- My Orders -->
+      <button
+        (click)="viewMyOrders()"
+        class="bg-white rounded-lg shadow-sm border-2 border-gray-200 p-4 hover:border-blue-900 hover:bg-blue-50 transition-all"
+      >
+        <div class="flex flex-col items-center">
+          <mat-icon class="text-blue-900 mb-2" style="width: 32px; height: 32px; font-size: 32px"
+            >assignment</mat-icon
+          >
+          <span class="text-sm font-medium text-gray-900">{{ 'order.myOrders' | transloco }}</span>
+        </div>
+      </button>
+
+      <!-- My Prescriptions -->
+      <button
+        (click)="viewMyPrescriptions()"
+        class="bg-white rounded-lg shadow-sm border-2 border-gray-200 p-4 hover:border-blue-900 hover:bg-blue-50 transition-all"
+      >
+        <div class="flex flex-col items-center">
+          <mat-icon class="text-blue-900 mb-2" style="width: 32px; height: 32px; font-size: 32px"
+            >description</mat-icon
+          >
+          <span class="text-sm font-medium text-gray-900">{{
+            'prescription.myPrescriptions' | transloco
+          }}</span>
+        </div>
+      </button>
+    </div>
+  </div>
+
+  <!-- Specialty Selection Modal -->
+  @if (showSpecialtySelection) {
+    <div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-lg shadow-xl max-w-sm w-full p-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">
+          {{ 'consultation.selectSpecialty' | transloco }}
+        </h2>
+
+        <div class="space-y-2 mb-4">
+          @for (specialty of specialties; track specialty) {
+            <button
+              (click)="selectSpecialty(specialty)"
+              class="w-full text-left p-3 hover:bg-blue-50 rounded-lg transition-colors border border-gray-200"
+            >
+              {{ specialty }}
+            </button>
+          }
+        </div>
+
+        <button (click)="showSpecialtySelection = false" class="btn btn-secondary w-full">
+          {{ 'common.cancel' | transloco }}
+        </button>
+      </div>
+    </div>
+  }
+</div>

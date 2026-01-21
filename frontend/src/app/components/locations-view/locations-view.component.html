@@ -1,0 +1,10 @@
+<div class="min-h-screen bg-gray-50">
+  <app-header-common titleKey="locations.title" title="Automatenstandorte"></app-header-common>
+
+  <div class="container mx-auto px-4">
+    <app-location-map
+      [mode]="'view'"
+      (machineSelected)="onMachineSelected($event)"
+    ></app-location-map>
+  </div>
+</div>

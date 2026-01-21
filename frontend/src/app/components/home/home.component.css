@@ -1,0 +1,74 @@
+/* Home component specific styles */
+.spinner {
+  @apply inline-block w-6 h-6 border-3 rounded-full;
+  border-color: var(--color-primary);
+  border-top-color: transparent;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Ensure proper spacing for mobile viewport */
+.min-h-screen {
+  min-height: calc(100vh - 64px); /* Account for bottom navigation */
+}
+
+/* Card hover effects */
+.hover\:shadow-md {
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+/* Button transitions */
+button {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Status badge animations */
+.rounded-full {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 360px) {
+  .text-2xl {
+    font-size: 1.25rem;
+  }
+
+  .text-lg {
+    font-size: 1rem;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .border-gray-200 {
+    border-color: var(--color-border);
+  }
+
+  .shadow-sm {
+    box-shadow: 0 0 0 2px var(--color-border);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
