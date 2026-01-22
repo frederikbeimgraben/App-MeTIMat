@@ -23,9 +23,8 @@ export class PaymentComponent implements OnInit {
   private vendingMachineService = inject(VendingMachineService);
 
   cart = this.cartService.cart$;
-  selectedMethod = signal<'creditCard' | 'cashOnPickup' | null>(null);
+  selectedMethod = signal<'creditCard' | 'healthInsurance' | null>(null);
   processing = signal(false);
-  isCashAllowed = signal(true);
 
   ngOnInit(): void {
     // Ensure a machine is selected, otherwise go back to location picker
@@ -35,22 +34,15 @@ export class PaymentComponent implements OnInit {
       return;
     }
 
-    if (machine.name?.toLowerCase().includes('automat')) {
-      this.isCashAllowed.set(false);
-    }
-
     // Set default payment method for free orders
     this.cart.pipe(take(1)).subscribe((cartData) => {
       if (cartData.totalAmount <= 0) {
-        this.selectedMethod.set('cashOnPickup');
+        this.selectedMethod.set('healthInsurance');
       }
     });
   }
 
-  selectMethod(method: 'creditCard' | 'cashOnPickup'): void {
-    if (method === 'cashOnPickup' && !this.isCashAllowed()) {
-      return;
-    }
+  selectMethod(method: 'creditCard' | 'healthInsurance'): void {
     this.selectedMethod.set(method);
   }
 

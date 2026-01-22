@@ -1,5 +1,5 @@
 <div class="h-full bg-gray-50 pb-24 overflow-y-auto">
-  <app-header-common [titleKey]="'order.confirmation'" [hasBackButton]="false"></app-header-common>
+  <app-header-common title="Bestellung erfolgreich" [hasBackButton]="false"></app-header-common>
 
   <div class="max-w-md mx-auto px-4 py-4">
     @if (loading()) {
@@ -18,9 +18,7 @@
             >check_circle</mat-icon
           >
         </div>
-        <h2 class="text-2xl font-bold text-gray-900 mb-2">
-          {{ 'success.orderCreated' | transloco }}
-        </h2>
+        <h2 class="text-2xl font-bold text-gray-900 mb-2">Bestellung erfolgreich</h2>
         <p class="text-gray-600">Bestellnummer: #{{ order()?.id }}</p>
       </div>
 

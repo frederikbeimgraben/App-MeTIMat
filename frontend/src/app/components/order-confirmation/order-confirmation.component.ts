@@ -55,8 +55,15 @@ export class OrderConfirmationComponent implements OnInit, OnDestroy {
             this.order.set(order);
             this.qrCodeData.set(order.access_token || order.id?.toString() || '');
 
-            // Stop polling if in final state
-            if (order.status === 'completed' || order.status === 'cancelled') {
+            // Live redirect if order is completed
+            if (order.status === 'completed') {
+              this.pollingSubscription?.unsubscribe();
+              this.viewOrderDetails();
+              return;
+            }
+
+            // Stop polling if cancelled
+            if (order.status === 'cancelled') {
               this.pollingSubscription?.unsubscribe();
             }
           }
