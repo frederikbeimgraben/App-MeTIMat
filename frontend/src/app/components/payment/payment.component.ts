@@ -25,24 +25,32 @@ export class PaymentComponent implements OnInit {
   cart = this.cartService.cart$;
   selectedMethod = signal<'creditCard' | 'cashOnPickup' | null>(null);
   processing = signal(false);
+  isCashAllowed = signal(true);
 
   ngOnInit(): void {
     // Ensure a machine is selected, otherwise go back to location picker
-    if (!this.vendingMachineService.getSelectedMachine()) {
+    const machine = this.vendingMachineService.getSelectedMachine();
+    if (!machine) {
       this.router.navigate(['/checkout/location']);
       return;
     }
 
-    // Skip payment if total is 0
+    if (machine.name?.toLowerCase().includes('automat')) {
+      this.isCashAllowed.set(false);
+    }
+
+    // Set default payment method for free orders
     this.cart.pipe(take(1)).subscribe((cartData) => {
       if (cartData.totalAmount <= 0) {
         this.selectedMethod.set('cashOnPickup');
-        this.processPayment();
       }
     });
   }
 
   selectMethod(method: 'creditCard' | 'cashOnPickup'): void {
+    if (method === 'cashOnPickup' && !this.isCashAllowed()) {
+      return;
+    }
     this.selectedMethod.set(method);
   }
 
@@ -55,12 +63,18 @@ export class PaymentComponent implements OnInit {
   }
 
   processPayment(): void {
-    if (!this.selectedMethod()) return;
+    if (!this.selectedMethod() || this.processing()) return;
 
     this.processing.set(true);
 
     // 1. Create the order
     this.cart.pipe(take(1)).subscribe((cartData) => {
+      // Prevent creating orders without items
+      if (!cartData.items || cartData.items.length === 0) {
+        this.processing.set(false);
+        return;
+      }
+
       const machine = this.vendingMachineService.getSelectedMachine();
       if (!machine || !machine.id) {
         this.processing.set(false);
@@ -75,7 +89,11 @@ export class PaymentComponent implements OnInit {
         price: this.cartService.getMedicationPrice(item.medication, !!item.prescription),
       }));
 
-      this.orderService.createOrder(items, machine.id).subscribe({
+      const prescriptionIds = cartData.items
+        .filter((item) => item.prescription && item.prescription.id)
+        .map((item) => item.prescription!.id);
+
+      this.orderService.createOrder(items, machine.id, prescriptionIds).subscribe({
         next: (order) => {
           // 2. Mock payment delay
           setTimeout(() => {

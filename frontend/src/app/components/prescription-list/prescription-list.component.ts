@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { TranslocoModule } from '@ngneat/transloco';
 import { MatIconModule } from '@angular/material/icon';
 import { PrescriptionService } from '../../services/prescription.service';
-import { MedicationService } from '../../services/medication.service';
+import { CartService } from '../../services/cart.service';
 import { Prescription } from '../../models/prescription.model';
 import { HeaderCommonComponent } from '../shared/header-common.component';
 
@@ -23,7 +23,7 @@ export class PrescriptionListComponent implements OnInit {
   constructor(
     private router: Router,
     private prescriptionService: PrescriptionService,
-    private medicationService: MedicationService,
+    private cartService: CartService,
     private location: Location,
   ) {}
 
@@ -81,7 +81,7 @@ export class PrescriptionListComponent implements OnInit {
         is_active: true,
       } as any;
 
-      this.medicationService.addToCart(medication, 1, prescription.id);
+      this.cartService.addToCart(medication, 1, prescription);
       this.router.navigate(['/cart']);
     }
   }

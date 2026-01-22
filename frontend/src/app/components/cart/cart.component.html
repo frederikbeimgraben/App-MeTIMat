@@ -56,24 +56,20 @@
                   </div>
 
                   <!-- Product Details -->
-                  <div class="flex-grow">
-                    <h4 class="font-semibold text-gray-800">
+                  <div class="flex-grow min-w-0">
+                    <h4 class="font-semibold text-gray-800 text-sm sm:text-base line-clamp-2">
                       {{ getMedicationName(item) }}
                     </h4>
-                    <p class="text-sm text-gray-600">Manufacturer: {{ getManufacturer(item) }}</p>
-                    <p class="text-sm text-gray-500">{{ getDosageInfo(item) }}</p>
+                    <p class="text-xs sm:text-sm text-gray-600">
+                      Manufacturer: {{ getManufacturer(item) }}
+                    </p>
+                    <p class="text-xs sm:text-sm text-gray-500">{{ getDosageInfo(item) }}</p>
 
                     <!-- Price and Stock -->
-                    <div class="flex items-center gap-4 mt-2">
-                      <span class="font-semibold text-lg">{{
+                    <div class="flex items-center gap-4 mt-1 sm:mt-2">
+                      <span class="font-semibold text-base sm:text-lg">{{
                         formatPrice(calculateSubtotal([item]) / item.quantity)
                       }}</span>
-                      <span class="text-sm text-yellow-600 flex items-center gap-1">
-                        <mat-icon style="font-size: 16px; width: 16px; height: 16px"
-                          >warning</mat-icon
-                        >
-                        {{ 'medication.availabilityNotFHIR' | transloco }}
-                      </span>
                     </div>
 
                     <!-- Prescription Badge -->
@@ -99,9 +95,11 @@
                   </div>
 
                   <!-- Quantity Controls and Remove -->
-                  <div class="flex flex-col items-end justify-between">
+                  <div class="flex flex-col items-end justify-between flex-shrink-0 ml-2">
                     <!-- Quantity Controls -->
-                    <div class="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+                    <div
+                      class="flex items-center gap-1 bg-gray-100 rounded-lg p-1 quantity-controls"
+                    >
                       <button
                         (click)="decreaseQuantity(item)"
                         class="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-200 rounded transition-colors"

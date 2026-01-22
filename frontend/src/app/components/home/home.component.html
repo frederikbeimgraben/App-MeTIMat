@@ -1,4 +1,4 @@
-<div class="h-screen bg-gray-50 flex flex-col overflow-hidden">
+<div class="h-full bg-gray-50 flex flex-col overflow-hidden">
   <!-- Header -->
   <header
     class="border-b-2 border-gray-200 header-blur absolute top-0 left-0 right-0 z-20 bg-white"
@@ -6,7 +6,7 @@
     <div class="background"></div>
     <div class="background"></div>
     <div class="background"></div>
-    <div class="max-w-md mx-auto px-4 py-4 flex justify-between items-center">
+    <div class="max-w-md mx-auto px-4 py-3 flex justify-between items-center">
       <div>
         <h1 class="text-2xl font-bold text-gray-900">
           <span class="text-blue-900">MeTI</span><span class="text-teal-500">Mat</span>
@@ -37,9 +37,9 @@
   </header>
 
   <!-- Main Content Wrapper -->
-  <div class="flex-1 flex flex-col pt-20 max-w-md mx-auto w-full h-full">
+  <div class="pt-14 max-w-md mx-auto w-full">
     <!-- Fixed Actions Area -->
-    <div class="px-4 py-4 flex-shrink-0 space-y-4">
+    <div class="px-4 pt-2 pb-4 space-y-4">
       <!-- Start New Order Flow -->
       <div class="bg-white rounded-lg shadow-sm border-2 border-blue-900">
         <button
@@ -112,13 +112,10 @@
         </button>
       </div>
     </div>
-  </div>
 
-  <!-- Active Orders Section (Scrollable) -->
-  <div class="flex-1 overflow-y-auto px-4 pb-20">
     @if (activeOrders.length > 0) {
-      <div class="mt-2">
-        <div class="flex justify-between items-center mb-4">
+      <div class="px-4 mb-2">
+        <div class="flex justify-between items-center">
           <h2 class="text-lg font-bold text-gray-900">{{ 'home.activeOrders' | transloco }}</h2>
           <button
             (click)="viewAllOrders()"
@@ -127,6 +124,14 @@
             View All
           </button>
         </div>
+      </div>
+    }
+  </div>
+
+  <!-- Active Orders Section (Scrollable) -->
+  <div class="flex-1 overflow-y-auto px-4 pb-20 max-w-md mx-auto w-full">
+    @if (activeOrders.length > 0) {
+      <div class="mt-1">
         <div class="space-y-3">
           @for (order of activeOrders; track order.id) {
             <div
@@ -135,9 +140,18 @@
             >
               <div class="flex justify-between items-start">
                 <div>
-                  <div class="font-semibold text-gray-900">{{ order.id }}</div>
-                  <div class="text-xs text-gray-500 mt-1">
-                    {{ order.authoredOn || order.created_at | date: 'short' }}
+                  <div class="font-semibold text-gray-900">Bestellung #{{ order.id }}</div>
+                  <div class="text-[10px] text-gray-400 mt-0.5 flex items-center">
+                    <mat-icon
+                      style="width: 12px; height: 12px; font-size: 12px; line-height: 12px"
+                      class="mr-0.5 mt-[-0.5em]"
+                      >place</mat-icon
+                    >
+                    <span>{{
+                      order.location?.name ||
+                        order.locationReference?.[0]?.display ||
+                        ('cart.pickupLocation' | transloco)
+                    }}</span>
                   </div>
                 </div>
                 <span

@@ -1,18 +1,22 @@
-<div class="min-h-screen bg-gray-50">
+<div class="h-full bg-gray-50 pb-24 overflow-y-auto">
   <app-header-common titleKey="order.title"></app-header-common>
 
   <!-- Content -->
   @if (order) {
-    <div class="max-w-md mx-auto px-4 py-4">
+    <div class="max-w-md mx-auto px-4 py-2">
       <!-- Order Status Card -->
       <div class="bg-white rounded-lg shadow-sm border-2 border-gray-200 p-4 mb-4">
         <div class="flex justify-between items-start mb-4">
           <div>
             <p class="text-lg font-bold text-gray-900">
-              {{ order.identifier?.[0]?.value || order.id }}
+              {{
+                order.identifier?.[0]?.value
+                  ? order.identifier?.[0]?.value
+                  : 'Bestellung #' + order.id
+              }}
             </p>
             <p class="text-sm text-gray-600 mt-1">
-              {{ order.authoredOn || 'N/A' | date: 'medium' }}
+              {{ order.authoredOn || order.created_at | date: 'medium' }}
             </p>
           </div>
           <span
@@ -43,23 +47,40 @@
         <h2 class="text-lg font-semibold text-gray-900 mb-3">{{ 'order.items' | transloco }}</h2>
 
         <div class="space-y-3">
-          <div class="border-b border-gray-100 pb-3 last:border-0">
-            <div class="flex justify-between items-start">
-              <div class="flex-1">
-                <p class="font-medium text-gray-900">{{ 'order.itemsNotAvailable' | transloco }}</p>
-                <p class="text-sm text-gray-600">
-                  {{ 'order.itemsDetailsRequireFHIRMapping' | transloco }}
-                </p>
+          @if (order.prescriptions && order.prescriptions.length > 0) {
+            @for (item of order.prescriptions; track item.id) {
+              <div class="border-b border-gray-100 pb-3 last:border-0 last:pb-0">
+                <div class="flex justify-between items-start">
+                  <div class="flex-1">
+                    <p class="font-medium text-gray-900">
+                      {{ item.medication_name || 'Unbekanntes Medikament' }}
+                    </p>
+                    <p class="text-sm text-gray-600">PZN: {{ item.pzn || 'N/A' }}</p>
+                  </div>
+                </div>
               </div>
-              <p class="font-semibold text-gray-900">€N/A</p>
+            }
+          } @else {
+            <div class="border-b border-gray-100 pb-3 last:border-0">
+              <div class="flex justify-between items-start">
+                <div class="flex-1">
+                  <p class="font-medium text-gray-900">
+                    {{ 'order.itemsNotAvailable' | transloco }}
+                  </p>
+                  <p class="text-sm text-gray-600">
+                    {{ 'order.itemsDetailsRequireFHIRMapping' | transloco }}
+                  </p>
+                </div>
+                <p class="font-semibold text-gray-900">N/A</p>
+              </div>
             </div>
-          </div>
+          }
         </div>
 
         <div class="border-t border-gray-200 mt-4 pt-4">
           <div class="flex justify-between items-center">
             <p class="text-lg font-semibold text-gray-900">{{ 'order.total' | transloco }}</p>
-            <p class="text-xl font-bold text-gray-900">€N/A</p>
+            <p class="text-xl font-bold text-gray-900">{{ orderTotal }}</p>
           </div>
         </div>
       </div>
@@ -73,24 +94,21 @@
         <div class="space-y-2">
           <!-- Assuming locationReference is available and has display -->
           <p class="font-medium text-gray-900">
-            {{ order.locationReference?.[0]?.display || 'N/A' }}
-          </p>
-          <p class="text-sm text-gray-600">
-            <!-- Address details require fetching the linked Location resource. Placeholder for now. -->
-            {{ 'location.addressDetailsRequireFHIRMapping' | transloco }}
-          </p>
-          <p class="text-sm text-gray-600">
-            <span class="font-medium">{{ 'location.phone' | transloco }}:</span>
-            {{ 'N/A' }}
-          </p>
-          <p class="text-sm text-gray-600">
-            <span class="font-medium">{{ 'location.openingHours' | transloco }}:</span>
-            {{ 'N/A' }}
+            <mat-icon
+              class="align-bottom text-gray-400 mr-1"
+              style="font-size: 20px; width: 20px; height: 20px"
+              >place</mat-icon
+            >
+            {{
+              order.location?.name ||
+                order.locationReference?.[0]?.display ||
+                ('cart.pickupLocation' | transloco)
+            }}
           </p>
         </div>
 
         <!-- Map Button -->
-        <button class="btn btn-secondary w-full mt-4">
+        <button routerLink="/map" class="btn btn-secondary w-full mt-4">
           <mat-icon
             class="mr-2 inline align-middle"
             style="width: 20px; height: 20px; font-size: 20px"

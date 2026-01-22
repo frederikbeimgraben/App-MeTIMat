@@ -35,7 +35,7 @@ def init_db() -> None:
         else:
             # Force reset password to ensure hashing compatibility after dependency fix
             logger.info("Resetting admin password to ensure valid hash")
-            user.hashed_password = get_password_hash("admin123")
+            user.hashed_password = get_password_hash(settings.ADMIN_PASS)
             db.add(user)
 
         # Ensure we have some master data

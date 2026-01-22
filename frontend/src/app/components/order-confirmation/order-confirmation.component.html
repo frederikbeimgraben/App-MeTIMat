@@ -1,6 +1,86 @@
-<div class="min-h-screen bg-gray-50">
-  <app-header-common titleKey="order.confirmation"></app-header-common>
-  <div class="max-w-md mx-auto px-4 py-6">
-    <p class="text-gray-600">Order confirmation view</p>
+<div class="h-full bg-gray-50 pb-24 overflow-y-auto">
+  <app-header-common [titleKey]="'order.confirmation'" [hasBackButton]="false"></app-header-common>
+
+  <div class="max-w-md mx-auto px-4 py-4">
+    @if (loading()) {
+      <div class="flex justify-center items-center py-12">
+        <div
+          class="spinner border-4 border-gray-200 border-t-blue-900 rounded-full h-8 w-8 animate-spin"
+        ></div>
+      </div>
+    } @else if (order()) {
+      <!-- Success Message -->
+      <div class="text-center mb-8">
+        <div
+          class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4"
+        >
+          <mat-icon class="text-green-600" style="font-size: 48px; width: 48px; height: 48px"
+            >check_circle</mat-icon
+          >
+        </div>
+        <h2 class="text-2xl font-bold text-gray-900 mb-2">
+          {{ 'success.orderCreated' | transloco }}
+        </h2>
+        <p class="text-gray-600">Bestellnummer: #{{ order()?.id }}</p>
+      </div>
+
+      <!-- QR Code Card -->
+      <div class="bg-white rounded-xl shadow-sm border p-6 text-center mb-6">
+        <h3 class="text-lg font-bold text-blue-900 mb-2">{{ 'qrcode.title' | transloco }}</h3>
+        <p class="text-sm text-gray-600 mb-6">{{ 'qrcode.instructions' | transloco }}</p>
+
+        <div class="bg-white p-2 inline-block rounded-lg">
+          <qrcode [qrdata]="qrCodeData" [width]="200" [errorCorrectionLevel]="'M'"> </qrcode>
+        </div>
+
+        <p class="text-xs text-gray-400 mt-4">
+          Token: {{ order()?.access_token?.substring(0, 8) }}...
+        </p>
+      </div>
+
+      <!-- Pickup Info -->
+      <div class="bg-blue-50 rounded-xl p-4 mb-8 flex items-start">
+        <mat-icon class="text-blue-900 mr-3 mt-1">store</mat-icon>
+        <div>
+          <h4 class="font-semibold text-blue-900 mb-1">
+            {{ 'order.pickupLocation' | transloco }}
+          </h4>
+          <p class="text-sm text-blue-800">
+            {{
+              order()?.location?.name ||
+                order()?.location?.address ||
+                order()?.locationReference?.[0]?.display ||
+                ('cart.pickupLocation' | transloco)
+            }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="space-y-3">
+        <button
+          (click)="viewOrderDetails()"
+          class="w-full py-3 bg-blue-900 text-white rounded-xl font-bold hover:bg-blue-800 transition-colors"
+        >
+          {{ 'order.viewDetails' | transloco }}
+        </button>
+
+        <button
+          (click)="goHome()"
+          class="w-full py-3 border-2 border-gray-200 text-gray-700 rounded-xl font-bold hover:bg-gray-50 transition-colors"
+        >
+          {{ 'navigation.home' | transloco }}
+        </button>
+      </div>
+    } @else {
+      <!-- Error State -->
+      <div class="text-center py-12">
+        <mat-icon class="text-red-400 text-6xl mb-4">error_outline</mat-icon>
+        <h2 class="text-xl font-bold text-gray-900 mb-2">{{ 'errors.generic' | transloco }}</h2>
+        <button (click)="goHome()" class="btn btn-primary mt-4">
+          {{ 'navigation.home' | transloco }}
+        </button>
+      </div>
+    }
   </div>
 </div>

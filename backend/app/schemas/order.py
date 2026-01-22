@@ -3,6 +3,7 @@ from typing import List, Optional
 
 from pydantic import BaseModel
 
+from .location import Location
 from .prescription import Prescription
 
 
@@ -11,7 +12,8 @@ class OrderBase(BaseModel):
 
 
 class OrderCreate(OrderBase):
-    pass
+    location_id: Optional[int] = None
+    prescription_ids: Optional[List[int]] = None
 
 
 class OrderUpdate(OrderBase):
@@ -21,6 +23,7 @@ class OrderUpdate(OrderBase):
 class OrderInDBBase(OrderBase):
     id: int
     user_id: int
+    location_id: Optional[int] = None
     access_token: Optional[str] = None
     created_at: datetime
     updated_at: datetime
@@ -31,3 +34,14 @@ class OrderInDBBase(OrderBase):
 
 class Order(OrderInDBBase):
     prescriptions: List[Prescription] = []
+    location: Optional[Location] = None
+
+
+class QRScanRequest(BaseModel):
+    qr_data: str
+
+
+class QRValidationResponse(BaseModel):
+    valid: bool
+    order: Optional[Order] = None
+    message: str

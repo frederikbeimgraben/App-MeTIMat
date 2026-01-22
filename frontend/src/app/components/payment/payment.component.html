@@ -40,21 +40,23 @@
       </button>
 
       <!-- Cash on Pickup -->
-      <button
-        (click)="selectMethod('cashOnPickup')"
-        class="w-full flex items-center p-4 bg-white border-2 rounded-xl transition-all"
-        [class.border-blue-900]="selectedMethod() === 'cashOnPickup'"
-        [class.bg-blue-50]="selectedMethod() === 'cashOnPickup'"
-        [class.border-transparent]="selectedMethod() !== 'cashOnPickup'"
-      >
-        <div class="p-2 rounded-lg bg-gray-100 text-gray-900 mr-4">
-          <mat-icon>payments</mat-icon>
-        </div>
-        <span class="font-semibold">{{ 'payment.cashOnPickup' | transloco }}</span>
-        @if (selectedMethod() === 'cashOnPickup') {
-          <mat-icon class="ml-auto text-blue-900">check_circle</mat-icon>
-        }
-      </button>
+      @if (isCashAllowed()) {
+        <button
+          (click)="selectMethod('cashOnPickup')"
+          class="w-full flex items-center p-4 bg-white border-2 rounded-xl transition-all"
+          [class.border-blue-900]="selectedMethod() === 'cashOnPickup'"
+          [class.bg-blue-50]="selectedMethod() === 'cashOnPickup'"
+          [class.border-transparent]="selectedMethod() !== 'cashOnPickup'"
+        >
+          <div class="p-2 rounded-lg bg-gray-100 text-gray-900 mr-4">
+            <mat-icon>payments</mat-icon>
+          </div>
+          <span class="font-semibold">{{ 'payment.cashOnPickup' | transloco }}</span>
+          @if (selectedMethod() === 'cashOnPickup') {
+            <mat-icon class="ml-auto text-blue-900">check_circle</mat-icon>
+          }
+        </button>
+      }
     </div>
 
     <!-- Process Button -->

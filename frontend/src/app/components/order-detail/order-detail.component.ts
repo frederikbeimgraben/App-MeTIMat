@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslocoModule } from '@ngneat/transloco';
 import { MatIconModule } from '@angular/material/icon';
 import { OrderService } from '../../services/order.service';
@@ -11,13 +11,27 @@ import { QRCodeComponent } from 'angularx-qrcode';
 @Component({
   selector: 'app-order-detail',
   standalone: true,
-  imports: [CommonModule, TranslocoModule, MatIconModule, HeaderCommonComponent, QRCodeComponent],
+  imports: [
+    CommonModule,
+    TranslocoModule,
+    MatIconModule,
+    HeaderCommonComponent,
+    QRCodeComponent,
+    RouterLink,
+  ],
   templateUrl: './order-detail.component.html',
   styleUrls: ['./order-detail.component.css'],
 })
 export class OrderDetailComponent implements OnInit {
   order: Order | undefined = undefined;
   loading = true;
+
+  get orderTotal(): string {
+    if (!this.order?.prescriptions) return '0.00 €';
+    // Mock price calculation: 5€ per item as a placeholder
+    const total = this.order.prescriptions.length * 5;
+    return `${total.toFixed(2)} €`;
+  }
 
   constructor(
     private route: ActivatedRoute,

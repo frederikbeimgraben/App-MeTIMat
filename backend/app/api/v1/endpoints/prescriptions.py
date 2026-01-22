@@ -11,6 +11,7 @@ from app.services.fhir_service import fhir_service
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 router = APIRouter()
@@ -32,8 +33,13 @@ def read_prescriptions(
     """
     prescriptions = (
         db.query(PrescriptionModel)
-        .join(OrderModel)
-        .filter(OrderModel.user_id == current_user.id)
+        .outerjoin(OrderModel)
+        .filter(
+            or_(
+                OrderModel.user_id == current_user.id,
+                PrescriptionModel.user_id == current_user.id,
+            )
+        )
         .offset(skip)
         .limit(limit)
         .all()
@@ -58,25 +64,14 @@ def import_egk_prescriptions(
             detail="Mock prescription creation is disabled.",
         )
 
-    # 1. Create a dummy order for these imported prescriptions
-    import secrets
-
-    new_order = OrderModel(
-        user_id=current_user.id,
-        status="pending",
-        access_token=secrets.token_urlsafe(32),
-    )
-    db.add(new_order)
-    db.flush()  # Get the ID
-
-    # 2. Generate mock FHIR data
+    # 1. Generate mock FHIR data
     bundle = fhir_service.create_mock_prescription(
         patient_name=current_user.full_name or "Max Mustermann"
     )
 
     imported_prescriptions = []
 
-    # 3. Process bundle and save to DB
+    # 2. Process bundle and save to DB
     for entry in bundle.get("entry", []):
         resource = entry.get("resource", {})
         if resource.get("resourceType") == "MedicationRequest":
@@ -97,7 +92,8 @@ def import_egk_prescriptions(
             )
 
             db_prescription = PrescriptionModel(
-                order_id=new_order.id,
+                user_id=current_user.id,
+                order_id=None,
                 medication_id=medication.id if medication else None,
                 medication_name=med_name,
                 pzn=pzn,
@@ -130,17 +126,6 @@ def import_scanned_prescription(
             detail="Mock prescription creation is disabled.",
         )
 
-    # Create a dummy order
-    import secrets
-
-    new_order = OrderModel(
-        user_id=current_user.id,
-        status="pending",
-        access_token=secrets.token_urlsafe(32),
-    )
-    db.add(new_order)
-    db.flush()
-
     # Generate mock FHIR
     bundle = fhir_service.create_mock_prescription(
         patient_name=current_user.full_name or "Max Mustermann"
@@ -164,7 +149,8 @@ def import_scanned_prescription(
     )
 
     db_prescription = PrescriptionModel(
-        order_id=new_order.id,
+        user_id=current_user.id,
+        order_id=None,
         medication_id=medication.id if medication else None,
         medication_name=settings.MOCK_PRESCRIPTION_NAME,
         pzn=settings.MOCK_PRESCRIPTION_PZN,

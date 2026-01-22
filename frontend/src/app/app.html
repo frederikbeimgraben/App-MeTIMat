@@ -1,7 +1,7 @@
 <div class="min-h-screen bg-white flex flex-col">
   <!-- Main content area -->
   <main
-    class="flex-1 absolute top-0 left-0 right-0"
+    class="flex-1 absolute top-0 left-0 right-0 overflow-y-auto"
     [class.bottom-16]="authService.isAuthenticated() && !currentRoute.startsWith('admin')"
   >
     <router-outlet></router-outlet>

@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-gray-50">
+<div class="h-full bg-gray-50 pb-32">
   <!-- Header -->
   <app-header-common titleKey="navigation.orders" [hasBackButton]="false"></app-header-common>
 
@@ -19,11 +19,14 @@
               <div class="flex justify-between items-start mb-3">
                 <div>
                   <p class="font-semibold text-gray-900">
-                    {{ order.identifier?.[0]?.value || order.id }}
+                    {{
+                      order.identifier?.[0]?.value
+                        ? order.identifier?.[0]?.value
+                        : 'Bestellung #' + order.id
+                    }}
                   </p>
-                  <!-- Use identifier or id -->
                   <p class="text-sm text-gray-600">
-                    {{ order.authoredOn || 'N/A' | date: 'short' }}
+                    {{ order.authoredOn || order.created_at | date: 'medium' }}
                   </p>
                 </div>
                 <span
@@ -37,13 +40,20 @@
 
               <div class="border-t pt-3">
                 <p class="text-sm text-gray-600 mb-1">
-                  {{ order.locationReference?.[0]?.display || 'Pickup Location N/A' }}
+                  <mat-icon
+                    class="align-bottom text-gray-400 mr-1"
+                    style="font-size: 16px; width: 16px; height: 16px"
+                    >place</mat-icon
+                  >
+                  {{
+                    order.location?.name ||
+                      order.locationReference?.[0]?.display ||
+                      ('cart.pickupLocation' | transloco)
+                  }}
                 </p>
-                <p class="text-sm text-gray-500">{{ 'order.items' | transloco }}: N/A</p>
               </div>
 
-              <div class="mt-3 flex justify-between items-center">
-                <p class="text-lg font-bold text-gray-900">€N/A</p>
+              <div class="mt-3 flex justify-end items-center">
                 @if (order.status === 'available for pickup' || $any(order.status) === 'active') {
                   <button
                     (click)="viewOrder(order.id)"
@@ -74,15 +84,16 @@
               <div class="flex justify-between items-start">
                 <div>
                   <p class="font-medium text-gray-900">
-                    {{ order.identifier?.[0]?.value || order.id }}
+                    {{
+                      order.identifier?.[0]?.value
+                        ? order.identifier?.[0]?.value
+                        : 'Bestellung #' + order.id
+                    }}
                   </p>
-                  <!-- Use identifier or id -->
                   <p class="text-sm text-gray-500">
-                    {{ order.authoredOn || 'N/A' | date: 'short' }}
+                    {{ order.authoredOn || order.created_at | date: 'medium' }}
                   </p>
-                  <p class="text-sm text-gray-600 mt-1">{{ 'order.items' | transloco }}: N/A</p>
                 </div>
-                <p class="text-lg font-semibold text-gray-700">€N/A</p>
               </div>
             </div>
           }

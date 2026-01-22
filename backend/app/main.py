@@ -8,6 +8,36 @@ from fastapi.middleware.cors import CORSMiddleware
 # Create tables (In a production environment, use Alembic migrations)
 Base.metadata.create_all(bind=engine)
 
+# Manual migration for location_id if missing
+import logging
+
+from sqlalchemy import text
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+with engine.connect() as conn:
+    # Log current columns for debugging
+    columns = conn.execute(
+        text(
+            "SELECT column_name FROM information_schema.columns WHERE table_name='orders'"
+        )
+    ).fetchall()
+    logger.info(f"Current columns in 'orders' table: {[c[0] for c in columns]}")
+
+    res = conn.execute(
+        text(
+            "SELECT column_name FROM information_schema.columns WHERE table_name='orders' AND column_name='location_id'"
+        )
+    ).fetchone()
+    if not res:
+        conn.execute(
+            text(
+                "ALTER TABLE orders ADD COLUMN location_id INTEGER REFERENCES locations(id)"
+            )
+        )
+        conn.commit()
+
 app = FastAPI(
     title=settings.PROJECT_NAME,
     openapi_url=f"{settings.API_V1_STR}/openapi.json",

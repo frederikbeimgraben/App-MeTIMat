@@ -242,7 +242,7 @@ interface Order {
                         class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full max-w-[150px] p-2"
                       >
                         <option value="pending">Pending</option>
-                        <option value="active">Active</option>
+                        <option value="available for pickup">Available for Pickup</option>
                         <option value="completed">Completed</option>
                         <option value="cancelled">Cancelled</option>
                       </select>

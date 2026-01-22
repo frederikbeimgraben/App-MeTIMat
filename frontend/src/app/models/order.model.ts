@@ -14,6 +14,9 @@ export interface Order {
   access_token?: string;
   created_at: string;
   updated_at?: string;
+  prescriptions?: any[];
+  location_id?: number;
+  location?: any;
 
   // Compatibility fields for the UI/FHIR transition
   authoredOn?: string;

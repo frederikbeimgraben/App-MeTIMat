@@ -77,9 +77,15 @@ export class OrderService {
    * Creates a new order.
    * Sends a FHIR ServiceRequest to the backend.
    */
-  createOrder(items: OrderItem[], pickupLocationId: string): Observable<Order> {
+  createOrder(
+    items: OrderItem[],
+    pickupLocationId: string,
+    prescriptionIds?: number[],
+  ): Observable<Order> {
     const orderPayload = {
       status: 'pending',
+      location_id: parseInt(pickupLocationId),
+      prescription_ids: prescriptionIds,
       // In a real app, we would send items and pickupLocationId to the backend
     };
 

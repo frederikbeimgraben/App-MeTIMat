@@ -10,6 +10,7 @@ class Order(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"))
+    location_id = Column(Integer, ForeignKey("locations.id"), nullable=True)
     status = Column(String, default="pending", index=True)
 
     # Token used in the QR code to identify/validate the order
@@ -19,4 +20,5 @@ class Order(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     user = relationship("User")
+    location = relationship("Location")
     prescriptions = relationship("Prescription", back_populates="order")

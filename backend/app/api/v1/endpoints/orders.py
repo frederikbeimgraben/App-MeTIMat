@@ -1,11 +1,21 @@
+import logging
 from typing import Any, List, Optional
 
 from app.api import deps
+
+logger = logging.getLogger(__name__)
+from app.core.config import settings
 from app.models.order import Order as OrderModel
 from app.models.user import User as UserModel
-from app.schemas.order import Order, OrderCreate, OrderUpdate
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from app.schemas.order import (
+    Order,
+    OrderCreate,
+    OrderUpdate,
+    QRScanRequest,
+    QRValidationResponse,
+)
+from fastapi import APIRouter, Depends, Header, HTTPException, status
+from sqlalchemy.orm import Session, joinedload
 
 router = APIRouter()
 
@@ -24,7 +34,14 @@ def read_orders(
     if not current_user.is_superuser:
         query = query.filter(OrderModel.user_id == current_user.id)
 
-    orders = query.offset(skip).limit(limit).all()
+    orders = (
+        query.options(
+            joinedload(OrderModel.location), joinedload(OrderModel.prescriptions)
+        )
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
     return orders
 
 
@@ -40,34 +57,82 @@ def create_order(
     """
     import secrets
 
+    logger.info(
+        f"Creating new order for user {current_user.id} at location {order_in.location_id}"
+    )
+
     db_obj = OrderModel(
         user_id=current_user.id,
+        location_id=order_in.location_id,
         status=order_in.status,
         access_token=secrets.token_urlsafe(32),
     )
     db.add(db_obj)
+    db.flush()
+
+    if order_in.prescription_ids:
+        from app.models.prescription import Prescription as PrescriptionModel
+
+        prescriptions = (
+            db.query(PrescriptionModel)
+            .filter(PrescriptionModel.id.in_(order_in.prescription_ids))
+            .all()
+        )
+        for p in prescriptions:
+            # Link to the new confirmed order
+            p.order_id = db_obj.id
+
+            # Update FHIR status to completed to invalidate for future use
+            if p.fhir_data:
+                updated_data = dict(p.fhir_data)
+                updated_data["status"] = "completed"
+                p.fhir_data = updated_data
+
     db.commit()
     db.refresh(db_obj)
+
+    # Ensure location and prescriptions are loaded for the response model
+    db_obj = (
+        db.query(OrderModel)
+        .options(joinedload(OrderModel.location), joinedload(OrderModel.prescriptions))
+        .filter(OrderModel.id == db_obj.id)
+        .first()
+    )
+
+    logger.info(
+        f"Order {db_obj.id} created successfully with access token {db_obj.access_token[:8]}..."
+    )
     return db_obj
 
 
-@router.get("/validate-qr/{token}", response_model=Order)
+@router.post("/validate-qr", response_model=QRValidationResponse)
 def validate_qr_order(
     *,
     db: Session = Depends(deps.get_db),
-    token: str,
+    request: QRScanRequest,
+    x_machine_token: Optional[str] = Header(None, alias="X-Machine-Token"),
 ) -> Any:
     """
     Validates an order via its QR access token and returns order info.
-    This endpoint is typically used by the station/hardware to verify an order.
+    This endpoint is used by the station/hardware to verify an order.
     """
-    order = db.query(OrderModel).filter(OrderModel.access_token == token).first()
+    if x_machine_token != settings.MACHINE_ACCESS_TOKEN:
+        return QRValidationResponse(valid=False, message="Machine authorization failed")
+
+    order = (
+        db.query(OrderModel)
+        .options(joinedload(OrderModel.location), joinedload(OrderModel.prescriptions))
+        .filter(OrderModel.access_token == request.qr_data)
+        .first()
+    )
     if not order:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Order not found or invalid token",
+        return QRValidationResponse(
+            valid=False, message="Order not found or invalid token"
         )
-    return order
+
+    return QRValidationResponse(
+        valid=True, order=order, message="QR-Code erfolgreich validiert"
+    )
 
 
 @router.get("/{order_id}", response_model=Order)
@@ -79,7 +144,12 @@ def read_order_by_id(
     """
     Get a specific order by ID.
     """
-    order = db.query(OrderModel).filter(OrderModel.id == order_id).first()
+    order = (
+        db.query(OrderModel)
+        .options(joinedload(OrderModel.location), joinedload(OrderModel.prescriptions))
+        .filter(OrderModel.id == order_id)
+        .first()
+    )
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     if order.user_id != current_user.id and not current_user.is_superuser:
@@ -99,7 +169,12 @@ def update_order(
     """
     Update an existing order.
     """
-    order = db.query(OrderModel).filter(OrderModel.id == order_id).first()
+    order = (
+        db.query(OrderModel)
+        .options(joinedload(OrderModel.location), joinedload(OrderModel.prescriptions))
+        .filter(OrderModel.id == order_id)
+        .first()
+    )
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     if order.user_id != current_user.id and not current_user.is_superuser:
