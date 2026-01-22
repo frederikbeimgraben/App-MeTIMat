@@ -38,13 +38,6 @@ export const routes: Routes = [
               ),
           },
           {
-            path: 'list',
-            loadComponent: () =>
-              import('./components/prescription-list/prescription-list.component').then(
-                (m) => m.PrescriptionListComponent,
-              ),
-          },
-          {
             path: 'scan',
             loadComponent: () =>
               import('./components/nfc-scanner/nfc-scanner.component').then(
@@ -52,13 +45,6 @@ export const routes: Routes = [
               ),
           },
         ],
-      },
-      {
-        path: 'prescriptions',
-        loadComponent: () =>
-          import('./components/prescription-list/prescription-list.component').then(
-            (m) => m.PrescriptionListComponent,
-          ),
       },
       {
         path: 'medication',
