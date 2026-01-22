@@ -3,8 +3,6 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { TranslocoModule } from '@ngneat/transloco';
 import { MatIconModule } from '@angular/material/icon';
-import { MedicationService } from '../../services/medication.service';
-import { PrescriptionService } from '../../services/prescription.service';
 import { OrderService } from '../../services/order.service';
 import { Order } from '../../models/order.model';
 import { AuthService } from '../../services/auth.service';
@@ -22,8 +20,6 @@ export class HomeComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private medicationService: MedicationService,
-    private prescriptionService: PrescriptionService,
     private orderService: OrderService,
     public authService: AuthService,
   ) {}
@@ -72,10 +68,6 @@ export class HomeComponent implements OnInit {
 
   viewMyOrders(): void {
     this.router.navigate(['/orders']);
-  }
-
-  viewMyPrescriptions(): void {
-    this.router.navigate(['/prescriptions']);
   }
 
   viewOrder(orderId: string | number | undefined): void {

@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { interval, Subscription } from 'rxjs';
+import { switchMap, startWith } from 'rxjs/operators';
 import { TranslocoModule } from '@ngneat/transloco';
 import { MatIconModule } from '@angular/material/icon';
 import { OrderService } from '../../services/order.service';
@@ -22,9 +24,10 @@ import { QRCodeComponent } from 'angularx-qrcode';
   templateUrl: './order-detail.component.html',
   styleUrls: ['./order-detail.component.css'],
 })
-export class OrderDetailComponent implements OnInit {
+export class OrderDetailComponent implements OnInit, OnDestroy {
   order: Order | undefined = undefined;
   loading = true;
+  private pollingSubscription?: Subscription;
 
   get orderTotal(): string {
     if (!this.order?.prescriptions) return '0.00 €';
@@ -43,22 +46,35 @@ export class OrderDetailComponent implements OnInit {
   ngOnInit(): void {
     const orderId = this.route.snapshot.paramMap.get('id');
     if (orderId) {
-      this.loadOrder(orderId);
+      this.startPolling(orderId);
     }
   }
 
-  loadOrder(orderId: string | number): void {
+  ngOnDestroy(): void {
+    this.pollingSubscription?.unsubscribe();
+  }
+
+  startPolling(orderId: string | number): void {
     this.loading = true;
-    this.orderService.getOrderById(orderId).subscribe({
-      next: (order) => {
-        this.order = order;
-        this.loading = false;
-      },
-      error: (error) => {
-        console.error('Error loading order:', error);
-        this.loading = false;
-      },
-    });
+    this.pollingSubscription = interval(3000)
+      .pipe(
+        startWith(0),
+        switchMap(() => this.orderService.getOrderById(orderId)),
+      )
+      .subscribe({
+        next: (order) => {
+          this.order = order;
+          this.loading = false;
+          // Optional: stop polling if in final state
+          if (order.status === 'completed' || order.status === 'cancelled') {
+            this.pollingSubscription?.unsubscribe();
+          }
+        },
+        error: (error) => {
+          console.error('Error loading order:', error);
+          this.loading = false;
+        },
+      });
   }
 
   /**
