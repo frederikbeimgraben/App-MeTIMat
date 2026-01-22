@@ -21,27 +21,26 @@ def init_db() -> None:
     db = SessionLocal()
     try:
         # Check if admin user exists
-        user = db.query(User).filter(User.email == "admin@metimat.de").first()
-        if not user:
+        admin_user = db.query(User).filter(User.email == "admin@metimat.de").first()
+        if not admin_user:
             logger.info("Creating initial admin user")
             admin_user = User(
                 email="admin@metimat.de",
-                hashed_password=get_password_hash("admin123"),
+                hashed_password=get_password_hash(settings.ADMIN_PASS),
                 full_name="Administrator",
                 is_superuser=True,
                 is_active=True,
             )
             db.add(admin_user)
-        else:
-            # Force reset password to ensure hashing compatibility after dependency fix
-            logger.info("Resetting admin password to ensure valid hash")
-            user.hashed_password = get_password_hash(settings.ADMIN_PASS)
-            db.add(user)
 
-        # Ensure we have some master data
+        # Ensure we have some master data (only if DB is empty)
         loc_count = db.query(Location).count()
-        if loc_count == 0:
-            logger.info("Creating initial locations")
+        med_count = db.query(Medication).count()
+
+        if loc_count == 0 and med_count == 0:
+            logger.info(
+                "Creating initial master data (locations, medications, inventory)"
+            )
             locations = [
                 Location(
                     name="Zentral-Apotheke",
@@ -66,9 +65,6 @@ def init_db() -> None:
             ]
             db.add_all(locations)
 
-        med_count = db.query(Medication).count()
-        if med_count == 0:
-            logger.info("Creating initial medications")
             medications = [
                 Medication(
                     name="Ibuprofen 400mg Akut",
@@ -90,27 +86,18 @@ def init_db() -> None:
                 ),
             ]
             db.add_all(medications)
-            db.commit()
+            db.flush()  # Ensure IDs are available for inventory
 
-        # Ensure we have some inventory data
-        inv_count = db.query(Inventory).count()
-        if inv_count == 0:
-            logger.info("Creating initial inventory")
-            all_locations = db.query(Location).all()
-            all_meds = db.query(Medication).all()
-
-            inventory_items = []
-            for loc in all_locations:
-                for med in all_meds:
-                    # Add inventory for all medications at all locations
-                    inventory_items.append(
+            # Add inventory for all medications at all initial locations
+            for loc in locations:
+                for med in medications:
+                    db.add(
                         Inventory(
                             location_id=loc.id,
                             medication_id=med.id,
                             quantity=10 if loc.location_type == "pharmacy" else 5,
                         )
                     )
-            db.add_all(inventory_items)
 
         db.commit()
         logger.info("Database initialization check complete")

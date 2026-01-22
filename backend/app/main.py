@@ -33,10 +33,39 @@ with engine.connect() as conn:
     if not res:
         conn.execute(
             text(
-                "ALTER TABLE orders ADD COLUMN location_id INTEGER REFERENCES locations(id)"
+                "ALTER TABLE orders ADD COLUMN location_id INTEGER REFERENCES locations(id) ON DELETE SET NULL"
             )
         )
-        conn.commit()
+    else:
+        # Update existing foreign key to include ON DELETE SET NULL
+        try:
+            conn.execute(
+                text(
+                    "ALTER TABLE orders DROP CONSTRAINT IF EXISTS orders_location_id_fkey"
+                )
+            )
+            conn.execute(
+                text(
+                    "ALTER TABLE orders ADD CONSTRAINT orders_location_id_fkey FOREIGN KEY (location_id) REFERENCES locations(id) ON DELETE SET NULL"
+                )
+            )
+        except Exception as e:
+            logger.warning(f"Could not update orders foreign key: {e}")
+
+    # Migration for inventory table: ensure ON DELETE CASCADE
+    try:
+        conn.execute(
+            text(
+                "ALTER TABLE inventory DROP CONSTRAINT IF EXISTS inventory_location_id_fkey"
+            )
+        )
+        conn.execute(
+            text(
+                "ALTER TABLE inventory ADD CONSTRAINT inventory_location_id_fkey FOREIGN KEY (location_id) REFERENCES locations(id) ON DELETE CASCADE"
+            )
+        )
+    except Exception as e:
+        logger.warning(f"Could not update inventory foreign key: {e}")
 
     # Migration for prescriptions table
     res_presc = conn.execute(
@@ -47,10 +76,11 @@ with engine.connect() as conn:
     if not res_presc:
         conn.execute(
             text(
-                "ALTER TABLE prescriptions ADD COLUMN user_id INTEGER REFERENCES users(id)"
+                "ALTER TABLE prescriptions ADD COLUMN user_id INTEGER REFERENCES users(id) ON DELETE SET NULL"
             )
         )
-        conn.commit()
+
+    conn.commit()
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
