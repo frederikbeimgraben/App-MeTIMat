@@ -27,6 +27,7 @@ import { QRCodeComponent } from 'angularx-qrcode';
 export class OrderDetailComponent implements OnInit, OnDestroy {
   order: Order | undefined = undefined;
   loading = true;
+  qrCodeData: string = '';
   private pollingSubscription?: Subscription;
 
   get orderTotal(): string {
@@ -63,7 +64,8 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (order) => {
-          this.order = order;
+          this.order = { ...order };
+          this.qrCodeData = order.access_token || order.id?.toString() || '';
           this.loading = false;
           // Optional: stop polling if in final state
           if (order.status === 'completed' || order.status === 'cancelled') {
@@ -93,13 +95,6 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
       default:
         return 'bg-gray-100 text-gray-800';
     }
-  }
-
-  /**
-   * Generates the data string for the QR code used for validation at the device.
-   */
-  get qrCodeData(): string {
-    return this.order?.access_token || this.order?.id?.toString() || '';
   }
 
   reorder(): void {

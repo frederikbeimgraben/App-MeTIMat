@@ -24,7 +24,7 @@ export class OrderConfirmationComponent implements OnInit, OnDestroy {
 
   order = signal<Order | null>(null);
   loading = signal(true);
-  qrCodeData = '';
+  qrCodeData = signal<string>('');
   private pollingSubscription?: Subscription;
 
   ngOnInit(): void {
@@ -53,9 +53,7 @@ export class OrderConfirmationComponent implements OnInit, OnDestroy {
         next: (order) => {
           if (order) {
             this.order.set(order);
-            this.qrCodeData = order.access_token
-              ? `METIMAT:${order.access_token}`
-              : `ORDER:${order.id}`;
+            this.qrCodeData.set(order.access_token || order.id?.toString() || '');
 
             // Stop polling if in final state
             if (order.status === 'completed' || order.status === 'cancelled') {

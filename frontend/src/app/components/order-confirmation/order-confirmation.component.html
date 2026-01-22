@@ -30,7 +30,7 @@
         <p class="text-sm text-gray-600 mb-6">{{ 'qrcode.instructions' | transloco }}</p>
 
         <div class="bg-white p-2 inline-block rounded-lg">
-          <qrcode [qrdata]="qrCodeData" [width]="200" [errorCorrectionLevel]="'M'"> </qrcode>
+          <qrcode [qrdata]="qrCodeData()" [width]="200" [errorCorrectionLevel]="'M'"> </qrcode>
         </div>
 
         <p class="text-xs text-gray-400 mt-4">
