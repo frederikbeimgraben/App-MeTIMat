@@ -37,7 +37,11 @@ import { AuthService } from '../../services/auth.service';
           </div>
 
           @if (authService.isAdmin()) {
-            <button (click)="goToAdmin()" class="p-2 text-blue-900" aria-label="Admin">
+            <button
+              (click)="goToAdmin()"
+              class="h-10 w-10 flex items-center justify-center text-blue-900 hover:bg-gray-100 rounded-full transition-colors"
+              aria-label="Admin"
+            >
               <mat-icon style="width: 24px; height: 24px; font-size: 24px"
                 >admin_panel_settings</mat-icon
               >

@@ -88,62 +88,82 @@ interface Order {
 
       <div class="max-w-6xl mx-auto">
         <!-- Tabs -->
-        <div class="flex border-b border-gray-300 mb-6 bg-white rounded-t-lg overflow-x-auto">
+        <div
+          class="bg-white p-1.5 rounded-xl shadow-sm border border-gray-200 mb-8 flex gap-1 max-w-3xl mx-auto overflow-x-auto"
+        >
           <button
             (click)="activeTab.set('users')"
-            [class.border-blue-900]="activeTab() === 'users'"
-            [class.text-blue-900]="activeTab() === 'users'"
-            class="flex-1 min-w-[120px] py-4 px-4 font-semibold border-b-2 border-transparent transition-all"
+            [class]="
+              activeTab() === 'users'
+                ? 'bg-blue-900 text-white shadow-md'
+                : 'text-gray-600 hover:bg-gray-100'
+            "
+            class="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 font-bold rounded-lg transition-all min-w-[120px]"
           >
-            Users
+            <mat-icon class="scale-90">people</mat-icon>
+            <span>Users</span>
           </button>
           <button
             (click)="activeTab.set('medications')"
-            [class.border-blue-900]="activeTab() === 'medications'"
-            [class.text-blue-900]="activeTab() === 'medications'"
-            class="flex-1 min-w-[120px] py-4 px-4 font-semibold border-b-2 border-transparent transition-all"
+            [class]="
+              activeTab() === 'medications'
+                ? 'bg-blue-900 text-white shadow-md'
+                : 'text-gray-600 hover:bg-gray-100'
+            "
+            class="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 font-bold rounded-lg transition-all min-w-[120px]"
           >
-            Medications
+            <mat-icon class="scale-90">medication</mat-icon>
+            <span>Meds</span>
           </button>
           <button
             (click)="activeTab.set('orders')"
-            [class.border-blue-900]="activeTab() === 'orders'"
-            [class.text-blue-900]="activeTab() === 'orders'"
-            class="flex-1 min-w-[120px] py-4 px-4 font-semibold border-b-2 border-transparent transition-all"
+            [class]="
+              activeTab() === 'orders'
+                ? 'bg-blue-900 text-white shadow-md'
+                : 'text-gray-600 hover:bg-gray-100'
+            "
+            class="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 font-bold rounded-lg transition-all min-w-[120px]"
           >
-            Orders
+            <mat-icon class="scale-90">shopping_cart</mat-icon>
+            <span>Orders</span>
           </button>
           <button
             (click)="activeTab.set('locations')"
-            [class.border-blue-900]="activeTab() === 'locations'"
-            [class.text-blue-900]="activeTab() === 'locations'"
-            class="flex-1 min-w-[120px] py-4 px-4 font-semibold border-b-2 border-transparent transition-all"
+            [class]="
+              activeTab() === 'locations'
+                ? 'bg-blue-900 text-white shadow-md'
+                : 'text-gray-600 hover:bg-gray-100'
+            "
+            class="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 font-bold rounded-lg transition-all min-w-[120px]"
           >
-            Locations
+            <mat-icon class="scale-90">place</mat-icon>
+            <span>Locations</span>
           </button>
         </div>
 
         <!-- Users Tab -->
         @if (activeTab() === 'users') {
-          <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
-            <table class="w-full text-left">
-              <thead class="bg-gray-50 border-b text-xs uppercase text-gray-500 font-bold">
+          <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <table class="w-full text-left border-collapse">
+              <thead
+                class="bg-gray-50/50 border-b border-gray-100 text-[10px] uppercase text-gray-400 font-extrabold tracking-widest"
+              >
                 <tr>
-                  <th class="p-4">Name</th>
-                  <th class="p-4">Email</th>
-                  <th class="p-4">Role</th>
-                  <th class="p-4">Status</th>
-                  <th class="p-4 text-right">Actions</th>
+                  <th class="px-6 py-4">Name</th>
+                  <th class="px-6 py-4">Email</th>
+                  <th class="px-6 py-4">Role</th>
+                  <th class="px-6 py-4">Status</th>
+                  <th class="px-6 py-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody class="divide-y">
+              <tbody class="divide-y divide-gray-50">
                 @for (user of users(); track user.id) {
-                  <tr class="hover:bg-gray-50 transition-colors">
-                    <td class="p-4 font-medium">{{ user.full_name }}</td>
-                    <td class="p-4 text-gray-600">{{ user.email }}</td>
-                    <td class="p-4">
+                  <tr class="hover:bg-gray-50/50 transition-colors">
+                    <td class="px-6 py-4 font-medium text-gray-900">{{ user.full_name }}</td>
+                    <td class="px-6 py-4 text-gray-600">{{ user.email }}</td>
+                    <td class="px-6 py-4">
                       <span
-                        class="px-2 py-1 rounded-full text-xs font-bold"
+                        class="px-3 py-1 rounded-full text-[10px] font-bold tracking-wide"
                         [class]="
                           user.is_superuser
                             ? 'bg-purple-100 text-purple-700'
@@ -153,9 +173,9 @@ interface Order {
                         {{ user.is_superuser ? 'ADMIN' : 'USER' }}
                       </span>
                     </td>
-                    <td class="p-4">
+                    <td class="px-6 py-4">
                       <span
-                        class="inline-flex items-center gap-1 text-xs font-semibold"
+                        class="inline-flex items-center gap-1.5 text-xs font-semibold"
                         [class.text-green-600]="user.is_active"
                         [class.text-red-600]="!user.is_active"
                       >
@@ -167,8 +187,8 @@ interface Order {
                         {{ user.is_active ? 'Active' : 'Inactive' }}
                       </span>
                     </td>
-                    <td class="p-4 text-right">
-                      <div class="flex justify-end gap-1">
+                    <td class="px-6 py-4 text-right">
+                      <div class="flex justify-end gap-2">
                         <button
                           (click)="editUser(user)"
                           class="h-9 w-9 flex items-center justify-center text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
@@ -192,15 +212,21 @@ interface Order {
 
         <!-- Medications Tab -->
         @if (activeTab() === 'medications') {
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             @for (med of medications(); track med.id) {
               <div
-                class="bg-white p-5 rounded-xl border shadow-sm hover:shadow-md transition-all flex flex-col"
+                class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col group"
               >
                 <div class="flex justify-between items-start mb-4">
                   <div>
-                    <h3 class="font-bold text-lg text-blue-900">{{ med.name }}</h3>
-                    <p class="text-xs font-mono text-gray-500">PZN: {{ med.pzn }}</p>
+                    <h3
+                      class="font-bold text-lg text-gray-900 group-hover:text-blue-900 transition-colors"
+                    >
+                      {{ med.name }}
+                    </h3>
+                    <p class="text-xs font-mono text-gray-400 mt-1 uppercase tracking-wider">
+                      PZN: {{ med.pzn }}
+                    </p>
                   </div>
                   <div class="flex gap-1">
                     <button
@@ -225,27 +251,29 @@ interface Order {
 
         <!-- Orders Tab -->
         @if (activeTab() === 'orders') {
-          <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
-            <table class="w-full text-left">
-              <thead class="bg-gray-50 border-b text-xs uppercase text-gray-500 font-bold">
+          <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <table class="w-full text-left border-collapse">
+              <thead
+                class="bg-gray-50/50 border-b border-gray-100 text-[10px] uppercase text-gray-400 font-extrabold tracking-widest"
+              >
                 <tr>
-                  <th class="p-4">Order ID</th>
-                  <th class="p-4">User ID</th>
-                  <th class="p-4">Status</th>
-                  <th class="p-4">Created</th>
-                  <th class="p-4 text-right">Actions</th>
+                  <th class="px-6 py-4">Order ID</th>
+                  <th class="px-6 py-4">User ID</th>
+                  <th class="px-6 py-4">Status</th>
+                  <th class="px-6 py-4">Created</th>
+                  <th class="px-6 py-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody class="divide-y">
+              <tbody class="divide-y divide-gray-50">
                 @for (order of orders(); track order.id) {
-                  <tr class="hover:bg-gray-50">
-                    <td class="p-4 font-mono font-bold text-blue-900">#{{ order.id }}</td>
-                    <td class="p-4 text-gray-600">{{ order.user_id }}</td>
-                    <td class="p-4">
+                  <tr class="hover:bg-gray-50/50 transition-colors">
+                    <td class="px-6 py-4 font-mono font-bold text-blue-900">#{{ order.id }}</td>
+                    <td class="px-6 py-4 text-gray-600">{{ order.user_id }}</td>
+                    <td class="px-6 py-4">
                       <select
                         [value]="order.status"
                         (change)="updateOrderStatus(order, $any($event.target).value)"
-                        class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full max-w-[150px] p-2"
+                        class="bg-gray-50 border-transparent text-gray-900 text-sm rounded-xl focus:ring-2 focus:ring-blue-900/20 focus:border-blue-900 block w-full max-w-[180px] p-2.5 font-medium transition-all outline-none"
                       >
                         <option value="pending">Pending</option>
                         <option value="available for pickup">Available for Pickup</option>
@@ -253,10 +281,10 @@ interface Order {
                         <option value="cancelled">Cancelled</option>
                       </select>
                     </td>
-                    <td class="p-4 text-sm text-gray-500">
+                    <td class="px-6 py-4 text-sm text-gray-500">
                       {{ order.created_at | date: 'medium' }}
                     </td>
-                    <td class="p-4 text-right">
+                    <td class="px-6 py-4 text-right">
                       <div class="flex justify-end">
                         <button
                           (click)="deleteResource('orders', order.id)"
@@ -275,17 +303,21 @@ interface Order {
 
         <!-- Locations Tab -->
         @if (activeTab() === 'locations') {
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             @for (loc of locations(); track loc.id) {
-              <div class="bg-white p-5 rounded-xl border shadow-sm hover:shadow-md transition-all">
-                <div class="flex justify-between items-start mb-3">
-                  <div class="flex items-center gap-2">
-                    <div class="p-2 rounded-lg bg-blue-50 text-blue-700">
+              <div
+                class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group"
+              >
+                <div class="flex justify-between items-start mb-4">
+                  <div class="flex items-center gap-3">
+                    <div
+                      class="p-3 rounded-xl bg-blue-50 text-blue-900 group-hover:bg-blue-900 group-hover:text-white transition-colors shadow-inner"
+                    >
                       <mat-icon>{{
                         loc.location_type === 'pharmacy' ? 'local_pharmacy' : 'smart_toy'
                       }}</mat-icon>
                     </div>
-                    <h3 class="font-bold text-blue-900">{{ loc.name }}</h3>
+                    <h3 class="font-bold text-lg text-gray-900 leading-tight">{{ loc.name }}</h3>
                   </div>
                   <div class="flex gap-1">
                     <button
@@ -302,18 +334,22 @@ interface Order {
                     </button>
                   </div>
                 </div>
-                <div class="space-y-2 text-sm">
-                  <p class="text-gray-600 flex items-center gap-2">
-                    <mat-icon class="text-gray-400 scale-75">place</mat-icon>
-                    {{ loc.address }}
+                <div class="space-y-3 text-sm">
+                  <p class="text-gray-600 flex items-start gap-2">
+                    <mat-icon class="text-blue-900/40 scale-75 mt-0.5">place</mat-icon>
+                    <span class="flex-1">{{ loc.address }}</span>
                   </p>
                   <p class="text-gray-600 flex items-center gap-2">
-                    <mat-icon class="text-gray-400 scale-75">schedule</mat-icon>
-                    {{ loc.opening_hours || 'N/A' }}
+                    <mat-icon class="text-blue-900/40 scale-75">schedule</mat-icon>
+                    <span>{{ loc.opening_hours || 'N/A' }}</span>
                   </p>
-                  <div class="mt-4 p-2 bg-gray-50 rounded border border-dashed">
-                    <p class="text-[10px] text-gray-400 uppercase font-bold mb-1">Validation Key</p>
-                    <p class="font-mono text-xs select-all">
+                  <div class="mt-6 p-3 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                    <p
+                      class="text-[10px] text-gray-400 uppercase font-extrabold mb-1 tracking-widest"
+                    >
+                      Validation Key
+                    </p>
+                    <p class="font-mono text-xs select-all text-blue-900 font-bold">
                       {{ loc.validation_key || 'No Key Set' }}
                     </p>
                   </div>
@@ -332,13 +368,16 @@ interface Order {
           <div
             class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in duration-200"
           >
-            <div class="p-6 border-b flex justify-between items-center bg-gray-50">
-              <h2 class="text-xl font-bold text-blue-900">
-                {{ editingId() ? 'Edit' : 'Create New' }} {{ activeTab() | titlecase }}
-              </h2>
+            <div class="p-8 border-b border-gray-100 flex justify-between items-center bg-white">
+              <div>
+                <h2 class="text-2xl font-black text-gray-900 tracking-tight">
+                  {{ editingId() ? 'Edit' : 'Create New' }} {{ activeTab() | titlecase }}
+                </h2>
+                <p class="text-sm text-gray-500 mt-1">Please fill in the information below</p>
+              </div>
               <button
                 (click)="cancelEdit()"
-                class="p-1 hover:bg-gray-200 rounded-full transition-colors"
+                class="h-10 w-10 flex items-center justify-center hover:bg-gray-100 rounded-xl transition-colors text-gray-400 hover:text-gray-900"
               >
                 <mat-icon>close</mat-icon>
               </button>
