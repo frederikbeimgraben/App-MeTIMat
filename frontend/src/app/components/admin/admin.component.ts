@@ -6,6 +6,7 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angu
 import { AuthService } from '../../services/auth.service';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslocoModule } from '@ngneat/transloco';
+import { QRCodeComponent } from 'angularx-qrcode';
 
 interface User {
   id: number;
@@ -44,6 +45,10 @@ interface Order {
   status: string;
   access_token: string;
   created_at: string;
+  prescriptions?: any[];
+  location?: any;
+  identifier?: { value: string }[];
+  locationReference?: { display: string; reference: string }[];
 }
 
 type AdminTab = 'users' | 'meds' | 'orders' | 'locations';
@@ -51,7 +56,7 @@ type AdminTab = 'users' | 'meds' | 'orders' | 'locations';
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, MatIconModule, TranslocoModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, MatIconModule, TranslocoModule, QRCodeComponent],
   templateUrl: './admin.component.html',
 })
 export class AdminComponent implements OnInit {
@@ -67,6 +72,8 @@ export class AdminComponent implements OnInit {
   orders = signal<Order[]>([]);
   editingId = signal<number | null>(null);
   showModal = signal<boolean>(false);
+  showOrderDetailsModal = signal<boolean>(false);
+  selectedOrderDetails = signal<Order | null>(null);
 
   userForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -231,6 +238,42 @@ export class AdminComponent implements OnInit {
     this.http.patch<Order>(`/api/v1/orders/${order.id}`, { status }).subscribe(() => {
       this.loadData();
     });
+  }
+
+  viewOrderDetails(order: Order): void {
+    // Fetch full order details
+    this.http.get<Order>(`/api/v1/orders/${order.id}`).subscribe({
+      next: (orderDetails) => {
+        this.selectedOrderDetails.set(orderDetails);
+        this.showOrderDetailsModal.set(true);
+      },
+      error: (error) => {
+        console.error('Error fetching order details:', error);
+        // Fallback: show basic order info
+        this.selectedOrderDetails.set(order);
+        this.showOrderDetailsModal.set(true);
+      },
+    });
+  }
+
+  closeOrderDetailsModal(): void {
+    this.showOrderDetailsModal.set(false);
+    this.selectedOrderDetails.set(null);
+  }
+
+  getOrderStatusColor(orderStatus: string | undefined): string {
+    switch (orderStatus) {
+      case 'available for pickup':
+        return 'bg-blue-100 text-blue-800';
+      case 'pending':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'completed':
+        return 'bg-green-100 text-green-800';
+      case 'cancelled':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
   }
 
   goBack(): void {

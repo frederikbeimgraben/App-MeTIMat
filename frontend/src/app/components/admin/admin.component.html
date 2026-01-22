@@ -278,7 +278,14 @@
                   {{ order.created_at | date: 'medium' }}
                 </td>
                 <td class="px-6 py-4 text-right">
-                  <div class="flex justify-end">
+                  <div class="flex justify-end gap-2">
+                    <button
+                      (click)="viewOrderDetails(order)"
+                      class="h-9 w-9 flex items-center justify-center text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      title="View Details"
+                    >
+                      <mat-icon class="!m-0">visibility</mat-icon>
+                    </button>
                     <button
                       (click)="deleteResource('orders', order.id)"
                       class="h-9 w-9 flex items-center justify-center text-red-600 hover:bg-red-50 rounded-lg"
@@ -629,6 +636,162 @@
               </div>
             </form>
           }
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Order Details Modal -->
+  @if (showOrderDetailsModal() && selectedOrderDetails(); as order) {
+    <div
+      class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4"
+      (click)="closeOrderDetailsModal()"
+    >
+      <div
+        class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden animate-in fade-in zoom-in duration-200 max-h-[90vh] overflow-y-auto"
+        (click)="$event.stopPropagation()"
+      >
+        <!-- Modal Header -->
+        <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-white sticky top-0 z-10">
+          <div>
+            <h2 class="text-2xl font-black text-gray-900 tracking-tight">
+              Order Details
+            </h2>
+            <p class="text-sm text-gray-500 mt-1">
+              {{ order.identifier?.[0]?.value ? order.identifier?.[0]?.value : 'Order #' + order.id }}
+            </p>
+          </div>
+          <button
+            (click)="closeOrderDetailsModal()"
+            class="h-10 w-10 flex items-center justify-center hover:bg-gray-100 rounded-xl transition-colors text-gray-400 hover:text-gray-900"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+
+        <!-- Modal Content -->
+        <div class="p-6 space-y-6">
+          <!-- Order Status Section -->
+          <div class="bg-gray-50 rounded-xl p-4">
+            <div class="flex justify-between items-start mb-3">
+              <div class="flex-1">
+                <p class="text-sm font-bold text-gray-500 uppercase tracking-wide mb-1">Status</p>
+                <span
+                  [class]="'px-3 py-1.5 text-sm font-semibold rounded-full inline-block ' + getOrderStatusColor(order.status)"
+                >
+                  {{ order.status }}
+                </span>
+              </div>
+              <div class="text-right">
+                <p class="text-sm font-bold text-gray-500 uppercase tracking-wide mb-1">Created</p>
+                <p class="text-sm text-gray-900 font-medium">
+                  {{ order.created_at | date: 'medium' }}
+                </p>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4 mt-4">
+              <div>
+                <p class="text-sm font-bold text-gray-500 uppercase tracking-wide mb-1">Order ID</p>
+                <p class="text-sm text-gray-900 font-mono font-bold">#{{ order.id }}</p>
+              </div>
+              <div>
+                <p class="text-sm font-bold text-gray-500 uppercase tracking-wide mb-1">User ID</p>
+                <p class="text-sm text-gray-900 font-medium">{{ order.user_id || 'N/A' }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- QR Code Display for Active Orders -->
+          @if (order.status === 'available for pickup' || order.status === 'pending') {
+            <div class="bg-blue-50 rounded-xl p-6 text-center">
+              <h3 class="text-lg font-semibold text-gray-900 mb-2">
+                QR Code for Pickup
+              </h3>
+              <p class="text-sm text-gray-600 mb-4">Show this code at the pickup location</p>
+
+              <div class="bg-white rounded-lg p-4 inline-block shadow-sm">
+                <qrcode
+                  [qrdata]="order.access_token || order.id.toString() || ''"
+                  [width]="200"
+                  [errorCorrectionLevel]="'M'"
+                ></qrcode>
+              </div>
+              <p class="text-xs text-gray-500 mt-3 font-mono">
+                {{ order.access_token || order.id }}
+              </p>
+            </div>
+          }
+
+          <!-- Order Items Section -->
+          <div class="bg-white border border-gray-200 rounded-xl p-4">
+            <h3 class="text-lg font-semibold text-gray-900 mb-3">Order Items</h3>
+
+            <div class="space-y-3">
+              @if (order.prescriptions && order.prescriptions.length > 0) {
+                @for (item of order.prescriptions; track item.id) {
+                  <div class="border-b border-gray-100 pb-3 last:border-0 last:pb-0">
+                    <div class="flex justify-between items-start">
+                      <div class="flex-1">
+                        <p class="font-medium text-gray-900">
+                          {{ item.medication_name || 'Unknown Medication' }}
+                        </p>
+                        <p class="text-sm text-gray-600">PZN: {{ item.pzn || 'N/A' }}</p>
+                      </div>
+                    </div>
+                  </div>
+                }
+              } @else {
+                <div class="text-center py-4">
+                  <p class="text-sm text-gray-500">
+                    No prescription items available for this order
+                  </p>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Pickup Location Section -->
+          <div class="bg-white border border-gray-200 rounded-xl p-4">
+            <h3 class="text-lg font-semibold text-gray-900 mb-3">Pickup Location</h3>
+
+            <div class="flex items-start gap-3">
+              <div class="p-2 rounded-lg bg-blue-50 text-blue-900">
+                <mat-icon>place</mat-icon>
+              </div>
+              <div class="flex-1">
+                <p class="font-medium text-gray-900">
+                  {{
+                    order.location?.name ||
+                    order.locationReference?.[0]?.display ||
+                    'Pickup Location'
+                  }}
+                </p>
+                @if (order.location?.address) {
+                  <p class="text-sm text-gray-600 mt-1">{{ order.location.address }}</p>
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- Access Token Section (if available) -->
+          @if (order.access_token) {
+            <div class="bg-gray-50 rounded-xl p-4">
+              <p class="text-sm font-bold text-gray-500 uppercase tracking-wide mb-2">Access Token</p>
+              <p class="font-mono text-sm text-gray-900 break-all bg-white p-3 rounded-lg border border-gray-200">
+                {{ order.access_token }}
+              </p>
+            </div>
+          }
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="p-6 border-t border-gray-100 bg-gray-50">
+          <button
+            (click)="closeOrderDetailsModal()"
+            class="w-full px-4 py-3 bg-blue-900 text-white rounded-xl font-bold hover:bg-blue-800 transition-all shadow-lg shadow-blue-900/20"
+          >
+            Close
+          </button>
         </div>
       </div>
     </div>
