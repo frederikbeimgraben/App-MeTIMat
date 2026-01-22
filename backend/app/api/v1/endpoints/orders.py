@@ -5,6 +5,7 @@ from app.api import deps
 
 logger = logging.getLogger(__name__)
 from app.core.config import settings
+from app.models.medication import Medication as MedicationModel
 from app.models.order import Order as OrderModel
 from app.models.user import User as UserModel
 from app.schemas.order import (
@@ -60,6 +61,23 @@ def create_order(
     logger.info(
         f"Creating new order for user {current_user.id} at location {order_in.location_id}"
     )
+
+    # Validate that no prescription-only medications are ordered directly
+    if order_in.medication_ids:
+        forbidden_meds = (
+            db.query(MedicationModel)
+            .filter(
+                MedicationModel.id.in_(order_in.medication_ids),
+                MedicationModel.prescription_required == True,
+            )
+            .all()
+        )
+        if forbidden_meds:
+            names = ", ".join([m.name for m in forbidden_meds])
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"The following medications require a prescription and cannot be ordered directly: {names}",
+            )
 
     db_obj = OrderModel(
         user_id=current_user.id,

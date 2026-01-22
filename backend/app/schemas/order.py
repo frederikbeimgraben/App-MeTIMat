@@ -14,6 +14,7 @@ class OrderBase(BaseModel):
 class OrderCreate(OrderBase):
     location_id: Optional[int] = None
     prescription_ids: Optional[List[int]] = None
+    medication_ids: Optional[List[int]] = None
 
 
 class OrderUpdate(OrderBase):

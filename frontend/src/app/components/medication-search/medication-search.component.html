@@ -145,48 +145,56 @@
               <!-- Cart Controls -->
               @if (isAvailable(medication)) {
                 <div class="flex items-center gap-2">
-                  <!-- Quantity Controls (when item is in cart) -->
-                  @if (getCartQuantity(medication.id) > 0) {
-                    <div class="flex items-center">
-                      <button (click)="removeFromCart(medication)" class="icon-btn-sm">
-                        <mat-icon
-                          class="text-gray-700"
-                          style="width: 20px; height: 20px; font-size: 20px"
-                          >remove</mat-icon
-                        >
-                      </button>
-                      <input
-                        type="text"
-                        inputmode="numeric"
-                        pattern="[0-9]*"
-                        [value]="getCartQuantity(medication.id)"
-                        (change)="updateQuantity(medication, $any($event.target).value)"
-                        (keypress)="
-                          (($event.charCode >= 48 && $event.charCode <= 57) ||
-                            $event.charCode === 0)
-                        "
-                        min="0"
-                        max="99"
-                        class="w-12 text-center border border-gray-200 rounded mx-1 no-spinners"
-                      />
-                      <button (click)="addToCart(medication)" class="icon-btn-sm">
-                        <mat-icon
-                          class="text-gray-700"
-                          style="width: 20px; height: 20px; font-size: 20px"
-                          >add</mat-icon
-                        >
-                      </button>
+                  @if (medication.prescription_required) {
+                    <div
+                      class="text-[10px] font-bold text-red-700 bg-red-50 px-2 py-1 rounded uppercase border border-red-100"
+                    >
+                      Nur mit Rezept
                     </div>
                   } @else {
-                    <!-- Add to Cart Button -->
-                    <button (click)="addToCart(medication)" class="btn btn-primary btn-sm">
-                      <mat-icon
-                        class="mr-1 inline align-middle"
-                        style="width: 16px; height: 16px; font-size: 16px"
-                        >add_shopping_cart</mat-icon
-                      >
-                      {{ 'medication.addToCart' | transloco }}
-                    </button>
+                    <!-- Quantity Controls (when item is in cart) -->
+                    @if (getCartQuantity(medication.id) > 0) {
+                      <div class="flex items-center">
+                        <button (click)="removeFromCart(medication)" class="icon-btn-sm">
+                          <mat-icon
+                            class="text-gray-700"
+                            style="width: 20px; height: 20px; font-size: 20px"
+                            >remove</mat-icon
+                          >
+                        </button>
+                        <input
+                          type="text"
+                          inputmode="numeric"
+                          pattern="[0-9]*"
+                          [value]="getCartQuantity(medication.id)"
+                          (change)="updateQuantity(medication, $any($event.target).value)"
+                          (keypress)="
+                            (($event.charCode >= 48 && $event.charCode <= 57) ||
+                              $event.charCode === 0)
+                          "
+                          min="0"
+                          max="99"
+                          class="w-12 text-center border border-gray-200 rounded mx-1 no-spinners"
+                        />
+                        <button (click)="addToCart(medication)" class="icon-btn-sm">
+                          <mat-icon
+                            class="text-gray-700"
+                            style="width: 20px; height: 20px; font-size: 20px"
+                            >add</mat-icon
+                          >
+                        </button>
+                      </div>
+                    } @else {
+                      <!-- Add to Cart Button -->
+                      <button (click)="addToCart(medication)" class="btn btn-primary btn-sm">
+                        <mat-icon
+                          class="mr-1 inline align-middle"
+                          style="width: 16px; height: 16px; font-size: 16px"
+                          >add_shopping_cart</mat-icon
+                        >
+                        {{ 'medication.addToCart' | transloco }}
+                      </button>
+                    }
                   }
                 </div>
               } @else {
