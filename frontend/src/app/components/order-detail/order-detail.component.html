@@ -2,32 +2,28 @@
   <app-header-common titleKey="order.title"></app-header-common>
 
   <!-- Content -->
-  @if (order) {
+  @if (order(); as o) {
     <div class="max-w-md mx-auto px-4 py-2">
       <!-- Order Status Card -->
       <div class="bg-white rounded-lg shadow-sm border-2 border-gray-200 p-4 mb-4">
         <div class="flex justify-between items-start mb-4">
           <div>
             <p class="text-lg font-bold text-gray-900">
-              {{
-                order.identifier?.[0]?.value
-                  ? order.identifier?.[0]?.value
-                  : 'Bestellung #' + order.id
-              }}
+              {{ o.identifier?.[0]?.value ? o.identifier?.[0]?.value : 'Bestellung #' + o.id }}
             </p>
             <p class="text-sm text-gray-600 mt-1">
-              {{ order.authoredOn || order.created_at | date: 'medium' }}
+              {{ o.authoredOn || o.created_at | date: 'medium' }}
             </p>
           </div>
           <span
-            [class]="'px-3 py-1 text-sm font-semibold rounded-full ' + getStatusColor(order.status)"
+            [class]="'px-3 py-1 text-sm font-semibold rounded-full ' + getStatusColor(o.status)"
           >
-            {{ 'order.status.' + (order.status || 'unknown') | transloco }}
+            {{ 'order.status.' + (o.status || 'unknown') | transloco }}
           </span>
         </div>
 
         <!-- QR Code Display for Active Orders -->
-        @if (order.status === 'available for pickup' || $any(order.status) === 'active') {
+        @if (o.status === 'available for pickup' || $any(o.status) === 'active') {
           <div class="bg-blue-50 rounded-lg p-6 text-center mb-4">
             <h3 class="text-lg font-semibold text-gray-900 mb-2">
               {{ 'qrcode.title' | transloco }}
@@ -36,7 +32,7 @@
 
             <div class="bg-white rounded-lg p-4 inline-block">
               <!-- Using generated QR data string for validation at the device -->
-              <qrcode [qrdata]="qrCodeData" [width]="256" [errorCorrectionLevel]="'M'"></qrcode>
+              <qrcode [qrdata]="qrCodeData()" [width]="256" [errorCorrectionLevel]="'M'"></qrcode>
             </div>
           </div>
         }
@@ -47,8 +43,8 @@
         <h2 class="text-lg font-semibold text-gray-900 mb-3">{{ 'order.items' | transloco }}</h2>
 
         <div class="space-y-3">
-          @if (order.prescriptions && order.prescriptions.length > 0) {
-            @for (item of order.prescriptions; track item.id) {
+          @if (o.prescriptions && o.prescriptions.length > 0) {
+            @for (item of o.prescriptions; track item.id) {
               <div class="border-b border-gray-100 pb-3 last:border-0 last:pb-0">
                 <div class="flex justify-between items-start">
                   <div class="flex-1">
@@ -80,7 +76,7 @@
         <div class="border-t border-gray-200 mt-4 pt-4">
           <div class="flex justify-between items-center">
             <p class="text-lg font-semibold text-gray-900">{{ 'order.total' | transloco }}</p>
-            <p class="text-xl font-bold text-gray-900">{{ orderTotal }}</p>
+            <p class="text-xl font-bold text-gray-900">{{ orderTotal() }}</p>
           </div>
         </div>
       </div>
@@ -100,8 +96,8 @@
               >place</mat-icon
             >
             {{
-              order.location?.name ||
-                order.locationReference?.[0]?.display ||
+              o.location?.name ||
+                o.locationReference?.[0]?.display ||
                 ('cart.pickupLocation' | transloco)
             }}
           </p>
@@ -121,14 +117,14 @@
   }
 
   <!-- Loading State -->
-  @if (loading) {
+  @if (loading()) {
     <div class="flex justify-center items-center py-12">
       <div class="spinner"></div>
     </div>
   }
 
   <!-- Error State -->
-  @if (!loading && !order) {
+  @if (!loading() && !order()) {
     <div class="max-w-md mx-auto px-4 py-12 text-center">
       <p class="text-gray-600">{{ 'errors.notFound' | transloco }}</p>
       <button (click)="goBack()" class="btn btn-primary mt-4">

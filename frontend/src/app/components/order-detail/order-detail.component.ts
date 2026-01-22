@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { interval, Subscription } from 'rxjs';
@@ -25,17 +25,22 @@ import { QRCodeComponent } from 'angularx-qrcode';
   styleUrls: ['./order-detail.component.css'],
 })
 export class OrderDetailComponent implements OnInit, OnDestroy {
-  order: Order | undefined = undefined;
-  loading = true;
-  qrCodeData: string = '';
+  private _order = signal<Order | undefined>(undefined);
+  private _loading = signal<boolean>(true);
+  private _qrCodeData = signal<string>('');
   private pollingSubscription?: Subscription;
 
-  get orderTotal(): string {
-    if (!this.order?.prescriptions) return '0.00 €';
-    // Mock price calculation: 5€ per item as a placeholder
-    const total = this.order.prescriptions.length * 5;
+  // Expose signals for template access
+  order = this._order.asReadonly();
+  loading = this._loading.asReadonly();
+  qrCodeData = this._qrCodeData.asReadonly();
+
+  orderTotal = computed(() => {
+    const order = this._order();
+    if (!order?.prescriptions) return '0.00 €';
+    const total = order.prescriptions.length * 5;
     return `${total.toFixed(2)} €`;
-  }
+  });
 
   constructor(
     private route: ActivatedRoute,
@@ -56,7 +61,7 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
   }
 
   startPolling(orderId: string | number): void {
-    this.loading = true;
+    this._loading.set(true);
     this.pollingSubscription = interval(3000)
       .pipe(
         startWith(0),
@@ -64,17 +69,19 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (order) => {
-          this.order = { ...order };
-          this.qrCodeData = order.access_token || order.id?.toString() || '';
-          this.loading = false;
-          // Optional: stop polling if in final state
-          if (order.status === 'completed' || order.status === 'cancelled') {
-            this.pollingSubscription?.unsubscribe();
+          if (order) {
+            this._order.set({ ...order });
+            this._qrCodeData.set(order.access_token || order.id?.toString() || '');
+            this._loading.set(false);
+            // Optional: stop polling if in final state
+            if (order.status === 'completed' || order.status === 'cancelled') {
+              this.pollingSubscription?.unsubscribe();
+            }
           }
         },
         error: (error) => {
           console.error('Error loading order:', error);
-          this.loading = false;
+          this._loading.set(false);
         },
       });
   }

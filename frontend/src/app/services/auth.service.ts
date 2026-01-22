@@ -42,17 +42,20 @@ export class AuthService {
     const token = localStorage.getItem(this.tokenKey);
     const savedUser = localStorage.getItem(this.userKey);
 
-    if (token && savedUser) {
-      try {
-        this.userSignal.set(JSON.parse(savedUser));
-      } catch (e) {
-        localStorage.removeItem(this.userKey);
-      }
-    }
-
     if (token) {
+      if (savedUser) {
+        try {
+          this.userSignal.set(JSON.parse(savedUser));
+        } catch (e) {
+          localStorage.removeItem(this.userKey);
+        }
+      }
+
+      // Always verify the token with the backend immediately
       this.fetchCurrentUser().subscribe({
-        error: () => this.logout(),
+        error: () => {
+          this.logout();
+        },
       });
     }
   }
