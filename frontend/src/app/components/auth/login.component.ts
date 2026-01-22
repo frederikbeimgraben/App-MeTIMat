@@ -17,9 +17,7 @@ import { TranslocoModule } from '@ngneat/transloco';
       <div class="max-w-md w-full space-y-8">
         <div>
           <div class="flex justify-center">
-            <mat-icon class="text-blue-900" style="width: 64px; height: 64px; font-size: 64px"
-              >medical_services</mat-icon
-            >
+            <img class="h-16 w-auto" src="assets/logo/favicon.svg" alt="MeTIMat Logo" />
           </div>
           <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">MeTIMat Login</h2>
         </div>
@@ -33,7 +31,7 @@ import { TranslocoModule } from '@ngneat/transloco';
                 type="email"
                 formControlName="email"
                 required
-                class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-teal-500 focus:border-teal-500 focus:z-10 sm:text-sm"
                 placeholder="Email address"
               />
             </div>
@@ -45,7 +43,7 @@ import { TranslocoModule } from '@ngneat/transloco';
                 type="password"
                 formControlName="password"
                 required
-                class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-teal-500 focus:border-teal-500 focus:z-10 sm:text-sm"
                 placeholder="Password"
               />
             </div>
@@ -61,10 +59,10 @@ import { TranslocoModule } from '@ngneat/transloco';
             <button
               type="submit"
               [disabled]="loading() || loginForm.invalid"
-              class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-900 hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+              class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 disabled:opacity-50"
             >
               <span class="absolute left-0 inset-y-0 flex items-center pl-3">
-                <mat-icon class="text-blue-500 group-hover:text-blue-400">lock</mat-icon>
+                <mat-icon class="text-teal-400 group-hover:text-teal-300">lock</mat-icon>
               </span>
               {{ loading() ? 'Logging in...' : 'Sign in' }}
             </button>
