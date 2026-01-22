@@ -47,31 +47,36 @@ interface Order {
   standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule, MatIconModule, TranslocoModule],
   template: `
-    <div class="min-h-screen bg-gray-100 p-4 md:p-8">
-      <header class="mb-6 flex justify-between items-center max-w-6xl mx-auto">
+    <div class="min-h-screen bg-gray-100 p-4 md:p-8 pb-24 md:pb-8">
+      <header
+        class="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 max-w-6xl mx-auto"
+      >
         <div class="flex items-center gap-4">
           <button
             (click)="goBack()"
-            class="h-10 w-10 flex items-center justify-center hover:bg-gray-200 rounded-full transition-colors"
+            class="h-10 w-10 flex items-center justify-center hover:bg-gray-200 rounded-full transition-colors shrink-0"
           >
             <mat-icon class="!m-0">arrow_back</mat-icon>
           </button>
           <div>
-            <h1 class="text-3xl font-bold text-blue-900 leading-tight">Admin Control Panel</h1>
+            <h1 class="text-2xl md:text-3xl font-bold text-blue-900 leading-tight">
+              Admin Control Panel
+            </h1>
             <p class="text-sm text-gray-600">Manage System Resources</p>
           </div>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
           <button
             (click)="openCreateModal()"
-            class="h-10 flex items-center gap-2 px-4 bg-blue-900 text-white rounded-lg shadow hover:bg-blue-800 transition-colors"
+            class="hidden sm:flex h-10 items-center gap-2 px-6 bg-blue-900 text-white rounded-full shadow-lg hover:bg-blue-800 transition-all hover:scale-105"
           >
             <mat-icon class="!m-0">add</mat-icon>
-            <span class="font-semibold">Create New</span>
+            <span class="font-bold">Create New</span>
           </button>
           <button
             (click)="loadData()"
-            class="h-10 w-10 flex items-center justify-center bg-white rounded-lg shadow hover:bg-gray-50 border transition-colors"
+            class="h-10 w-10 flex items-center justify-center bg-white rounded-xl shadow-sm hover:bg-gray-50 border border-gray-200 transition-colors"
+            title="Reload Data"
           >
             <mat-icon class="!m-0">refresh</mat-icon>
           </button>
@@ -81,10 +86,19 @@ interface Order {
             aria-label="Logout"
           >
             <mat-icon style="width: 20px; height: 20px; font-size: 20px">logout</mat-icon>
-            <span class="text-sm font-medium">Abmelden</span>
+            <span class="text-sm font-medium hidden min-[400px]:inline">Abmelden</span>
           </button>
         </div>
       </header>
+
+      <!-- Mobile FAB -->
+      <button
+        (click)="openCreateModal()"
+        class="sm:hidden fixed bottom-6 right-6 w-14 h-14 bg-blue-900 text-white rounded-full shadow-2xl flex items-center justify-center z-50 hover:scale-110 active:scale-95 transition-all"
+        aria-label="Create New"
+      >
+        <mat-icon style="font-size: 32px; width: 32px; height: 32px">add</mat-icon>
+      </button>
 
       <div class="max-w-6xl mx-auto">
         <!-- Tabs -->
