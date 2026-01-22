@@ -25,4 +25,4 @@ jobs:
             git reset --hard
             git pull
             # Restart containers to apply changes
-            docker-compose up -d --build
+            docker compose up -d --build
