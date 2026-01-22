@@ -9,6 +9,8 @@ class MedicationBase(BaseModel):
     pzn: str
     description: Optional[str] = None
     dosage_form: Optional[str] = None
+    manufacturer: Optional[str] = None
+    package_size: Optional[str] = None
     price: Optional[float] = 0.0
     is_active: Optional[bool] = True
 

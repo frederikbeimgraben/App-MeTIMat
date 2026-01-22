@@ -23,18 +23,35 @@ export class PaymentComponent implements OnInit {
   private vendingMachineService = inject(VendingMachineService);
 
   cart = this.cartService.cart$;
-  selectedMethod = signal<'creditCard' | 'healthInsurance' | 'cashOnPickup' | null>(null);
+  selectedMethod = signal<'creditCard' | 'cashOnPickup' | null>(null);
   processing = signal(false);
 
   ngOnInit(): void {
     // Ensure a machine is selected, otherwise go back to location picker
     if (!this.vendingMachineService.getSelectedMachine()) {
       this.router.navigate(['/checkout/location']);
+      return;
     }
+
+    // Skip payment if total is 0
+    this.cart.pipe(take(1)).subscribe((cartData) => {
+      if (cartData.totalAmount <= 0) {
+        this.selectedMethod.set('cashOnPickup');
+        this.processPayment();
+      }
+    });
   }
 
-  selectMethod(method: 'creditCard' | 'healthInsurance' | 'cashOnPickup'): void {
+  selectMethod(method: 'creditCard' | 'cashOnPickup'): void {
     this.selectedMethod.set(method);
+  }
+
+  getItemName(item: any): string {
+    return item.medication?.name || item.medication?.code?.coding?.[0]?.display || 'N/A';
+  }
+
+  getItemPrice(item: any): number {
+    return this.cartService.getMedicationPrice(item.medication, !!item.prescription);
   }
 
   processPayment(): void {
@@ -52,9 +69,10 @@ export class PaymentComponent implements OnInit {
 
       const items = cartData.items.map((item) => ({
         medicationId: item.medication.id!,
-        medicationName: item.medication.name!,
+        medicationName:
+          (item.medication as any).name || item.medication.code?.coding?.[0]?.display || 'N/A',
         quantity: item.quantity,
-        price: (item.medication as any).price || 0,
+        price: this.cartService.getMedicationPrice(item.medication, !!item.prescription),
       }));
 
       this.orderService.createOrder(items, machine.id).subscribe({

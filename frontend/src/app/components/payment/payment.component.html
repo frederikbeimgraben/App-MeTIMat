@@ -8,10 +8,8 @@
       <div class="space-y-2 mb-4">
         @for (item of (cart | async)?.items; track item.id) {
           <div class="flex justify-between text-sm">
-            <span class="text-gray-600">{{ item.quantity }}x {{ item.medication.name }}</span>
-            <span class="font-medium"
-              >€{{ ((item.medication.price || 0) * item.quantity).toFixed(2) }}</span
-            >
+            <span class="text-gray-600">{{ item.quantity }}x {{ getItemName(item) }}</span>
+            <span class="font-medium">€{{ (getItemPrice(item) * item.quantity).toFixed(2) }}</span>
           </div>
         }
       </div>
@@ -37,23 +35,6 @@
         </div>
         <span class="font-semibold">{{ 'payment.creditCard' | transloco }}</span>
         @if (selectedMethod() === 'creditCard') {
-          <mat-icon class="ml-auto text-blue-900">check_circle</mat-icon>
-        }
-      </button>
-
-      <!-- Health Insurance -->
-      <button
-        (click)="selectMethod('healthInsurance')"
-        class="w-full flex items-center p-4 bg-white border-2 rounded-xl transition-all"
-        [class.border-blue-900]="selectedMethod() === 'healthInsurance'"
-        [class.bg-blue-50]="selectedMethod() === 'healthInsurance'"
-        [class.border-transparent]="selectedMethod() !== 'healthInsurance'"
-      >
-        <div class="p-2 rounded-lg bg-green-100 text-green-900 mr-4">
-          <mat-icon>health_and_safety</mat-icon>
-        </div>
-        <span class="font-semibold">{{ 'payment.healthInsurance' | transloco }}</span>
-        @if (selectedMethod() === 'healthInsurance') {
           <mat-icon class="ml-auto text-blue-900">check_circle</mat-icon>
         }
       </button>

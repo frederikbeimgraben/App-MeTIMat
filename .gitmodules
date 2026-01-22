@@ -1,0 +1,3 @@
+[submodule "machine-firmware"]
+	path = machine-firmware
+	url = https://github.com/LuigiCaracho/MeTIMat-Firmware

@@ -16,9 +16,9 @@ class Settings(BaseSettings):
     ENABLE_MOCK_PRESCRIPTIONS: bool = (
         os.getenv("ENABLE_MOCK_PRESCRIPTIONS", "True").lower() == "true"
     )
-    MOCK_PRESCRIPTION_PZN: str = os.getenv("MOCK_PRESCRIPTION_PZN", "12345678")
+    MOCK_PRESCRIPTION_PZN: str = os.getenv("MOCK_PRESCRIPTION_PZN", "87654321")
     MOCK_PRESCRIPTION_NAME: str = os.getenv(
-        "MOCK_PRESCRIPTION_NAME", "Ibuprofen 400mg Akut"
+        "MOCK_PRESCRIPTION_NAME", "Amoxicillin 1000mg"
     )
 
     # Database

@@ -160,7 +160,7 @@
                 class="w-full text-left p-4 rounded-lg border-2 border-gray-200 hover:border-blue-900 hover:bg-blue-50 transition-all group"
               >
                 <div class="font-semibold text-gray-900 group-hover:text-blue-900">
-                  {{ prescription.medicationReference?.display || 'Unbekanntes Medikament' }}
+                  {{ getMedicationName(prescription) }}
                 </div>
                 <div class="text-xs text-gray-500 mt-1">
                   Ausgestellt: {{ prescription.authoredOn | date: 'mediumDate' }}

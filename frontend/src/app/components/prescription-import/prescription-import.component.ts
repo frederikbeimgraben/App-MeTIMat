@@ -137,4 +137,15 @@ export class PrescriptionImportComponent implements OnInit {
   goToPrescriptionFree(): void {
     this.router.navigate(['/medication/search']);
   }
+
+  getMedicationName(prescription: Prescription): string {
+    return (
+      prescription.medication_name ||
+      prescription.medicationReference?.display ||
+      prescription.medicationCodeableConcept?.text ||
+      prescription.medicationCodeableConcept?.coding?.[0]?.display ||
+      prescription.medication?.concept?.coding?.[0]?.display ||
+      'Unbekanntes Medikament'
+    );
+  }
 }

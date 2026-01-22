@@ -75,6 +75,8 @@ def init_db() -> None:
                     pzn="12345678",
                     description="Pain reliever and anti-inflammatory",
                     dosage_form="Tablet",
+                    manufacturer="Ratiopharm",
+                    package_size="20 Stk.",
                     price=9.95,
                 ),
                 Medication(
@@ -82,6 +84,8 @@ def init_db() -> None:
                     pzn="87654321",
                     description="Antibiotic",
                     dosage_form="Film-coated tablet",
+                    manufacturer="Hexal",
+                    package_size="10 Stk.",
                     price=14.50,
                 ),
             ]

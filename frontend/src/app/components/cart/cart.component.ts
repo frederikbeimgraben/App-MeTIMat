@@ -134,9 +134,35 @@ export class CartComponent implements OnInit, OnDestroy {
       // Redirect to vending machine selection
       this.router.navigate(['/location']);
     } else {
-      // Proceed to payment
-      this.router.navigate(['/checkout/payment']);
+      // Skip payment if total is 0
+      const total = this.cart?.totalAmount || 0;
+      if (total <= 0) {
+        // Here we would normally call the service to complete the order directly
+        // For now, let's navigate to the success page if it exists or just proceed
+        this.router.navigate(['/checkout/payment']);
+      } else {
+        this.router.navigate(['/checkout/payment']);
+      }
     }
+  }
+
+  getMedicationName(item: CartItem): string {
+    return (
+      (item.medication as any).name ||
+      item.medication.code?.coding?.[0]?.display ||
+      item.medication.code?.text ||
+      'N/A'
+    );
+  }
+
+  getManufacturer(item: CartItem): string {
+    return (item.medication as any).manufacturer || item.medication.manufacturer?.display || 'N/A';
+  }
+
+  getDosageInfo(item: CartItem): string {
+    const dosage = (item.medication as any).dosage_form || item.medication.form?.text || 'N/A';
+    const size = (item.medication as any).package_size || 'N/A';
+    return `${dosage} | ${size}`;
   }
 
   getGroupTitle(key: string): string {

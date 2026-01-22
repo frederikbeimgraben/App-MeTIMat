@@ -156,8 +156,16 @@ def import_scanned_prescription(
         {},
     )
 
+    # Check if medication exists in our DB
+    medication = (
+        db.query(MedicationModel)
+        .filter(MedicationModel.pzn == settings.MOCK_PRESCRIPTION_PZN)
+        .first()
+    )
+
     db_prescription = PrescriptionModel(
         order_id=new_order.id,
+        medication_id=medication.id if medication else None,
         medication_name=settings.MOCK_PRESCRIPTION_NAME,
         pzn=settings.MOCK_PRESCRIPTION_PZN,
         fhir_data=jsonable_encoder(resource),

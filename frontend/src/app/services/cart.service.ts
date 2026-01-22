@@ -136,7 +136,16 @@ export class CartService {
   /**
    * Helper to extract price from FHIR extension.
    */
-  private getMedicationPrice(medication: Medication): number {
+  public getMedicationPrice(medication: Medication, isPrescription: boolean = false): number {
+    if (isPrescription) {
+      // Calculate co-payment (Eigenanteil) for prescription items
+      // Usually 10% of the price, min 5€, max 10€, but not more than the price itself
+      const fullPrice = this.getMedicationPrice(medication, false);
+      if (fullPrice <= 0) return 0;
+      const coPayment = Math.max(5, Math.min(10, fullPrice * 0.1));
+      return Math.min(fullPrice, coPayment);
+    }
+
     const priceExt = medication.extension?.find(
       (ext) => ext.url === 'http://metimat.de/fhir/StructureDefinition/medication-price',
     );
@@ -149,7 +158,7 @@ export class CartService {
 
   private calculateTotal(items: CartItem[]): number {
     return items.reduce((total, item) => {
-      const price = this.getMedicationPrice(item.medication);
+      const price = this.getMedicationPrice(item.medication, !!item.prescription);
       return total + price * item.quantity;
     }, 0);
   }
@@ -216,7 +225,7 @@ export class CartService {
   // Get total for specific items
   calculateSubtotal(items: CartItem[]): number {
     return items.reduce((total, item) => {
-      const price = this.getMedicationPrice(item.medication);
+      const price = this.getMedicationPrice(item.medication, !!item.prescription);
       return total + price * item.quantity;
     }, 0);
   }

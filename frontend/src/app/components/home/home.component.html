@@ -1,7 +1,7 @@
-<div class="min-h-screen bg-gray-50">
+<div class="h-screen bg-gray-50 flex flex-col overflow-hidden">
   <!-- Header -->
   <header
-    class="border-b-2 border-gray-200 header-blur absolute top-0 left-0 right-0 z-10 bg-white"
+    class="border-b-2 border-gray-200 header-blur absolute top-0 left-0 right-0 z-20 bg-white"
   >
     <div class="background"></div>
     <div class="background"></div>
@@ -36,81 +36,88 @@
     </div>
   </header>
 
-  <!-- Main Content -->
-  <div class="max-w-md mx-auto px-4 pt-28 pb-8">
-    <!-- Start New Order Flow -->
-    <div class="bg-white rounded-lg shadow-sm border-2 border-blue-900 mb-4">
-      <button
-        (click)="startNewOrder()"
-        class="w-full p-6 text-left flex items-center justify-between hover:bg-blue-50 transition-colors rounded-lg"
-      >
-        <div class="flex items-center">
-          <div class="w-12 h-12 bg-blue-900 rounded-full flex items-center justify-center mr-4">
-            <mat-icon class="text-white" style="width: 24px; height: 24px; font-size: 24px"
-              >add</mat-icon
-            >
-          </div>
-          <div>
-            <h3 class="font-semibold text-gray-900">{{ 'home.startFlow' | transloco }}</h3>
-            <p class="text-sm text-gray-600 mt-1">
-              {{ 'home.importPrescription' | transloco }} /
-              {{ 'home.searchMedication' | transloco }}
-            </p>
-          </div>
-        </div>
-        <mat-icon class="text-gray-400" style="width: 20px; height: 20px; font-size: 20px"
-          >chevron_right</mat-icon
+  <!-- Main Content Wrapper -->
+  <div class="flex-1 flex flex-col pt-20 max-w-md mx-auto w-full h-full">
+    <!-- Fixed Actions Area -->
+    <div class="px-4 py-4 flex-shrink-0 space-y-4">
+      <!-- Start New Order Flow -->
+      <div class="bg-white rounded-lg shadow-sm border-2 border-blue-900">
+        <button
+          (click)="startNewOrder()"
+          class="w-full p-6 text-left flex items-center justify-between hover:bg-blue-50 transition-colors rounded-lg"
         >
-      </button>
+          <div class="flex items-center">
+            <div class="w-12 h-12 bg-blue-900 rounded-full flex items-center justify-center mr-4">
+              <mat-icon class="text-white" style="width: 24px; height: 24px; font-size: 24px"
+                >add</mat-icon
+              >
+            </div>
+            <div>
+              <h3 class="font-semibold text-gray-900">{{ 'home.startFlow' | transloco }}</h3>
+              <p class="text-sm text-gray-600 mt-1">
+                {{ 'home.importPrescription' | transloco }} /
+                {{ 'home.searchMedication' | transloco }}
+              </p>
+            </div>
+          </div>
+          <mat-icon class="text-gray-400" style="width: 20px; height: 20px; font-size: 20px"
+            >chevron_right</mat-icon
+          >
+        </button>
+      </div>
+
+      <!-- Additional Quick Actions Grid -->
+      <div class="grid grid-cols-2 gap-4">
+        <!-- Show Locations (Map) -->
+        <button
+          (click)="showMachineLocations()"
+          class="bg-white rounded-lg shadow-sm border-2 border-gray-200 p-4 hover:border-blue-900 hover:bg-blue-50 transition-all"
+        >
+          <div class="flex flex-col items-center">
+            <mat-icon class="text-blue-900 mb-2" style="width: 32px; height: 32px; font-size: 32px"
+              >map</mat-icon
+            >
+            <span class="text-sm font-medium text-gray-900">Map View</span>
+          </div>
+        </button>
+
+        <!-- My Orders -->
+        <button
+          (click)="viewMyOrders()"
+          class="bg-white rounded-lg shadow-sm border-2 border-gray-200 p-4 hover:border-blue-900 hover:bg-blue-50 transition-all"
+        >
+          <div class="flex flex-col items-center">
+            <mat-icon class="text-blue-900 mb-2" style="width: 32px; height: 32px; font-size: 32px"
+              >assignment</mat-icon
+            >
+            <span class="text-sm font-medium text-gray-900">{{
+              'order.myOrders' | transloco
+            }}</span>
+          </div>
+        </button>
+
+        <!-- My Prescriptions -->
+        <button
+          (click)="viewMyPrescriptions()"
+          class="bg-white rounded-lg shadow-sm border-2 border-gray-200 p-4 hover:border-blue-900 hover:bg-blue-50 transition-all"
+        >
+          <div class="flex flex-col items-center">
+            <mat-icon class="text-blue-900 mb-2" style="width: 32px; height: 32px; font-size: 32px"
+              >description</mat-icon
+            >
+            <span class="text-sm font-medium text-gray-900">{{
+              'prescription.myPrescriptions' | transloco
+            }}</span>
+          </div>
+        </button>
+      </div>
     </div>
+  </div>
 
-    <!-- Additional Quick Actions Grid -->
-    <div class="grid grid-cols-2 gap-4">
-      <!-- Show Locations (Map) -->
-      <button
-        (click)="showMachineLocations()"
-        class="bg-white rounded-lg shadow-sm border-2 border-gray-200 p-4 hover:border-blue-900 hover:bg-blue-50 transition-all"
-      >
-        <div class="flex flex-col items-center">
-          <mat-icon class="text-blue-900 mb-2" style="width: 32px; height: 32px; font-size: 32px"
-            >map</mat-icon
-          >
-          <span class="text-sm font-medium text-gray-900">Map View</span>
-        </div>
-      </button>
-
-      <!-- My Orders -->
-      <button
-        (click)="viewMyOrders()"
-        class="bg-white rounded-lg shadow-sm border-2 border-gray-200 p-4 hover:border-blue-900 hover:bg-blue-50 transition-all"
-      >
-        <div class="flex flex-col items-center">
-          <mat-icon class="text-blue-900 mb-2" style="width: 32px; height: 32px; font-size: 32px"
-            >assignment</mat-icon
-          >
-          <span class="text-sm font-medium text-gray-900">{{ 'order.myOrders' | transloco }}</span>
-        </div>
-      </button>
-
-      <!-- My Prescriptions -->
-      <button
-        (click)="viewMyPrescriptions()"
-        class="bg-white rounded-lg shadow-sm border-2 border-gray-200 p-4 hover:border-blue-900 hover:bg-blue-50 transition-all"
-      >
-        <div class="flex flex-col items-center">
-          <mat-icon class="text-blue-900 mb-2" style="width: 32px; height: 32px; font-size: 32px"
-            >description</mat-icon
-          >
-          <span class="text-sm font-medium text-gray-900">{{
-            'prescription.myPrescriptions' | transloco
-          }}</span>
-        </div>
-      </button>
-    </div>
-
-    <!-- Active Orders Section -->
+  <!-- Active Orders Section (Scrollable) -->
+  <div class="flex-1 overflow-y-auto px-4 pb-20">
     @if (activeOrders.length > 0) {
-      <div class="mt-8">
+      <div class="mt-2">
         <div class="flex justify-between items-center mb-4">
           <h2 class="text-lg font-bold text-gray-900">{{ 'home.activeOrders' | transloco }}</h2>
           <button

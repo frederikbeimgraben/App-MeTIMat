@@ -22,7 +22,8 @@ export class VendingMachineService {
     if (medicationIds && medicationIds.length > 0) {
       url += `?medication_ids=${medicationIds.join(',')}`;
     }
-    return this.http.get<VendingMachine[]>(url).pipe(
+    return this.http.get<any[]>(url).pipe(
+      map((items) => items.map((item) => this.mapBackendToVendingMachine(item))),
       catchError((error) => {
         console.error('Error loading vending machines:', error);
         return of([]);
@@ -31,12 +32,61 @@ export class VendingMachineService {
   }
 
   getMachineById(id: string): Observable<VendingMachine | undefined> {
-    return this.http.get<VendingMachine>(`/api/v1/locations/${id}/`).pipe(
+    return this.http.get<any>(`/api/v1/locations/${id}/`).pipe(
+      map((item) => this.mapBackendToVendingMachine(item)),
       catchError((error) => {
         console.error(`Error loading vending machine ${id}:`, error);
         return of(undefined);
       }),
     );
+  }
+
+  private mapBackendToVendingMachine(data: any): VendingMachine {
+    // Parse address string "Street 1, 12345 City"
+    const addressStr = data.address || '';
+    const parts = addressStr.split(',');
+    let line: string[] = [];
+    let postalCode = '';
+    let city = '';
+
+    if (parts.length > 0) {
+      line.push(parts[0].trim());
+    }
+
+    if (parts.length > 1) {
+      const cityPart = parts[1].trim();
+      const match = cityPart.match(/^(\d{5})\s+(.+)$/);
+      if (match) {
+        postalCode = match[1];
+        city = match[2];
+      } else {
+        city = cityPart;
+      }
+    }
+
+    return {
+      resourceType: 'Location',
+      id: data.id ? data.id.toString() : undefined,
+      status: 'active',
+      name: data.name,
+      description: data.opening_hours
+        ? `Öffnungszeiten: ${data.opening_hours}`
+        : 'Keine Öffnungszeiten verfügbar',
+      address: {
+        text: data.address,
+        line: line,
+        city: city,
+        postalCode: postalCode,
+        country: 'DE',
+      },
+      position: {
+        latitude: data.latitude,
+        longitude: data.longitude,
+      },
+      // Extended properties
+      location: data.address,
+      is_available: data.is_available,
+    } as VendingMachine;
   }
 
   getActiveMachines(): Observable<VendingMachine[]> {

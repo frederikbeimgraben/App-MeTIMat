@@ -12,5 +12,7 @@ class Medication(Base):
     )  # Pharma-Zentral-Nummer
     description = Column(String)
     dosage_form = Column(String)
+    manufacturer = Column(String)
+    package_size = Column(String)
     price = Column(Float, default=0.0)
     is_active = Column(Boolean, default=True)

@@ -71,6 +71,7 @@
     "price": "Price",
     "available": "Available",
     "notAvailable": "Not available",
+    "availabilityNotFHIR": "Availability not confirmed via FHIR",
     "addToCart": "Add to cart",
     "quantity": "Quantity",
     "instructions": "Instructions",
@@ -122,7 +123,9 @@
       "pending": "Processing",
       "confirmed": "Confirmed",
       "ready": "Ready for pickup",
-      "completed": "Completed"
+      "available for pickup": "Ready for pickup",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
     },
     "pickupLocation": "Pickup location",
     "showQRCode": "Show QR code",
@@ -131,7 +134,9 @@
     "items": "Items",
     "noOrders": "No orders available",
     "myOrders": "My Orders",
-    "newOrder": "New Order"
+    "newOrder": "New Order",
+    "itemsNotAvailable": "Item details not available",
+    "itemsDetailsRequireFHIRMapping": "Details loading..."
   },
   "payment": {
     "title": "Payment",
@@ -166,7 +171,10 @@
     "machineInfo": "Machine Info",
     "machineInfo1": "Machines are available 24/7",
     "machineInfo2": "Contactless payment available",
-    "machineInfo3": "Easy pickup with QR code"
+    "machineInfo3": "Easy pickup with QR code",
+    "addressDetailsRequireFHIRMapping": "Details loading...",
+    "phone": "Phone",
+    "openingHours": "Opening Hours"
   },
   "locations": {
     "title": "Machine Locations",

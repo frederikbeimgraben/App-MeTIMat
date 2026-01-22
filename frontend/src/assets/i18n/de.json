@@ -73,6 +73,7 @@
     "price": "Preis",
     "available": "Verfügbar",
     "notAvailable": "Nicht verfügbar",
+    "availabilityNotFHIR": "Verfügbarkeit nicht via FHIR bestätigt",
     "addToCart": "In den Warenkorb",
     "quantity": "Menge",
     "instructions": "Einnahmehinweise",
@@ -124,7 +125,8 @@
       "pending": "In Bearbeitung",
       "available for pickup": "Abholbereit",
       "completed": "Abgeschlossen",
-      "cancelled": "Storniert"
+      "cancelled": "Storniert",
+      "ready": "Abholbereit"
     },
     "pickupLocation": "Abholort",
     "showQRCode": "QR-Code anzeigen",
@@ -137,7 +139,9 @@
     "myOrders": "Meine Bestellungen",
     "trackOrder": "Bestellung verfolgen",
     "confirmation": "Bestellbestätigung",
-    "newOrder": "Neue Bestellung"
+    "newOrder": "Neue Bestellung",
+    "itemsNotAvailable": "Artikeldetails nicht verfügbar",
+    "itemsDetailsRequireFHIRMapping": "Details werden geladen"
   },
   "payment": {
     "title": "Zahlung",
@@ -172,7 +176,10 @@
     "machineInfo": "Automateninfo",
     "machineInfo1": "Automaten sind rund um die Uhr verfügbar",
     "machineInfo2": "Kontaktlose Zahlung möglich",
-    "machineInfo3": "Abholung mit QR-Code"
+    "machineInfo3": "Abholung mit QR-Code",
+    "addressDetailsRequireFHIRMapping": "Details werden geladen",
+    "phone": "Telefon",
+    "openingHours": "Öffnungszeiten"
   },
   "locations": {
     "title": "Automatenstandorte",
