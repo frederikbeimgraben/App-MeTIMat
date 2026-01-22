@@ -60,7 +60,7 @@ export class MedicationSearchComponent implements OnInit {
     this.medicationService.getAllMedications().subscribe({
       next: (medications) => {
         this.medications = medications;
-        this.filteredMedications = medications;
+        this.performSearch(this.searchTerm);
         this.loading = false;
       },
       error: (error) => {
@@ -85,61 +85,61 @@ export class MedicationSearchComponent implements OnInit {
     this.searchSubject.next(this.searchTerm);
   }
 
-  public getMedicationName(med: Medication): string {
-    return med.code?.text || med.code?.coding?.[0]?.display || 'Unknown Medication';
+  public getMedicationName(med: any): string {
+    return med.name || med.code?.text || med.code?.coding?.[0]?.display || 'Unknown Medication';
   }
 
-  public getManufacturer(med: Medication): string {
-    // In FHIR Medication, manufacturer is a Reference.
-    return med.manufacturer?.display || 'N/A';
+  public getManufacturer(med: any): string {
+    return med.manufacturer?.display || (med as any).description || 'N/A';
   }
 
-  public getPzn(med: Medication): string {
+  public getPzn(med: any): string {
     return (
-      med.code?.coding?.find((c) => c.system === 'http://fhir.de/CodeSystem/ifa/pzn')?.code || ''
+      med.pzn ||
+      med.code?.coding?.find((c: any) => c.system === 'http://fhir.de/CodeSystem/ifa/pzn')?.code ||
+      ''
     );
   }
 
-  public getPrice(med: Medication): number {
+  public getPrice(med: any): number {
+    if (med.price !== undefined) return med.price;
     const priceExt = med.extension?.find(
-      (ext) => ext.url === 'http://metimat.de/fhir/StructureDefinition/medication-price',
+      (ext: any) => ext.url === 'http://metimat.de/fhir/StructureDefinition/medication-price',
     );
     if (priceExt && priceExt.valueMoney && priceExt.valueMoney.value) {
       return priceExt.valueMoney.value;
     }
-    return (med as any).price || 0;
+    return 0;
   }
 
-  public getForm(med: Medication): string {
-    return med.form?.text || 'N/A';
+  public getForm(med: any): string {
+    return med.form?.text || (med as any).description || 'N/A';
   }
 
-  public getAmount(med: Medication): string {
+  public getAmount(med: any): string {
     if (med.amount?.numerator) {
       return `${med.amount.numerator.value || ''} ${med.amount.numerator.unit || ''}`.trim();
     }
-    return 'N/A';
+    return (med as any).pzn ? '1 Packung' : 'N/A';
   }
 
-  public isAvailable(med: Medication): boolean {
-    // Check status or custom extension
-    return med.status === 'active';
+  public isAvailable(med: any): boolean {
+    return med.status === 'active' || med.id !== undefined;
   }
 
   performSearch(term: string): void {
-    if (!term.trim()) {
-      this.filteredMedications = this.filterByCategory(this.medications);
-      return;
-    }
+    const searchLower = term.toLowerCase().trim();
 
-    const searchLower = term.toLowerCase();
-    const filtered = this.medications.filter((med) => {
+    let filtered = this.medications.filter((med) => {
       const name = this.getMedicationName(med).toLowerCase();
       const pzn = this.getPzn(med).toLowerCase();
       return name.includes(searchLower) || pzn.includes(searchLower);
     });
 
-    this.filteredMedications = this.filterByCategory(filtered);
+    filtered = this.filterByCategory(filtered);
+    filtered = this.filterByPrescription(filtered);
+
+    this.filteredMedications = filtered;
   }
 
   filterByCategory(medications: Medication[]): Medication[] {
@@ -147,26 +147,52 @@ export class MedicationSearchComponent implements OnInit {
       return medications;
     }
 
-    return medications.filter((med) => {
+    return medications.filter((med: any) => {
+      // Prioritize the actual category field from the backend
+      if (med.category) {
+        return med.category === this.selectedCategory;
+      }
+
+      // Fallback to name-based matching if category is missing
       const name = this.getMedicationName(med).toLowerCase();
+      const manufacturer = this.getManufacturer(med).toLowerCase();
+      const searchSpace = name + ' ' + manufacturer;
+
       switch (this.selectedCategory) {
         case 'pain':
           return (
-            name.includes('ibuprofen') || name.includes('paracetamol') || name.includes('aspirin')
+            searchSpace.includes('ibuprofen') ||
+            searchSpace.includes('paracetamol') ||
+            searchSpace.includes('aspirin')
           );
         case 'antibiotics':
-          return name.includes('amoxicillin') || name.includes('penicillin');
+          return searchSpace.includes('amoxicillin') || searchSpace.includes('penicillin');
         case 'allergy':
-          return name.includes('cetirizin') || name.includes('loratadin');
+          return searchSpace.includes('cetirizin') || searchSpace.includes('loratadin');
         case 'vitamins':
-          return name.includes('vitamin');
+          return searchSpace.includes('vitamin');
         case 'cold':
-          return name.includes('hustensaft') || name.includes('nasenspray');
+          return (
+            searchSpace.includes('hustensaft') ||
+            searchSpace.includes('nasenspray') ||
+            searchSpace.includes('grippe')
+          );
         case 'stomach':
-          return name.includes('pantoprazol') || name.includes('omeprazol');
+          return (
+            searchSpace.includes('pantoprazol') ||
+            searchSpace.includes('omeprazol') ||
+            searchSpace.includes('magen')
+          );
         default:
           return true;
       }
+    });
+  }
+
+  filterByPrescription(medications: Medication[]): Medication[] {
+    return medications.filter((med) => {
+      const isPrescriptionRequired = (med as any).prescription_required === true;
+      return isPrescriptionRequired === this.showPrescriptionOnly;
     });
   }
 

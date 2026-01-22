@@ -20,6 +20,9 @@ interface Medication {
   name: string;
   pzn: string;
   description: string;
+  price: number;
+  category: string;
+  prescription_required: boolean;
 }
 
 interface Location {
@@ -248,6 +251,23 @@ interface Order {
                     <p class="text-xs font-mono text-gray-400 mt-1 uppercase tracking-wider">
                       PZN: {{ med.pzn }}
                     </p>
+                    <div class="flex gap-2 mt-2">
+                      <span
+                        class="px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 text-[10px] font-bold uppercase"
+                      >
+                        {{ med.category || 'General' }}
+                      </span>
+                      <span
+                        [class]="
+                          med.prescription_required
+                            ? 'bg-red-50 text-red-700'
+                            : 'bg-green-50 text-green-700'
+                        "
+                        class="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase"
+                      >
+                        {{ med.prescription_required ? 'RX' : 'OTC' }}
+                      </span>
+                    </div>
                   </div>
                   <div class="flex gap-1">
                     <button
@@ -264,7 +284,15 @@ interface Order {
                     </button>
                   </div>
                 </div>
-                <p class="text-sm text-gray-600 line-clamp-3 flex-1 mb-4">{{ med.description }}</p>
+                <p class="text-sm text-gray-600 line-clamp-2 flex-1 mb-4">{{ med.description }}</p>
+                <div class="pt-4 border-t border-gray-50 flex justify-between items-center">
+                  <span class="text-xs text-gray-400 font-bold uppercase tracking-tight"
+                    >Price</span
+                  >
+                  <span class="text-lg font-black text-blue-900"
+                    >€{{ med.price?.toFixed(2) || '0.00' }}</span
+                  >
+                </div>
               </div>
             }
           </div>
@@ -474,30 +502,76 @@ interface Order {
 
               @if (activeTab() === 'medications') {
                 <form [formGroup]="medForm" (ngSubmit)="saveMedication()" class="space-y-4">
-                  <div class="grid gap-2">
-                    <label class="text-xs font-bold text-gray-500 uppercase">Medication Name</label>
-                    <input
-                      type="text"
-                      formControlName="name"
-                      class="w-full p-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
-                    />
+                  <div class="grid grid-cols-2 gap-4">
+                    <div class="grid gap-2">
+                      <label class="text-xs font-bold text-gray-500 uppercase"
+                        >Medication Name</label
+                      >
+                      <input
+                        type="text"
+                        formControlName="name"
+                        class="w-full p-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-900/20 focus:border-blue-900 outline-none"
+                      />
+                    </div>
+                    <div class="grid gap-2">
+                      <label class="text-xs font-bold text-gray-500 uppercase"
+                        >PZN (8 digits)</label
+                      >
+                      <input
+                        type="text"
+                        formControlName="pzn"
+                        class="w-full p-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-900/20 focus:border-blue-900 outline-none"
+                        maxlength="8"
+                      />
+                    </div>
                   </div>
-                  <div class="grid gap-2">
-                    <label class="text-xs font-bold text-gray-500 uppercase">PZN (8 digits)</label>
-                    <input
-                      type="text"
-                      formControlName="pzn"
-                      class="w-full p-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
-                      maxlength="8"
-                    />
+
+                  <div class="grid grid-cols-2 gap-4">
+                    <div class="grid gap-2">
+                      <label class="text-xs font-bold text-gray-500 uppercase">Category</label>
+                      <select
+                        formControlName="category"
+                        class="w-full p-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-900/20 focus:border-blue-900 outline-none"
+                      >
+                        <option value="all">General</option>
+                        <option value="pain">Schmerzmittel</option>
+                        <option value="antibiotics">Antibiotika</option>
+                        <option value="allergy">Allergie</option>
+                        <option value="vitamins">Vitamine</option>
+                        <option value="cold">Erkältung</option>
+                        <option value="stomach">Magen-Darm</option>
+                      </select>
+                    </div>
+                    <div class="grid gap-2">
+                      <label class="text-xs font-bold text-gray-500 uppercase">Price (€)</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        formControlName="price"
+                        class="w-full p-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-900/20 focus:border-blue-900 outline-none"
+                      />
+                    </div>
                   </div>
+
                   <div class="grid gap-2">
                     <label class="text-xs font-bold text-gray-500 uppercase">Description</label>
                     <textarea
                       formControlName="description"
-                      rows="4"
-                      class="w-full p-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none resize-none"
+                      rows="3"
+                      class="w-full p-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-900/20 focus:border-blue-900 outline-none resize-none"
                     ></textarea>
+                  </div>
+
+                  <div class="flex items-center gap-3 py-2">
+                    <input
+                      type="checkbox"
+                      id="prescription_required"
+                      formControlName="prescription_required"
+                      class="w-5 h-5 rounded border-gray-300 text-blue-900 focus:ring-blue-900"
+                    />
+                    <label for="prescription_required" class="font-medium text-gray-700"
+                      >Prescription Required (RX)</label
+                    >
                   </div>
                   <div class="flex gap-3 pt-4">
                     <button
@@ -637,6 +711,9 @@ export class AdminComponent implements OnInit {
     name: ['', Validators.required],
     pzn: ['', [Validators.required, Validators.pattern(/^[0-9]{8}$/)]],
     description: [''],
+    price: [0, [Validators.required, Validators.min(0)]],
+    category: ['all'],
+    prescription_required: [false],
   });
 
   locForm = this.fb.group({
