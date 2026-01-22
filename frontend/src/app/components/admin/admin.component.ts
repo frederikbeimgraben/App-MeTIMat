@@ -46,6 +46,8 @@ interface Order {
   created_at: string;
 }
 
+type AdminTab = 'users' | 'meds' | 'orders' | 'locations';
+
 @Component({
   selector: 'app-admin',
   standalone: true,
@@ -58,7 +60,7 @@ export class AdminComponent implements OnInit {
   public authService = inject(AuthService);
   private router = inject(Router);
 
-  activeTab = signal('users');
+  activeTab = signal<AdminTab>('users');
   users = signal<User[]>([]);
   medications = signal<Medication[]>([]);
   locations = signal<Location[]>([]);

@@ -76,9 +76,9 @@
         <span>Users</span>
       </button>
       <button
-        (click)="activeTab.set('medications')"
+        (click)="activeTab.set('meds')"
         [class]="
-          activeTab() === 'medications'
+          activeTab() === 'meds'
             ? 'bg-blue-900 text-white shadow-md'
             : 'text-gray-600 hover:bg-gray-100'
         "
@@ -108,7 +108,7 @@
         "
         class="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 font-bold rounded-lg transition-all min-w-[120px]"
       >
-        <mat-icon style="width: 20px; height: 20px; font-size: 20px">place</mat-icon>
+        <mat-icon style="width: 20px; height: 20px; font-size: 20px">location_on</mat-icon>
         <span>Locations</span>
       </button>
     </div>
@@ -183,7 +183,7 @@
     }
 
     <!-- Medications Tab -->
-    @if (activeTab() === 'medications') {
+    @if (activeTab() === 'meds') {
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         @for (med of medications(); track med.id) {
           <div
@@ -442,7 +442,7 @@
             </form>
           }
 
-          @if (activeTab() === 'medications') {
+          @if (activeTab() === 'meds') {
             <form [formGroup]="medForm" (ngSubmit)="saveMedication()" class="space-y-4">
               <div class="grid grid-cols-2 gap-4">
                 <div class="grid gap-2">
