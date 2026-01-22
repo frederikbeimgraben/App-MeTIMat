@@ -7,11 +7,9 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     PROJECT_NAME: str = "MeTIMat Backend"
     API_V1_STR: str = "/api/v1"
-    SECRET_KEY: str = os.getenv("SECRET_KEY", "my-super-secret-key")
+    SECRET_KEY: str = os.environ["SECRET_KEY"]
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8  # 8 days
-    MACHINE_ACCESS_TOKEN: str = os.getenv(
-        "MACHINE_ACCESS_TOKEN", "your-machine-token-here"
-    )
+    MACHINE_ACCESS_TOKEN: str = os.environ["MACHINE_ACCESS_TOKEN"]
 
     # Mocking
     ENABLE_MOCK_PRESCRIPTIONS: bool = (

@@ -34,7 +34,7 @@ services:
       - DB_DATABASE=${DB_DATABASE:-metimat}
       - POSTGRES_SERVER=postgresql
       - ENABLE_MOCK_PRESCRIPTIONS=${ENABLE_MOCK_PRESCRIPTIONS:-True}
-      - SECRET_KEY=${SECRET_KEY:-09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7}
+      - SECRET_KEY=${SECRET_KEY}
     depends_on:
       postgresql:
         condition: service_healthy
