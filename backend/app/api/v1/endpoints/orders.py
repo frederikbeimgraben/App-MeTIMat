@@ -128,6 +128,8 @@ def validate_qr_order(
             valid=False, message="Order not found or invalid token"
         )
 
+    print(order.location.validation_key, x_machine_token)
+
     # Check if the machine's token matches the location assigned to the order
     if not order.location or order.location.validation_key != x_machine_token:
         logger.warning(
