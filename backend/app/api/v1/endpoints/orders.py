@@ -128,8 +128,6 @@ def validate_qr_order(
             valid=False, message="Order not found or invalid token"
         )
 
-    print(order.location.validation_key, x_machine_token)
-
     # Check if the machine's token matches the location assigned to the order
     if not order.location or order.location.validation_key != x_machine_token:
         logger.warning(
@@ -137,7 +135,10 @@ def validate_qr_order(
             f"Expected key: {order.location.validation_key if order.location else 'None'}, "
             f"Received: {x_machine_token}"
         )
-        return QRValidationResponse(valid=False, message="Machine authorization failed")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Machine authorization failed",
+        )
 
     return QRValidationResponse(
         valid=True, order=order, message="QR-Code erfolgreich validiert"
