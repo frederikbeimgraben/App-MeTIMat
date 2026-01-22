@@ -56,7 +56,7 @@ export class OrdersComponent implements OnInit {
   }
 
   startNewOrder(): void {
-    this.router.navigate(['/home']);
+    this.router.navigate(['/prescription/import']);
   }
 
   getStatusColor(orderStatus: string | undefined): string {
