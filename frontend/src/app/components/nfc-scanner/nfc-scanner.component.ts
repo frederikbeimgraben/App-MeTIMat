@@ -43,7 +43,7 @@ import { TranslocoModule } from '@ngneat/transloco';
         } @else if (status() === 'scanning') {
           Please keep the device still...
         } @else if (status() === 'success') {
-          The mock prescription has been successfully imported into your account.
+          The prescription has been successfully imported into your account.
         } @else {
           {{ errorMessage() }}
         }
@@ -97,9 +97,9 @@ export class NfcScannerComponent implements OnInit, OnDestroy {
 
       await this.ndef.scan({ signal: this.ctrl.signal });
 
-      this.ndef.onreading = (event: any) => {
-        console.log('NFC Reading event:', event);
-        this.addMockPrescription();
+      this.ndef.onreading = ({ serialNumber }: { serialNumber: string }) => {
+        console.log(`NFC tag read successfully. Serial number: ${serialNumber}`);
+        this.importPrescription(serialNumber);
       };
 
       this.ndef.onreadingerror = () => {
@@ -117,21 +117,19 @@ export class NfcScannerComponent implements OnInit, OnDestroy {
     this.status.set('scanning');
     // Simulate reading delay
     setTimeout(() => {
-      this.addMockPrescription();
+      this.importPrescription('mock-nfc-token');
     }, 2000);
   }
 
-  private addMockPrescription() {
+  private importPrescription(serialNumber: string) {
     // AuthInterceptor handles token headers automatically
-    this.http.post('/api/v1/prescriptions/import/scan', { qr_data: 'mock-nfc-token' }).subscribe({
+    this.http.post('/api/v1/prescriptions/import/scan', { qr_data: serialNumber }).subscribe({
       next: () => {
         this.status.set('success');
       },
       error: (err) => {
         this.status.set('error');
-        this.errorMessage.set(
-          err.error?.detail || 'Failed to create mock prescription. Is it enabled in .env?',
-        );
+        this.errorMessage.set(err.error?.detail || 'Failed to import prescription.');
       },
     });
   }
