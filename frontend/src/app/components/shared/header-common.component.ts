@@ -44,8 +44,13 @@ import { AuthService } from '../../services/auth.service';
             </button>
           }
 
-          <button (click)="logout()" class="p-2 text-gray-600" aria-label="Logout">
-            <mat-icon style="width: 24px; height: 24px; font-size: 24px">logout</mat-icon>
+          <button
+            (click)="logout()"
+            class="h-10 flex items-center space-x-1 px-4 text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+            aria-label="Logout"
+          >
+            <mat-icon style="width: 20px; height: 20px; font-size: 20px">logout</mat-icon>
+            <span class="text-sm font-medium">Abmelden</span>
           </button>
         </div>
       </div>

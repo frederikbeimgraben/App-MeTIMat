@@ -17,7 +17,7 @@
         @if (authService.isAdmin()) {
           <button
             (click)="goToAdmin()"
-            class="p-2 text-blue-900 hover:bg-gray-100 rounded-full transition-colors"
+            class="h-10 w-10 flex items-center justify-center text-blue-900 hover:bg-gray-100 rounded-full transition-colors"
             aria-label="Admin"
           >
             <mat-icon style="width: 24px; height: 24px; font-size: 24px"
@@ -27,7 +27,7 @@
         }
         <button
           (click)="logout()"
-          class="flex items-center space-x-1 px-3 py-1.5 text-gray-600 hover:bg-gray-100 rounded-full transition-colors border border-gray-200"
+          class="h-10 flex items-center space-x-1 px-4 text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
           aria-label="Logout"
         >
           <mat-icon style="width: 20px; height: 20px; font-size: 20px">logout</mat-icon>
@@ -72,9 +72,9 @@
         <!-- My Orders -->
         <button
           (click)="viewMyOrders()"
-          class="bg-white rounded-lg shadow-sm border-2 border-gray-200 p-4 hover:border-blue-900 hover:bg-blue-50 transition-all"
+          class="bg-white rounded-lg shadow-sm border-2 border-gray-200 p-4 hover:border-blue-900 hover:bg-blue-50 transition-all h-full"
         >
-          <div class="flex flex-col items-center">
+          <div class="flex flex-col items-center justify-center h-full text-center">
             <mat-icon class="text-blue-900 mb-2" style="width: 32px; height: 32px; font-size: 32px"
               >assignment</mat-icon
             >
@@ -87,9 +87,9 @@
         <!-- Show Locations (Map) -->
         <button
           (click)="showMachineLocations()"
-          class="bg-white rounded-lg shadow-sm border-2 border-gray-200 p-4 hover:border-blue-900 hover:bg-blue-50 transition-all"
+          class="bg-white rounded-lg shadow-sm border-2 border-gray-200 p-4 hover:border-blue-900 hover:bg-blue-50 transition-all h-full"
         >
-          <div class="flex flex-col items-center">
+          <div class="flex flex-col items-center justify-center h-full text-center">
             <mat-icon class="text-blue-900 mb-2" style="width: 32px; height: 32px; font-size: 32px"
               >map</mat-icon
             >

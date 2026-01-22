@@ -50,34 +50,38 @@ interface Order {
     <div class="min-h-screen bg-gray-100 p-4 md:p-8">
       <header class="mb-6 flex justify-between items-center max-w-6xl mx-auto">
         <div class="flex items-center gap-4">
-          <button (click)="goBack()" class="p-2 hover:bg-gray-200 rounded-full transition-colors">
-            <mat-icon>arrow_back</mat-icon>
+          <button
+            (click)="goBack()"
+            class="h-10 w-10 flex items-center justify-center hover:bg-gray-200 rounded-full transition-colors"
+          >
+            <mat-icon class="!m-0">arrow_back</mat-icon>
           </button>
           <div>
-            <h1 class="text-3xl font-bold text-blue-900">Admin Control Panel</h1>
+            <h1 class="text-3xl font-bold text-blue-900 leading-tight">Admin Control Panel</h1>
             <p class="text-sm text-gray-600">Manage System Resources</p>
           </div>
         </div>
-        <div class="flex gap-2">
+        <div class="flex items-center gap-2">
           <button
             (click)="openCreateModal()"
-            class="flex items-center gap-2 px-4 py-2 bg-blue-900 text-white rounded-lg shadow hover:bg-blue-800 transition-colors"
+            class="h-10 flex items-center gap-2 px-4 bg-blue-900 text-white rounded-lg shadow hover:bg-blue-800 transition-colors"
           >
-            <mat-icon>add</mat-icon>
-            <span>Create New</span>
+            <mat-icon class="!m-0">add</mat-icon>
+            <span class="font-semibold">Create New</span>
           </button>
           <button
             (click)="loadData()"
-            class="p-2 bg-white rounded-lg shadow hover:bg-gray-50 border transition-colors"
+            class="h-10 w-10 flex items-center justify-center bg-white rounded-lg shadow hover:bg-gray-50 border transition-colors"
           >
-            <mat-icon>refresh</mat-icon>
+            <mat-icon class="!m-0">refresh</mat-icon>
           </button>
           <button
             (click)="logout()"
-            class="p-2 text-red-600 bg-white rounded-lg shadow hover:bg-red-50 border border-red-100 transition-colors"
-            title="Logout"
+            class="h-10 flex items-center space-x-1 px-4 text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+            aria-label="Logout"
           >
-            <mat-icon>logout</mat-icon>
+            <mat-icon style="width: 20px; height: 20px; font-size: 20px">logout</mat-icon>
+            <span class="text-sm font-medium">Abmelden</span>
           </button>
         </div>
       </header>
@@ -164,18 +168,20 @@ interface Order {
                       </span>
                     </td>
                     <td class="p-4 text-right">
-                      <button
-                        (click)="editUser(user)"
-                        class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                      >
-                        <mat-icon>edit</mat-icon>
-                      </button>
-                      <button
-                        (click)="deleteResource('users', user.id)"
-                        class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                      >
-                        <mat-icon>delete</mat-icon>
-                      </button>
+                      <div class="flex justify-end gap-1">
+                        <button
+                          (click)="editUser(user)"
+                          class="h-9 w-9 flex items-center justify-center text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        >
+                          <mat-icon class="!m-0">edit</mat-icon>
+                        </button>
+                        <button
+                          (click)="deleteResource('users', user.id)"
+                          class="h-9 w-9 flex items-center justify-center text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        >
+                          <mat-icon class="!m-0">delete</mat-icon>
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 }
@@ -199,15 +205,15 @@ interface Order {
                   <div class="flex gap-1">
                     <button
                       (click)="editMedication(med)"
-                      class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg"
+                      class="h-9 w-9 flex items-center justify-center text-blue-600 hover:bg-blue-50 rounded-lg"
                     >
-                      <mat-icon>edit</mat-icon>
+                      <mat-icon class="!m-0">edit</mat-icon>
                     </button>
                     <button
                       (click)="deleteResource('medications', med.id)"
-                      class="p-1.5 text-red-600 hover:bg-red-50 rounded-lg"
+                      class="h-9 w-9 flex items-center justify-center text-red-600 hover:bg-red-50 rounded-lg"
                     >
-                      <mat-icon>delete</mat-icon>
+                      <mat-icon class="!m-0">delete</mat-icon>
                     </button>
                   </div>
                 </div>
@@ -251,12 +257,14 @@ interface Order {
                       {{ order.created_at | date: 'medium' }}
                     </td>
                     <td class="p-4 text-right">
-                      <button
-                        (click)="deleteResource('orders', order.id)"
-                        class="p-2 text-red-600 hover:bg-red-50 rounded-lg"
-                      >
-                        <mat-icon>delete</mat-icon>
-                      </button>
+                      <div class="flex justify-end">
+                        <button
+                          (click)="deleteResource('orders', order.id)"
+                          class="h-9 w-9 flex items-center justify-center text-red-600 hover:bg-red-50 rounded-lg"
+                        >
+                          <mat-icon class="!m-0">delete</mat-icon>
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 }
@@ -282,15 +290,15 @@ interface Order {
                   <div class="flex gap-1">
                     <button
                       (click)="editLocation(loc)"
-                      class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg"
+                      class="h-9 w-9 flex items-center justify-center text-blue-600 hover:bg-blue-50 rounded-lg"
                     >
-                      <mat-icon>edit</mat-icon>
+                      <mat-icon class="!m-0">edit</mat-icon>
                     </button>
                     <button
                       (click)="deleteResource('locations', loc.id)"
-                      class="p-1.5 text-red-600 hover:bg-red-50 rounded-lg"
+                      class="h-9 w-9 flex items-center justify-center text-red-600 hover:bg-red-50 rounded-lg"
                     >
-                      <mat-icon>delete</mat-icon>
+                      <mat-icon class="!m-0">delete</mat-icon>
                     </button>
                   </div>
                 </div>
