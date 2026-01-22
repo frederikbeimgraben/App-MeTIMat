@@ -30,15 +30,16 @@
               },
               {
                 "glob": "**/*",
-                "input": "src/assets",
-                "output": "/assets"
+                "input": "src/assets"
               },
               {
                 "glob": "**/*",
                 "input": "node_modules/leaflet/dist/images",
                 "output": "/assets"
               },
-              "src/manifest.webmanifest"
+              "src/manifest.webmanifest",
+              "src/assets/material-icons.css",
+              "src/assets/material-icons.ttf"
             ],
             "styles": ["src/styles/styles.css", "node_modules/leaflet/dist/leaflet.css"]
           },
