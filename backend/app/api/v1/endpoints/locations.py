@@ -1,9 +1,9 @@
-from typing import Any, List
+from typing import Any, List, Optional
 
 from app.api import deps
-from app.models.master_data import Location as LocationModel
+from app.models.location import Location as LocationModel
 from app.models.user import User as UserModel
-from app.schemas.master_data import Location, LocationCreate, LocationUpdate
+from app.schemas.location import Location, LocationCreate, LocationUpdate
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -15,12 +15,39 @@ def read_locations(
     db: Session = Depends(deps.get_db),
     skip: int = 0,
     limit: int = 100,
+    medication_ids: Optional[str] = None,
     current_user: UserModel = Depends(deps.get_current_user),
 ) -> Any:
     """
-    Retrieve locations (Pharmacies/Doctors).
+    Retrieve locations (Pharmacies/Vending Machines).
+    If medication_ids (comma-separated) is provided, calculates availability.
     """
     locations = db.query(LocationModel).offset(skip).limit(limit).all()
+
+    if medication_ids:
+        from app.models.inventory import Inventory as InventoryModel
+
+        ids = [int(i) for i in medication_ids.split(",") if i.strip()]
+
+        for loc in locations:
+            # Check if all requested medications are in stock (quantity > 0)
+            available_items = (
+                db.query(InventoryModel.medication_id)
+                .filter(
+                    InventoryModel.location_id == loc.id,
+                    InventoryModel.medication_id.in_(ids),
+                    InventoryModel.quantity > 0,
+                )
+                .all()
+            )
+
+            # Convert query result to a set of IDs
+            available_set = {item[0] for item in available_items}
+            loc.is_available = all(mid in available_set for mid in ids)
+    else:
+        for loc in locations:
+            loc.is_available = True
+
     return locations
 
 

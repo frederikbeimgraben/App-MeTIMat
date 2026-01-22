@@ -1,7 +1,9 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
+import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslocoModule } from '@ngneat/transloco';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-header-common',
@@ -29,8 +31,22 @@ import { TranslocoModule } from '@ngneat/transloco';
             {{ title }}
           }
         </h1>
-        <div class="header-actions">
-          <ng-content select="[headerActions]"></ng-content>
+        <div class="flex items-center space-x-1">
+          <div class="header-actions">
+            <ng-content select="[headerActions]"></ng-content>
+          </div>
+
+          @if (authService.isAdmin()) {
+            <button (click)="goToAdmin()" class="p-2 text-blue-900" aria-label="Admin">
+              <mat-icon style="width: 24px; height: 24px; font-size: 24px"
+                >admin_panel_settings</mat-icon
+              >
+            </button>
+          }
+
+          <button (click)="logout()" class="p-2 text-gray-600" aria-label="Logout">
+            <mat-icon style="width: 24px; height: 24px; font-size: 24px">logout</mat-icon>
+          </button>
         </div>
       </div>
     </header>
@@ -53,9 +69,19 @@ export class HeaderCommonComponent {
   @Input() titleKey: string = '';
   @Input() hasBackButton: boolean = true;
 
-  constructor(private location: Location) {}
+  public authService = inject(AuthService);
+  private location = inject(Location);
+  private router = inject(Router);
 
   goBack(): void {
     this.location.back();
+  }
+
+  logout(): void {
+    this.authService.logout();
+  }
+
+  goToAdmin(): void {
+    this.router.navigate(['/admin']);
   }
 }

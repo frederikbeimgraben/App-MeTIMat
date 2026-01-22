@@ -18,7 +18,7 @@ export class OrderService {
    * Fetches all orders (ServiceRequests) for the current user.
    */
   getAllOrders(): Observable<Order[]> {
-    return this.http.get<Order[]>('/api/orders').pipe(
+    return this.http.get<Order[]>('/api/v1/orders/').pipe(
       tap((orders) => this.ordersSubject.next(orders)),
       catchError((error) => {
         console.error('Error fetching orders:', error);
@@ -34,7 +34,8 @@ export class OrderService {
     return this.getAllOrders().pipe(
       map((orders) =>
         orders.filter(
-          (o) => o.status === 'active' || o.status === 'on-hold' || o.status === 'draft',
+          (o) =>
+            (o.status as string) === 'pending' || (o.status as string) === 'available for pickup',
         ),
       ),
     );
@@ -43,8 +44,8 @@ export class OrderService {
   /**
    * Fetches a specific order by ID.
    */
-  getOrderById(id: string): Observable<Order | undefined> {
-    return this.http.get<Order>(`/api/orders/${id}`).pipe(
+  getOrderById(id: string | number): Observable<Order | undefined> {
+    return this.http.get<Order>(`/api/v1/orders/${id}`).pipe(
       catchError((error) => {
         console.error(`Error fetching order ${id}:`, error);
         return of(undefined);
@@ -54,19 +55,22 @@ export class OrderService {
 
   /**
    * Fetches available pickup locations.
-   * (Currently returning empty as backend implementation for Locations is pending)
    */
   getPickupLocations(): Observable<Location[]> {
-    // TODO: Implement /api/locations backend endpoint
-    return of([]);
+    return this.http.get<Location[]>('/api/v1/locations/').pipe(
+      catchError((error) => {
+        console.error('Error fetching locations:', error);
+        return of([]);
+      }),
+    );
   }
 
   /**
    * Filters available pickup locations based on medication IDs.
    */
   getAvailablePickupLocations(medicationIds: string[]): Observable<Location[]> {
-    // TODO: Implement backend filtering logic
-    return of([]);
+    // Current implementation returns all locations until backend filtering is implemented
+    return this.getPickupLocations();
   }
 
   /**
@@ -75,17 +79,11 @@ export class OrderService {
    */
   createOrder(items: OrderItem[], pickupLocationId: string): Observable<Order> {
     const orderPayload = {
-      resourceType: 'ServiceRequest',
-      status: 'active',
-      intent: 'order',
-      subject: { reference: 'Patient/current' }, // Backend will resolve the authenticated user
-      note: items.map((item) => ({
-        text: `Item: ${item.medicationName}, Quantity: ${item.quantity}`,
-      })),
-      // In a real scenario, we would add detailed extensions or contained resources for items
+      status: 'pending',
+      // In a real app, we would send items and pickupLocationId to the backend
     };
 
-    return this.http.post<Order>('/api/orders', orderPayload).pipe(
+    return this.http.post<Order>('/api/v1/orders/', orderPayload).pipe(
       tap((newOrder) => {
         const current = this.ordersSubject.value;
         this.ordersSubject.next([...current, newOrder]);
@@ -100,28 +98,22 @@ export class OrderService {
   /**
    * Confirms payment for an order.
    */
-  confirmPayment(orderId: string): Observable<boolean> {
-    return this.updateOrderStatus(orderId, 'paid');
+  confirmPayment(orderId: string | number): Observable<boolean> {
+    return this.updateOrderStatus(orderId, 'available for pickup');
   }
 
   /**
    * Updates the status of an order.
    */
   updateOrderStatus(
-    orderId: string,
-    status: 'pending' | 'paid' | 'ready_for_pickup' | 'dispensed' | 'completed' | 'active',
+    orderId: string | number,
+    status: 'pending' | 'available for pickup' | 'completed' | 'cancelled',
   ): Observable<boolean> {
-    return this.http.patch<Order>(`/api/orders/${orderId}/status`, { status }).pipe(
+    return this.http.patch<Order>(`/api/v1/orders/${orderId}`, { status }).pipe(
       map(() => true),
       tap(() => {
-        // Optimistically update local state or re-fetch
-        const current = this.ordersSubject.value;
-        const index = current.findIndex((o) => o.id === orderId);
-        if (index !== -1) {
-          // A proper implementation would merge the response, but here we just assume success
-          // Ideally, we would re-fetch the order to get the updated FHIR resource
-          this.getAllOrders().subscribe();
-        }
+        // Refresh local state
+        this.getAllOrders().subscribe();
       }),
       catchError((error) => {
         console.error('Error updating order status:', error);

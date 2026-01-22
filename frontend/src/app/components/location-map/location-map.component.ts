@@ -25,6 +25,7 @@ import { Subscription } from 'rxjs';
 export class LocationMapComponent implements OnInit, OnDestroy {
   @Input() mode: 'view' | 'select' = 'view';
   @Input() selectedMachineId?: string;
+  @Input() medicationIds: number[] = [];
   @Output() machineSelected = new EventEmitter<VendingMachine>();
 
   map!: L.Map;
@@ -56,7 +57,7 @@ export class LocationMapComponent implements OnInit, OnDestroy {
 
   private loadMachines(): void {
     this.loading = true;
-    const sub = this.vendingMachineService.getAllMachines().subscribe({
+    const sub = this.vendingMachineService.getAllMachines(this.medicationIds).subscribe({
       next: (machines) => {
         this.machines = machines.map((m) => {
           // Pre-format address for display
@@ -148,8 +149,13 @@ export class LocationMapComponent implements OnInit, OnDestroy {
   applyFilters(): void {
     let filtered = [...this.machines];
 
-    // Sort by distance if available
+    // Sort by availability first (available machines on top), then by distance
     filtered.sort((a, b) => {
+      // is_available === false means machine doesn't have the required medications
+      const availA = (a as any).is_available === false ? 1 : 0;
+      const availB = (b as any).is_available === false ? 1 : 0;
+      if (availA !== availB) return availA - availB;
+
       const distA = a.distance ?? 9999;
       const distB = b.distance ?? 9999;
       return distA - distB;

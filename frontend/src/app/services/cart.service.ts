@@ -181,7 +181,7 @@ export class CartService {
         const grouped = new Map<string, CartItem[]>();
         items.forEach((item) => {
           if (item.prescription && item.prescription.id) {
-            const key = item.prescription.id;
+            const key = item.prescription.id.toString();
             const current = grouped.get(key) || [];
             current.push(item);
             grouped.set(key, current);

@@ -27,6 +27,7 @@ export class LocationPickerComponent implements OnInit, OnDestroy {
   selectedMachine: VendingMachine | null = null;
   isCheckoutFlow = false;
   cartMedicationIds: string[] = [];
+  medicationIdsAsNumbers: number[] = [];
   availability: { allAvailable: boolean; unavailableItems: string[] } | null = null;
   checkingAvailability = false;
   private subscriptions = new Subscription();
@@ -52,6 +53,9 @@ export class LocationPickerComponent implements OnInit, OnDestroy {
         this.cartMedicationIds = items
           .map((item) => item.medication.id)
           .filter((id): id is string => !!id);
+        this.medicationIdsAsNumbers = this.cartMedicationIds
+          .map((id) => parseInt(id))
+          .filter((id) => !isNaN(id));
       });
       this.subscriptions.add(cartSub);
     }
@@ -62,6 +66,11 @@ export class LocationPickerComponent implements OnInit, OnDestroy {
   }
 
   onMachineSelected(machine: VendingMachine | null): void {
+    // A machine is only selectable if it's available for the current cart items
+    if (machine && (machine as any).is_available === false) {
+      return;
+    }
+
     this.selectedMachine = machine;
     this.vendingMachineService.selectMachine(machine);
 
@@ -97,6 +106,11 @@ export class LocationPickerComponent implements OnInit, OnDestroy {
 
   confirmSelection(): void {
     if (this.selectedMachine) {
+      // Ensure everything is available before proceeding
+      if (this.isCheckoutFlow && this.availability && !this.availability.allAvailable) {
+        return;
+      }
+
       if (this.isCheckoutFlow) {
         // Navigate to payment if in checkout flow
         this.router.navigate(['/checkout/payment']);

@@ -17,8 +17,12 @@ export class VendingMachineService {
 
   constructor(private http: HttpClient) {}
 
-  getAllMachines(): Observable<VendingMachine[]> {
-    return this.http.get<VendingMachine[]>('/api/locations').pipe(
+  getAllMachines(medicationIds?: number[]): Observable<VendingMachine[]> {
+    let url = '/api/v1/locations/';
+    if (medicationIds && medicationIds.length > 0) {
+      url += `?medication_ids=${medicationIds.join(',')}`;
+    }
+    return this.http.get<VendingMachine[]>(url).pipe(
       catchError((error) => {
         console.error('Error loading vending machines:', error);
         return of([]);
@@ -27,7 +31,7 @@ export class VendingMachineService {
   }
 
   getMachineById(id: string): Observable<VendingMachine | undefined> {
-    return this.http.get<VendingMachine>(`/api/locations/${id}`).pipe(
+    return this.http.get<VendingMachine>(`/api/v1/locations/${id}/`).pipe(
       catchError((error) => {
         console.error(`Error loading vending machine ${id}:`, error);
         return of(undefined);

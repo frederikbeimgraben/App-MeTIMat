@@ -90,37 +90,28 @@ export class PrescriptionImportComponent implements OnInit {
   }
 
   processNFCData(): void {
-    // Simulate processing and checking for duplicates
-    // For now, returning an empty array of prescriptions as the service method is a placeholder.
-    const mockPrescriptions: Prescription[] = [];
+    this.prescriptionService.importFromEGK().subscribe({
+      next: (imported: Prescription[]) => {
+        this.activePrescriptions = imported.filter((p) => p.status === 'active');
 
-    // Check for duplicates based on prescription ID (primitive string in FHIR R4)
-    const existingIds = this.activePrescriptions
-      .map((p) => p.id)
-      .filter((id): id is string => !!id);
-    const newPrescriptions = mockPrescriptions.filter((p) => p.id && !existingIds.includes(p.id));
-
-    if (newPrescriptions.length > 0) {
-      this.prescriptionService.importPrescriptions(newPrescriptions).subscribe({
-        next: (imported: Prescription[]) => {
-          this.importedCount = newPrescriptions.length;
+        if (this.activePrescriptions.length > 0) {
+          this.importedCount = imported.length;
           this.showSuccess = true;
-          this.loadActivePrescriptions();
-        },
-        error: (error: any) => {
-          this.errorMessage = 'Fehler beim Importieren der Rezepte';
+        } else {
+          this.errorMessage = 'Keine verwendbaren Rezepte auf der Karte gefunden.';
           this.showError = true;
-        },
-      });
-    } else {
-      this.errorMessage = 'Alle Rezepte auf der Karte wurden bereits importiert oder Karte leer.';
-      this.showError = true;
-    }
+        }
+      },
+      error: (error: any) => {
+        console.error('Error importing from eGK:', error);
+        this.errorMessage = 'Fehler beim Lesen der eGK.';
+        this.showError = true;
+      },
+    });
   }
 
   viewPrescriptions(): void {
     this.showSuccess = false;
-    this.router.navigate(['/prescriptions']);
   }
 
   closeError(): void {
@@ -145,13 +136,5 @@ export class PrescriptionImportComponent implements OnInit {
 
   goToPrescriptionFree(): void {
     this.router.navigate(['/medication/search']);
-  }
-
-  selectSpecialty(): void {
-    // Placeholder
-  }
-
-  selectPrescription(): void {
-    this.router.navigate(['/prescriptions']);
   }
 }

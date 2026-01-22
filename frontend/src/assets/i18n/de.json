@@ -122,9 +122,9 @@
     "orderNumber": "Bestellnummer",
     "status": {
       "pending": "In Bearbeitung",
-      "confirmed": "Bestätigt",
-      "ready": "Abholbereit",
-      "completed": "Abgeschlossen"
+      "available for pickup": "Abholbereit",
+      "completed": "Abgeschlossen",
+      "cancelled": "Storniert"
     },
     "pickupLocation": "Abholort",
     "showQRCode": "QR-Code anzeigen",

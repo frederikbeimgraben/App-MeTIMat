@@ -33,7 +33,7 @@ export class OrderDetailComponent implements OnInit {
     }
   }
 
-  loadOrder(orderId: string): void {
+  loadOrder(orderId: string | number): void {
     this.loading = true;
     this.orderService.getOrderById(orderId).subscribe({
       next: (order) => {
@@ -52,15 +52,13 @@ export class OrderDetailComponent implements OnInit {
    */
   getStatusColor(orderStatus: string | undefined): string {
     switch (orderStatus) {
-      case 'active':
+      case 'available for pickup':
         return 'bg-blue-100 text-blue-800';
-      case 'on-hold':
-      case 'draft':
+      case 'pending':
         return 'bg-yellow-100 text-yellow-800';
       case 'completed':
         return 'bg-green-100 text-green-800';
-      case 'revoked':
-      case 'entered-in-error':
+      case 'cancelled':
         return 'bg-red-100 text-red-800';
       default:
         return 'bg-gray-100 text-gray-800';
@@ -69,41 +67,9 @@ export class OrderDetailComponent implements OnInit {
 
   /**
    * Generates the data string for the QR code used for validation at the device.
-   *
-   * This implementation extracts the TaskID and AccessCode from the Gematik-compliant
-   * FHIR extensions if available, or falls back to the internal Pickup Code.
-   *
-   * Format for validation endpoint: TaskID|AccessCode
    */
   get qrCodeData(): string {
-    if (!this.order || !this.order.extension) {
-      return this.order?.id || '';
-    }
-
-    const taskIdExt = this.order.extension.find(
-      (ext) =>
-        ext.url === 'https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EXT_PrescriptionID',
-    );
-    const accessCodeExt = this.order.extension.find(
-      (ext) => ext.url === 'https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EXT_AccessCode',
-    );
-
-    // If both TaskID and AccessCode are present, use the validation format
-    if (taskIdExt?.valueString && accessCodeExt?.valueString) {
-      return `${taskIdExt.valueString}|${accessCodeExt.valueString}`;
-    }
-
-    // Fallback: Check for a dedicated Pickup Code extension
-    const pickupCodeExt = this.order.extension.find(
-      (ext) => ext.url === 'https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EXT_PickupCode',
-    );
-
-    if (pickupCodeExt?.valueString) {
-      return pickupCodeExt.valueString;
-    }
-
-    // Final fallback to the resource ID
-    return this.order.id || '';
+    return this.order?.access_token || this.order?.id?.toString() || '';
   }
 
   reorder(): void {

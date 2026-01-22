@@ -9,6 +9,7 @@
     <app-location-map
       [mode]="'select'"
       [selectedMachineId]="selectedMachine?.id"
+      [medicationIds]="medicationIdsAsNumbers"
       (machineSelected)="onMachineSelected($event)"
     ></app-location-map>
 

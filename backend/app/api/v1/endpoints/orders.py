@@ -1,14 +1,16 @@
-from typing import Any, Dict, List
+from typing import Any, List, Optional
 
 from app.api import deps
+from app.models.order import Order as OrderModel
 from app.models.user import User as UserModel
+from app.schemas.order import Order, OrderCreate, OrderUpdate
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 router = APIRouter()
 
 
-@router.get("/", response_model=List[Dict[str, Any]])
+@router.get("/", response_model=List[Order])
 def read_orders(
     db: Session = Depends(deps.get_db),
     skip: int = 0,
@@ -16,98 +18,119 @@ def read_orders(
     current_user: UserModel = Depends(deps.get_current_user),
 ) -> Any:
     """
-    Retrieve orders (FHIR ServiceRequests) for the current user.
+    Retrieve orders for the current user, or all orders if superuser.
     """
-    # Placeholder for persistent storage. Currently returns mock data.
-    # In a full implementation, this would query a ServiceRequest table.
-    mock_order = {
-        "resourceType": "ServiceRequest",
-        "id": "order-1",
-        "status": "active",
-        "intent": "order",
-        "subject": {"reference": f"Patient/{current_user.id}"},
-        "authoredOn": "2024-01-22T10:00:00Z",
-        "category": [
-            {
-                "coding": [
-                    {
-                        "system": "http://snomed.info/sct",
-                        "code": "16076005",
-                        "display": "Prescription drug",
-                    }
-                ]
-            }
-        ],
-        "note": [{"text": "Sample order for Ibuprofen 400mg"}],
-        "locationReference": [
-            {"reference": "Location/1", "display": "MeTIMat Station Hauptbahnhof"}
-        ],
-    }
-    return [mock_order]
+    query = db.query(OrderModel)
+    if not current_user.is_superuser:
+        query = query.filter(OrderModel.user_id == current_user.id)
+
+    orders = query.offset(skip).limit(limit).all()
+    return orders
 
 
-@router.post("/", response_model=Dict[str, Any])
+@router.post("/", response_model=Order)
 def create_order(
     *,
     db: Session = Depends(deps.get_db),
-    order_in: Dict[str, Any],
+    order_in: OrderCreate,
     current_user: UserModel = Depends(deps.get_current_user),
 ) -> Any:
     """
-    Create a new order (FHIR ServiceRequest).
+    Create a new order.
     """
-    # Validation of FHIR resourceType
-    if order_in.get("resourceType") != "ServiceRequest":
+    import secrets
+
+    db_obj = OrderModel(
+        user_id=current_user.id,
+        status=order_in.status,
+        access_token=secrets.token_urlsafe(32),
+    )
+    db.add(db_obj)
+    db.commit()
+    db.refresh(db_obj)
+    return db_obj
+
+
+@router.get("/validate-qr/{token}", response_model=Order)
+def validate_qr_order(
+    *,
+    db: Session = Depends(deps.get_db),
+    token: str,
+) -> Any:
+    """
+    Validates an order via its QR access token and returns order info.
+    This endpoint is typically used by the station/hardware to verify an order.
+    """
+    order = db.query(OrderModel).filter(OrderModel.access_token == token).first()
+    if not order:
         raise HTTPException(
-            status_code=400,
-            detail="Invalid FHIR resource type. Expected ServiceRequest.",
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Order not found or invalid token",
         )
-
-    # In a real scenario, we would save this to the database here.
-    # For now, we echo back the order with an assigned ID.
-    order_in["id"] = "new-order-id"
-    order_in["status"] = "active"
-
-    return order_in
+    return order
 
 
-@router.get("/{order_id}", response_model=Dict[str, Any])
+@router.get("/{order_id}", response_model=Order)
 def read_order_by_id(
-    order_id: str,
+    order_id: int,
     db: Session = Depends(deps.get_db),
     current_user: UserModel = Depends(deps.get_current_user),
 ) -> Any:
     """
     Get a specific order by ID.
     """
-    # Mock lookup
-    if order_id == "order-1":
-        return {
-            "resourceType": "ServiceRequest",
-            "id": "order-1",
-            "status": "active",
-            "intent": "order",
-            "subject": {"reference": f"Patient/{current_user.id}"},
-            "authoredOn": "2024-01-22T10:00:00Z",
-        }
-
-    raise HTTPException(status_code=404, detail="Order not found")
+    order = db.query(OrderModel).filter(OrderModel.id == order_id).first()
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    if order.user_id != current_user.id and not current_user.is_superuser:
+        raise HTTPException(status_code=400, detail="Not enough permissions")
+    return order
 
 
-@router.patch("/{order_id}/status", response_model=Dict[str, Any])
-def update_order_status(
+@router.patch("/{order_id}", response_model=Order)
+@router.put("/{order_id}", response_model=Order)
+def update_order(
     *,
     db: Session = Depends(deps.get_db),
-    order_id: str,
-    status_update: Dict[str, str],
+    order_id: int,
+    order_in: OrderUpdate,
     current_user: UserModel = Depends(deps.get_current_user),
 ) -> Any:
     """
-    Update the status of an existing order.
+    Update an existing order.
     """
-    new_status = status_update.get("status")
-    if not new_status:
-        raise HTTPException(status_code=400, detail="Status field is required")
+    order = db.query(OrderModel).filter(OrderModel.id == order_id).first()
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    if order.user_id != current_user.id and not current_user.is_superuser:
+        raise HTTPException(status_code=400, detail="Not enough permissions")
 
-    # Mock success
-    return {"id": order_id, "status": new_status, "resourceType": "ServiceRequest"}
+    update_data = order_in.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(order, field, value)
+
+    db.add(order)
+    db.commit()
+    db.refresh(order)
+    return order
+
+
+@router.delete("/{order_id}", response_model=Order)
+def delete_order(
+    *,
+    db: Session = Depends(deps.get_db),
+    order_id: int,
+    current_user: UserModel = Depends(deps.get_current_user),
+) -> Any:
+    """
+    Delete an order.
+    """
+    order = db.query(OrderModel).filter(OrderModel.id == order_id).first()
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    if order.user_id != current_user.id and not current_user.is_superuser:
+        raise HTTPException(status_code=400, detail="Not enough permissions")
+
+    db.delete(order)
+    db.commit()
+    return order

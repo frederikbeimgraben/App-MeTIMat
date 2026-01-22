@@ -17,7 +17,7 @@ export class MedicationService {
    * Fetches all medications from the API.
    */
   getAllMedications(): Observable<Medication[]> {
-    return this.http.get<Medication[]>('/api/medications').pipe(
+    return this.http.get<Medication[]>('/api/v1/medications/').pipe(
       catchError((error) => {
         console.error('Error fetching medications:', error);
         return throwError(() => new Error('Could not load medications.'));
@@ -30,7 +30,7 @@ export class MedicationService {
    */
   searchMedications(query: string): Observable<Medication[]> {
     const params = new HttpParams().set('name', query);
-    return this.http.get<Medication[]>('/api/medications', { params }).pipe(
+    return this.http.get<Medication[]>('/api/v1/medications/', { params }).pipe(
       catchError((error) => {
         console.error('Error searching medications:', error);
         return of([]);
@@ -42,7 +42,7 @@ export class MedicationService {
    * Fetches a single medication by ID.
    */
   getMedicationById(id: string): Observable<Medication | undefined> {
-    return this.http.get<Medication>(`/api/medications/${id}`).pipe(
+    return this.http.get<Medication>(`/api/v1/medications/${id}`).pipe(
       catchError((error) => {
         console.error(`Error fetching medication ${id}:`, error);
         return of(undefined);
@@ -64,7 +64,7 @@ export class MedicationService {
     return this.cart$;
   }
 
-  addToCart(medication: Medication, quantity: number, prescriptionId?: string): void {
+  addToCart(medication: Medication, quantity: number, prescriptionId?: string | number): void {
     const currentCart = this.cartSubject.value;
     const existingItemIndex = currentCart.findIndex((item) => item.medication.id === medication.id);
 
@@ -108,8 +108,6 @@ export class MedicationService {
     // Assuming we can extract price from FHIR resource extensions or custom fields if available.
     // Since strict FHIR Medication doesn't have a simple price field, we might need to rely on
     // an extension or assume the backend injects a temporary 'price' property if not strict.
-    // For now, we'll try to access a 'price' property if it exists on the object (as defined in our Migration),
-    // even though it's not standard FHIR R4.
     return this.cartSubject.value.reduce((total, item) => {
       const price = (item.medication as any).price || 0;
       return total + price * item.quantity;

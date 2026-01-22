@@ -100,7 +100,7 @@
                       <button
                         (click)="decreaseQuantity(item)"
                         class="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-200 rounded transition-colors"
-                        [disabled]="item.quantity <= 1"
+                        [disabled]="item.quantity <= 1 || !!item.prescription"
                       >
                         <mat-icon class="text-sm">remove</mat-icon>
                       </button>
@@ -116,12 +116,13 @@
                         "
                         min="1"
                         max="99"
-                        class="w-12 text-center bg-white border border-gray-300 rounded focus:outline-none focus:border-blue-500 no-spinners"
+                        [disabled]="!!item.prescription"
+                        class="w-12 text-center bg-white border border-gray-300 rounded focus:outline-none focus:border-blue-500 no-spinners disabled:bg-gray-100 disabled:text-gray-500"
                       />
                       <button
                         (click)="increaseQuantity(item)"
                         class="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-200 rounded transition-colors"
-                        [disabled]="item.quantity >= 99"
+                        [disabled]="item.quantity >= 99 || !!item.prescription"
                       >
                         <mat-icon class="text-sm">add</mat-icon>
                       </button>

@@ -118,6 +118,7 @@
     "title": "Order",
     "orderNumber": "Order number",
     "status": {
+      "active": "Active",
       "pending": "Processing",
       "confirmed": "Confirmed",
       "ready": "Ready for pickup",

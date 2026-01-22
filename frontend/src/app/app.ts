@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@ngneat/transloco';
@@ -6,7 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { filter, takeUntil } from 'rxjs/operators';
 import { Subject, Subscription } from 'rxjs';
 import { CartService } from './services/cart.service';
-import { ConsultationService } from './services/consultation.service';
+import { AuthService } from './services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -18,7 +18,10 @@ import { ConsultationService } from './services/consultation.service';
 export class App implements OnInit, OnDestroy {
   currentRoute: string = 'home';
   cartItemCount: number = 0;
-  unreadMessages: number = 0;
+
+  // Use public for template access
+  public authService = inject(AuthService);
+
   private destroy$ = new Subject<void>();
   private subscriptions = new Subscription();
 
@@ -26,7 +29,6 @@ export class App implements OnInit, OnDestroy {
     private router: Router,
     private transloco: TranslocoService,
     private cartService: CartService,
-    private consultationService: ConsultationService,
   ) {
     // Set default language
     this.transloco.setActiveLang('de');
@@ -49,12 +51,6 @@ export class App implements OnInit, OnDestroy {
       this.cartItemCount = cart.itemCount;
     });
     this.subscriptions.add(cartSub);
-
-    // Subscribe to unread messages
-    const unreadSub = this.consultationService.getUnreadMessageCount().subscribe((count) => {
-      this.unreadMessages = count;
-    });
-    this.subscriptions.add(unreadSub);
   }
 
   ngOnDestroy(): void {
@@ -69,10 +65,15 @@ export class App implements OnInit, OnDestroy {
 
   isActive(route: string): boolean {
     if (route === 'home') {
-      return !['orders', 'consultation'].map((i) => this.currentRoute.startsWith(i)).some((i) => i);
+      // Home is active if no other main bottom nav item is active
+      return !['orders', 'map', 'admin'].map((i) => this.currentRoute.startsWith(i)).some((i) => i);
     }
 
     return this.currentRoute.startsWith(route);
+  }
+
+  logout(): void {
+    this.authService.logout();
   }
 
   changeLanguage(lang: string): void {

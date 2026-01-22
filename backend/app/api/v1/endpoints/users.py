@@ -139,3 +139,26 @@ def update_user(
     db.commit()
     db.refresh(user)
     return user
+
+
+@router.delete("/{user_id}", response_model=User)
+def delete_user(
+    *,
+    db: Session = Depends(deps.get_db),
+    user_id: int,
+    current_user: UserModel = Depends(deps.get_current_active_superuser),
+) -> Any:
+    """
+    Delete a user (Admin only).
+    """
+    user = db.query(UserModel).filter(UserModel.id == user_id).first()
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="The user with this id does not exist in the system",
+        )
+    if user.id == current_user.id:
+        raise HTTPException(status_code=400, detail="Users cannot delete themselves")
+    db.delete(user)
+    db.commit()
+    return user

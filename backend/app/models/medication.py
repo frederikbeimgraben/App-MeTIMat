@@ -12,16 +12,5 @@ class Medication(Base):
     )  # Pharma-Zentral-Nummer
     description = Column(String)
     dosage_form = Column(String)
+    price = Column(Float, default=0.0)
     is_active = Column(Boolean, default=True)
-
-
-class Location(Base):
-    __tablename__ = "locations"
-
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, index=True, nullable=False)
-    address = Column(String, nullable=False)
-    latitude = Column(Float, nullable=False)
-    longitude = Column(Float, nullable=False)
-    opening_hours = Column(String)
-    is_pharmacy = Column(Boolean, default=True)

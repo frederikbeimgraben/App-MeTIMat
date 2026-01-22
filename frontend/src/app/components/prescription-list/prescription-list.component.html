@@ -6,7 +6,9 @@
     <!-- Loading State -->
     @if (loading) {
       <div class="flex justify-center items-center py-12">
-        <div class="spinner"></div>
+        <div
+          class="spinner border-4 border-gray-200 border-t-blue-900 rounded-full h-8 w-8 animate-spin"
+        ></div>
       </div>
     }
 
@@ -21,22 +23,22 @@
           @for (prescription of activePrescriptions; track prescription.id) {
             <div
               (click)="selectPrescription(prescription)"
-              class="bg-white rounded-lg shadow-sm border-2 border-gray-200 p-4 hover:border-blue-900 hover:bg-blue-50 cursor-pointer transition-all"
+              class="bg-white rounded-lg shadow-sm border-2 border-gray-200 p-4 hover:border-blue-900 hover:bg-blue-50 cursor-pointer transition-all active:scale-[0.98]"
             >
               <div class="flex justify-between items-start mb-3">
-                <div>
-                  <p class="font-semibold text-gray-900">
+                <div class="flex-1 min-w-0 pr-2">
+                  <p class="font-semibold text-gray-900 truncate">
                     {{
-                      prescription.requester?.display || prescription.requester?.reference || 'N/A'
+                      prescription.requester?.display || prescription.requester?.reference || 'Arzt'
                     }}
                   </p>
                   <p class="text-sm text-gray-600">
                     {{ 'prescription.issued' | transloco }}:
-                    {{ prescription.authoredOn || 'N/A' | date: 'short' }}
+                    {{ prescription.authoredOn || 'N/A' | date: 'shortDate' }}
                   </p>
                 </div>
                 <span
-                  class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800"
+                  class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 whitespace-nowrap flex-shrink-0"
                 >
                   {{ prescription.status | transloco }}
                 </span>
@@ -44,11 +46,11 @@
 
               <div class="space-y-2 mb-3">
                 <div class="text-sm">
-                  <p class="font-medium text-gray-900">
+                  <p class="font-medium text-gray-900 break-words line-clamp-2">
                     {{
-                      prescription.medicationCodeableConcept?.coding?.[0]?.display ||
-                        prescription.medicationReference?.display ||
-                        'Medikament'
+                      $any(prescription).medicationCodeableConcept?.coding?.[0]?.display ||
+                        $any(prescription).medicationReference?.display ||
+                        'Unbekanntes Medikament'
                     }}
                   </p>
                   <div class="text-gray-600">
@@ -69,12 +71,12 @@
               <div class="flex justify-between items-center pt-3 border-t border-gray-100">
                 <p class="text-xs text-gray-500">
                   {{ 'prescription.validUntil' | transloco }}:
-                  {{ prescription.dispenseRequest?.validityPeriod?.end || 'N/A' | date: 'short' }}
+                  {{
+                    prescription.dispenseRequest?.validityPeriod?.end || 'N/A' | date: 'shortDate'
+                  }}
                 </p>
-                <div class="flex items-center text-blue-900">
-                  <span class="text-sm font-medium mr-1">{{
-                    'prescription.select' | transloco
-                  }}</span>
+                <div class="flex items-center text-blue-900 font-bold">
+                  <span class="text-sm mr-1">{{ 'prescription.select' | transloco }}</span>
                   <mat-icon style="width: 16px; height: 16px; font-size: 16px"
                     >arrow_forward</mat-icon
                   >
@@ -101,7 +103,10 @@
         <p class="text-sm text-gray-600 mb-6">
           {{ 'prescription.noPrescriptionsDescription' | transloco }}
         </p>
-        <button (click)="goBack()" class="btn btn-primary">
+        <button
+          (click)="goBack()"
+          class="bg-blue-900 text-white px-6 py-2 rounded-full font-medium hover:bg-blue-800 transition-colors shadow-sm"
+        >
           {{ 'prescription.importNew' | transloco }}
         </button>
       </div>

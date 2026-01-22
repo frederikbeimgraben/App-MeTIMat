@@ -44,7 +44,7 @@
 
               <div class="mt-3 flex justify-between items-center">
                 <p class="text-lg font-bold text-gray-900">€N/A</p>
-                @if (order.status === 'active') {
+                @if (order.status === 'available for pickup' || $any(order.status) === 'active') {
                   <button
                     (click)="viewOrder(order.id)"
                     class="text-blue-900 font-medium text-sm hover:underline"

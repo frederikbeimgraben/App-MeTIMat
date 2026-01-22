@@ -5,62 +5,39 @@
   <div class="max-w-md mx-auto px-4 py-6">
     <!-- Selection Options -->
     <div class="space-y-4 mb-6">
-      <!-- Top row: Select Prescription and Prescription-free -->
-      <div class="grid grid-cols-2 gap-4">
-        <!-- Select Prescription -->
-        <button
-          (click)="selectPrescription()"
-          class="bg-white rounded-lg shadow-sm border-2 border-gray-200 p-4 hover:border-blue-900 hover:bg-blue-50 transition-all"
-        >
-          <div class="flex flex-col items-center">
-            <div class="w-14 h-14 bg-blue-600 rounded-full flex items-center justify-center mb-2">
-              <mat-icon class="text-white" style="width: 28px; height: 28px; font-size: 28px"
-                >description</mat-icon
-              >
-            </div>
-            <h3 class="font-semibold text-gray-900 text-sm">
-              {{ 'prescription.selectPrescription' | transloco }}
-            </h3>
-            <p class="text-xs text-gray-600 mt-1 text-center">
-              {{ 'prescription.selectPrescriptionDescription' | transloco }}
-            </p>
-          </div>
-        </button>
-
+      <div class="grid grid-cols-1 gap-4">
         <!-- Prescription-free -->
         <button
           (click)="goToPrescriptionFree()"
-          class="bg-white rounded-lg shadow-sm border-2 border-gray-200 p-4 hover:border-green-600 hover:bg-green-50 transition-all"
+          class="bg-white rounded-lg shadow-sm border-2 border-gray-200 p-6 hover:border-green-600 hover:bg-green-50 transition-all flex items-center"
         >
-          <div class="flex flex-col items-center">
-            <div class="w-14 h-14 bg-green-600 rounded-full flex items-center justify-center mb-2">
-              <mat-icon class="text-white" style="width: 28px; height: 28px; font-size: 28px"
-                >medication</mat-icon
-              >
-            </div>
-            <h3 class="font-semibold text-gray-900 text-sm">
+          <div class="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center mr-4">
+            <mat-icon class="text-white" style="width: 32px; height: 32px; font-size: 32px"
+              >medication</mat-icon
+            >
+          </div>
+          <div class="text-left">
+            <h3 class="font-semibold text-gray-900 text-lg">
               {{ 'prescription.prescriptionFree' | transloco }}
             </h3>
-            <p class="text-xs text-gray-600 mt-1 text-center">
+            <p class="text-sm text-gray-600 mt-1">
               {{ 'prescription.prescriptionFreeDescription' | transloco }}
             </p>
           </div>
         </button>
-      </div>
 
-      <!-- Bottom: eGK Import full width -->
-      <button
-        (click)="startNFCImport()"
-        [disabled]="isScanning || showPinInput"
-        class="bg-white rounded-lg shadow-sm border-2 border-gray-200 p-6 hover:border-blue-900 hover:bg-blue-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed w-full"
-      >
-        <div class="flex items-center">
+        <!-- eGK Import -->
+        <button
+          (click)="startNFCImport()"
+          [disabled]="isScanning || showPinInput"
+          class="bg-white rounded-lg shadow-sm border-2 border-gray-200 p-6 hover:border-blue-900 hover:bg-blue-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+        >
           <div class="w-16 h-16 bg-blue-900 rounded-full flex items-center justify-center mr-4">
             <mat-icon class="text-white" style="width: 32px; height: 32px; font-size: 32px"
               >credit_card</mat-icon
             >
           </div>
-          <div class="flex-1 text-left">
+          <div class="text-left">
             <h3 class="font-semibold text-gray-900 text-lg">
               {{ 'prescription.importWithEGK' | transloco }}
             </h3>
@@ -68,8 +45,8 @@
               {{ 'prescription.egkDescription' | transloco }}
             </p>
           </div>
-        </div>
-      </button>
+        </button>
+      </div>
     </div>
 
     <!-- NFC Scanning Modal -->
@@ -158,33 +135,43 @@
       </div>
     }
 
-    <!-- Success Modal -->
+    <!-- Selection Modal (formerly Success Modal) -->
     @if (showSuccess) {
       <div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-lg shadow-xl max-w-sm w-full p-6">
-          <div class="text-center">
+        <div class="bg-white rounded-lg shadow-xl max-w-sm w-full p-6 flex flex-col max-h-[90vh]">
+          <div class="text-center mb-4">
             <div
-              class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4"
+              class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2"
             >
-              <mat-icon class="text-green-600" style="width: 48px; height: 48px; font-size: 48px"
+              <mat-icon class="text-green-600" style="width: 32px; height: 32px; font-size: 32px"
                 >check_circle</mat-icon
               >
             </div>
-            <h2 class="text-lg font-semibold text-gray-900 mb-2">
-              {{ 'prescription.importSuccess' | transloco }}
+            <h2 class="text-lg font-semibold text-gray-900">
+              {{ 'prescription.selectPrescription' | transloco }}
             </h2>
-            <p class="text-sm text-gray-600 mb-4">
-              <span class="font-semibold">{{ importedCount }}</span>
-              {{
-                importedCount === 1
-                  ? ('prescription.prescriptionImported' | transloco)
-                  : ('prescription.prescriptionsImported' | transloco)
-              }}
-            </p>
-            <button (click)="viewPrescriptions()" class="btn btn-primary w-full">
-              {{ 'prescription.viewPrescriptions' | transloco }}
-            </button>
+            <p class="text-sm text-gray-600">Bitte wählen Sie das einzulösende Rezept aus:</p>
           </div>
+
+          <div class="flex-1 overflow-y-auto space-y-3 mb-4">
+            @for (prescription of activePrescriptions; track prescription.id) {
+              <button
+                (click)="addPrescriptionToCart(prescription)"
+                class="w-full text-left p-4 rounded-lg border-2 border-gray-200 hover:border-blue-900 hover:bg-blue-50 transition-all group"
+              >
+                <div class="font-semibold text-gray-900 group-hover:text-blue-900">
+                  {{ prescription.medicationReference?.display || 'Unbekanntes Medikament' }}
+                </div>
+                <div class="text-xs text-gray-500 mt-1">
+                  Ausgestellt: {{ prescription.authoredOn | date: 'mediumDate' }}
+                </div>
+              </button>
+            }
+          </div>
+
+          <button (click)="viewPrescriptions()" class="btn btn-secondary w-full">
+            {{ 'common.cancel' | transloco }}
+          </button>
         </div>
       </div>
     }

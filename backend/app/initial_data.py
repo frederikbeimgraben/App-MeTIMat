@@ -4,7 +4,9 @@ import time
 from app.core.config import settings
 from app.core.security import get_password_hash
 from app.db.session import Base, SessionLocal, engine
-from app.models.master_data import Location, Medication
+from app.models.inventory import Inventory
+from app.models.location import Location
+from app.models.medication import Medication
 from app.models.user import User
 from sqlalchemy.exc import OperationalError
 
@@ -48,14 +50,18 @@ def init_db() -> None:
                     longitude=13.4050,
                     opening_hours="08:00 - 20:00",
                     is_pharmacy=True,
+                    location_type="pharmacy",
+                    validation_key="apotheke-geheim-123",
                 ),
                 Location(
-                    name="Hausarztpraxis Dr. Schmidt",
+                    name="MeTIMat Automat 01",
                     address="Kurfürstendamm 50, 10707 Berlin",
                     latitude=52.5020,
                     longitude=13.3280,
-                    opening_hours="09:00 - 17:00",
+                    opening_hours="24/7",
                     is_pharmacy=False,
+                    location_type="vending_machine",
+                    validation_key="automat-geheim-456",
                 ),
             ]
             db.add_all(locations)
@@ -69,15 +75,38 @@ def init_db() -> None:
                     pzn="12345678",
                     description="Pain reliever and anti-inflammatory",
                     dosage_form="Tablet",
+                    price=9.95,
                 ),
                 Medication(
                     name="Amoxicillin 1000mg",
                     pzn="87654321",
                     description="Antibiotic",
                     dosage_form="Film-coated tablet",
+                    price=14.50,
                 ),
             ]
             db.add_all(medications)
+            db.commit()
+
+        # Ensure we have some inventory data
+        inv_count = db.query(Inventory).count()
+        if inv_count == 0:
+            logger.info("Creating initial inventory")
+            all_locations = db.query(Location).all()
+            all_meds = db.query(Medication).all()
+
+            inventory_items = []
+            for loc in all_locations:
+                for med in all_meds:
+                    # Add inventory for all medications at all locations
+                    inventory_items.append(
+                        Inventory(
+                            location_id=loc.id,
+                            medication_id=med.id,
+                            quantity=10 if loc.location_type == "pharmacy" else 5,
+                        )
+                    )
+            db.add_all(inventory_items)
 
         db.commit()
         logger.info("Database initialization check complete")

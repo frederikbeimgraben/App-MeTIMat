@@ -3,6 +3,7 @@ import { Observable, BehaviorSubject, throwError } from 'rxjs';
 import { catchError, tap, map } from 'rxjs/operators';
 import { Prescription } from '../models/prescription.model';
 import { MedicationService } from './medication.service';
+import { CartService } from './cart.service';
 import { HttpClient } from '@angular/common/http';
 
 @Injectable({
@@ -14,14 +15,31 @@ export class PrescriptionService {
 
   constructor(
     private medicationService: MedicationService,
+    private cartService: CartService,
     private http: HttpClient,
   ) {}
 
   /**
-   * Fetches all prescriptions for the current user from the FHIR API.
+   * Helper to flatten FHIR data for frontend compatibility.
+   */
+  private flattenPrescription(p: Prescription): Prescription {
+    if (p.fhir_data) {
+      const dbId = p.id;
+      return {
+        ...p.fhir_data,
+        ...p,
+        id: dbId, // Ensure DB numeric ID takes precedence over FHIR string ID
+      } as any as Prescription;
+    }
+    return p;
+  }
+
+  /**
+   * Fetches all prescriptions for the current user.
    */
   getAllPrescriptions(): Observable<Prescription[]> {
-    return this.http.get<Prescription[]>('/api/prescriptions').pipe(
+    return this.http.get<Prescription[]>('/api/v1/prescriptions/').pipe(
+      map((prescriptions) => prescriptions.map((p) => this.flattenPrescription(p))),
       tap((prescriptions) => this.prescriptionsSubject.next(prescriptions)),
       catchError((error) => {
         console.error('Error fetching prescriptions:', error);
@@ -32,11 +50,11 @@ export class PrescriptionService {
 
   /**
    * Imports prescriptions from an electronic health card (eGK).
-   * In a real TI environment, this would interface with a connector.
+   * Realistic mock path: /api/v1/prescriptions/import/egk
    */
   importFromEGK(): Observable<Prescription[]> {
-    // This would typically be a specialized endpoint that triggers the eGK reading process
-    return this.http.post<Prescription[]>('/api/prescriptions/import-egk', {}).pipe(
+    return this.http.post<Prescription[]>('/api/v1/prescriptions/import/egk', {}).pipe(
+      map((prescriptions) => prescriptions.map((p) => this.flattenPrescription(p))),
       tap((newPrescriptions) => {
         const current = this.prescriptionsSubject.value;
         this.prescriptionsSubject.next([...current, ...newPrescriptions]);
@@ -49,10 +67,10 @@ export class PrescriptionService {
   }
 
   /**
-   * Updates the status of a MedicationRequest resource.
+   * Updates the status of a prescription.
    */
-  updatePrescriptionStatus(id: string, status: string): Observable<Prescription> {
-    return this.http.patch<Prescription>(`/api/prescriptions/${id}/status`, { status }).pipe(
+  updatePrescriptionStatus(id: string | number, status: string): Observable<Prescription> {
+    return this.http.patch<Prescription>(`/api/v1/prescriptions/${id}/status/`, { status }).pipe(
       tap((updated) => {
         const current = this.prescriptionsSubject.value;
         const index = current.findIndex((p) => p.id === id);
@@ -69,68 +87,63 @@ export class PrescriptionService {
   }
 
   /**
-   * Validates a prescription QR code (E-Rezept QR code).
+   * Imports a prescription by scanning a QR code (E-Rezept).
+   * Realistic mock path: /api/v1/prescriptions/import/scan
    */
-  validateQrCode(
-    qrContent: string,
-  ): Observable<{ success: boolean; data?: { fhir_resource: Prescription }; message?: string }> {
+  validateQrCode(qrContent: string): Observable<Prescription> {
     return this.http
-      .post<{
-        success: boolean;
-        data?: { fhir_resource: Prescription };
-        message?: string;
-      }>('/api/validate-qr', { qr_content: qrContent })
+      .post<Prescription>('/api/v1/prescriptions/import/scan', { qr_data: qrContent })
       .pipe(
-        tap((response) => {
-          if (response.success && response.data?.fhir_resource) {
+        map((p) => this.flattenPrescription(p)),
+        tap((imported) => {
+          if (imported) {
             const current = this.prescriptionsSubject.value;
-            const imported = response.data.fhir_resource;
             if (!current.find((p) => p.id === imported.id)) {
               this.prescriptionsSubject.next([...current, imported]);
             }
           }
         }),
         catchError((error) => {
-          console.error('QR Validation error:', error);
-          return throwError(() => new Error(error.error?.message || 'QR validation failed.'));
+          console.error('QR Scan import error:', error);
+          return throwError(() => new Error(error.error?.detail || 'QR scan import failed.'));
         }),
       );
   }
 
   /**
-   * Import multiple prescriptions into the system.
-   */
-  importPrescriptions(prescriptions: Prescription[]): Observable<Prescription[]> {
-    // Assuming a batch import endpoint or sequential posts
-    return this.http.post<Prescription[]>('/api/prescriptions/batch', { prescriptions }).pipe(
-      tap((imported) => {
-        const current = this.prescriptionsSubject.value;
-        this.prescriptionsSubject.next([...current, ...imported]);
-      }),
-    );
-  }
-
-  /**
    * Helper to add medications from a prescription to the cart.
    */
-  addPrescriptionMedicationsToCart(prescriptionId: string): Observable<boolean> {
+  addPrescriptionMedicationsToCart(prescriptionId: string | number): Observable<boolean> {
     const prescription = this.prescriptionsSubject.value.find((p) => p.id === prescriptionId);
-    if (!prescription || !prescription.medicationReference) {
-      return throwError(() => new Error('Prescription or medication not found.'));
+    if (!prescription) {
+      return throwError(() => new Error('Prescription not found.'));
     }
 
-    // This logic might involve fetching the actual Medication resource if only a reference is present
-    // For now, we assume the medication service can handle the reference or we have enough data.
-    console.log(
-      'Adding medication from prescription to cart:',
-      prescription.medicationReference.display,
-    );
+    let medicationId: string | number | undefined = prescription.medication_id;
 
-    // Implementation depends on how CartService/MedicationService are structured
-    // return this.cartService.addItemFromPrescription(prescription);
-    return new Observable((observer) => {
-      observer.next(true);
-      observer.complete();
-    });
+    // Fallback to FHIR reference if DB medication_id is not set
+    if (!medicationId && (prescription as any).fhir_data?.medicationReference?.reference) {
+      const ref = (prescription as any).fhir_data.medicationReference.reference;
+      medicationId = ref.startsWith('Medication/') ? ref.split('/')[1] : ref;
+    }
+
+    if (!medicationId) {
+      return throwError(() => new Error('Prescription does not reference a valid Medication.'));
+    }
+
+    return this.medicationService.getMedicationById(medicationId.toString()).pipe(
+      map((medication) => {
+        if (!medication) {
+          throw new Error('Medication not found');
+        }
+
+        this.cartService.addToCart(medication, 1, prescription);
+        return true;
+      }),
+      catchError((error) => {
+        console.error('Error adding prescription to cart:', error);
+        return throwError(() => new Error('Could not add prescription to cart.'));
+      }),
+    );
   }
 }

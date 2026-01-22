@@ -4,6 +4,7 @@ export interface VendingMachine extends fhir4.Location {
   // Extended properties for frontend display logic
   distance?: number; // Distance in km from user/center
   location?: string; // Formatted address string for display
+  is_available?: boolean;
 }
 
 export interface VendingMachineFilter {

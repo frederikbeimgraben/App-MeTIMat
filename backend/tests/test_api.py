@@ -78,7 +78,7 @@ def test_qr_validation(test_client):
     token = login_res.json()["access_token"]
 
     response = test_client.post(
-        "/api/v1/prescriptions/validate-qr",
+        "/api/v1/prescriptions/import/scan",
         json={"qr_data": "https://gematik.de/fhir/erezept/token/1234567890"},
         headers={"Authorization": f"Bearer {token}"},
     )
@@ -95,7 +95,9 @@ def test_mock_scan_prescription(test_client):
     token = login_res.json()["access_token"]
 
     response = test_client.post(
-        "/api/v1/prescriptions/mock-scan", headers={"Authorization": f"Bearer {token}"}
+        "/api/v1/prescriptions/import/scan",
+        json={"qr_data": "mock-scan-data"},
+        headers={"Authorization": f"Bearer {token}"},
     )
 
     # This might fail if ENABLE_MOCK_PRESCRIPTIONS is False in config

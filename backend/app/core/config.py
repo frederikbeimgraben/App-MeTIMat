@@ -16,6 +16,10 @@ class Settings(BaseSettings):
     ENABLE_MOCK_PRESCRIPTIONS: bool = (
         os.getenv("ENABLE_MOCK_PRESCRIPTIONS", "True").lower() == "true"
     )
+    MOCK_PRESCRIPTION_PZN: str = os.getenv("MOCK_PRESCRIPTION_PZN", "12345678")
+    MOCK_PRESCRIPTION_NAME: str = os.getenv(
+        "MOCK_PRESCRIPTION_NAME", "Ibuprofen 400mg Akut"
+    )
 
     # Database
     POSTGRES_SERVER: str = os.getenv("POSTGRES_SERVER", "postgresql")

@@ -1,9 +1,9 @@
 from typing import Any, List
 
 from app.api import deps
-from app.models.master_data import Medication as MedicationModel
+from app.models.medication import Medication as MedicationModel
 from app.models.user import User as UserModel
-from app.schemas.master_data import Medication, MedicationCreate, MedicationUpdate
+from app.schemas.medication import Medication, MedicationCreate, MedicationUpdate
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -41,6 +41,22 @@ def create_medication(
     return medication
 
 
+@router.get("/{id}", response_model=Medication)
+def read_medication(
+    *,
+    db: Session = Depends(deps.get_db),
+    id: int,
+    current_user: UserModel = Depends(deps.get_current_user),
+) -> Any:
+    """
+    Get medication by ID.
+    """
+    medication = db.query(MedicationModel).filter(MedicationModel.id == id).first()
+    if not medication:
+        raise HTTPException(status_code=404, detail="Medication not found")
+    return medication
+
+
 @router.put("/{id}", response_model=Medication)
 def update_medication(
     *,
@@ -63,4 +79,22 @@ def update_medication(
     db.add(medication)
     db.commit()
     db.refresh(medication)
+    return medication
+
+
+@router.delete("/{id}", response_model=Medication)
+def delete_medication(
+    *,
+    db: Session = Depends(deps.get_db),
+    id: int,
+    current_user: UserModel = Depends(deps.get_current_active_superuser),
+) -> Any:
+    """
+    Delete a medication (Admin only).
+    """
+    medication = db.query(MedicationModel).filter(MedicationModel.id == id).first()
+    if not medication:
+        raise HTTPException(status_code=404, detail="Medication not found")
+    db.delete(medication)
+    db.commit()
     return medication

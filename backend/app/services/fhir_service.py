@@ -94,8 +94,8 @@ class FHIRService:
                     coding=[
                         Coding(
                             system="http://fhir.de/CodeSystem/ifa/pzn",
-                            code="12345678",
-                            display="Ibuprofen 400mg Akut",
+                            code=settings.MOCK_PRESCRIPTION_PZN,
+                            display=settings.MOCK_PRESCRIPTION_NAME,
                         )
                     ]
                 )
