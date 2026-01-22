@@ -75,7 +75,7 @@ interface Order {
           </button>
           <button
             (click)="loadData()"
-            class="h-10 w-10 flex items-center justify-center bg-white rounded-xl shadow-sm hover:bg-gray-50 border border-gray-200 transition-colors"
+            class="hidden sm:flex h-10 w-10 items-center justify-center bg-white rounded-xl shadow-sm hover:bg-gray-50 border border-gray-200 transition-colors"
             title="Reload Data"
           >
             <mat-icon class="!m-0">refresh</mat-icon>
@@ -91,14 +91,23 @@ interface Order {
         </div>
       </header>
 
-      <!-- Mobile FAB -->
-      <button
-        (click)="openCreateModal()"
-        class="sm:hidden fixed bottom-6 right-6 w-14 h-14 bg-blue-900 text-white rounded-full shadow-2xl flex items-center justify-center z-50 hover:scale-110 active:scale-95 transition-all"
-        aria-label="Create New"
-      >
-        <mat-icon style="font-size: 32px; width: 32px; height: 32px">add</mat-icon>
-      </button>
+      <!-- Mobile FABs -->
+      <div class="sm:hidden fixed bottom-6 right-6 flex flex-col gap-3 z-50 items-end">
+        <button
+          (click)="loadData()"
+          class="w-12 h-12 bg-white text-blue-900 rounded-full shadow-lg flex items-center justify-center border border-gray-200 hover:scale-110 active:scale-95 transition-all"
+          aria-label="Reload Data"
+        >
+          <mat-icon>refresh</mat-icon>
+        </button>
+        <button
+          (click)="openCreateModal()"
+          class="w-14 h-14 bg-blue-900 text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all"
+          aria-label="Create New"
+        >
+          <mat-icon style="font-size: 32px; width: 32px; height: 32px">add</mat-icon>
+        </button>
+      </div>
 
       <div class="max-w-6xl mx-auto">
         <!-- Tabs -->
