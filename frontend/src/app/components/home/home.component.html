@@ -97,19 +97,5 @@
         </button>
       </div>
     </div>
-
-    @if (activeOrders.length > 0) {
-      <div class="px-4 mb-2">
-        <div class="flex justify-between items-center">
-          <h2 class="text-lg font-bold text-gray-900">{{ 'home.activeOrders' | transloco }}</h2>
-          <button
-            (click)="viewAllOrders()"
-            class="text-sm text-blue-900 font-medium hover:underline"
-          >
-            View All
-          </button>
-        </div>
-      </div>
-    }
   </div>
 </div>
