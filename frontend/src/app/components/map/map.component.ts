@@ -18,40 +18,8 @@ interface Location {
   selector: 'app-map',
   standalone: true,
   imports: [CommonModule],
-  template: `
-    <div class="h-full flex flex-col relative">
-      <div id="map" class="flex-1 w-full z-0"></div>
-
-      @if (loading()) {
-        <div class="absolute inset-0 bg-white/50 flex items-center justify-center z-10">
-          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-900"></div>
-        </div>
-      }
-
-      <div class="absolute top-4 right-4 z-[1000] bg-white p-2 rounded shadow-md text-xs">
-        <div class="flex items-center gap-2 mb-1">
-          <span class="w-3 h-3 rounded-full bg-blue-600"></span>
-          <span>Apotheken</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <span class="w-3 h-3 rounded-full bg-red-600"></span>
-          <span>MeTIMat Automaten</span>
-        </div>
-      </div>
-    </div>
-  `,
-  styles: [
-    `
-      :host {
-        display: block;
-        height: 100%;
-        width: 100%;
-      }
-      #map {
-        height: 100%;
-      }
-    `,
-  ],
+  templateUrl: './map.component.html',
+  styleUrl: './map.component.css',
 })
 export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
   private map!: L.Map;
