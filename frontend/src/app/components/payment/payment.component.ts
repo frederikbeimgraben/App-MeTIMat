@@ -23,7 +23,7 @@ export class PaymentComponent implements OnInit {
   private vendingMachineService = inject(VendingMachineService);
 
   cart = this.cartService.cart$;
-  selectedMethod = signal<'creditCard' | 'healthInsurance' | null>(null);
+  selectedMethod = signal<'creditCard' | null>(null);
   processing = signal(false);
 
   ngOnInit(): void {
@@ -37,12 +37,12 @@ export class PaymentComponent implements OnInit {
     // Set default payment method for free orders
     this.cart.pipe(take(1)).subscribe((cartData) => {
       if (cartData.totalAmount <= 0) {
-        this.selectedMethod.set('healthInsurance');
+        this.selectedMethod.set('creditCard');
       }
     });
   }
 
-  selectMethod(method: 'creditCard' | 'healthInsurance'): void {
+  selectMethod(method: 'creditCard'): void {
     this.selectedMethod.set(method);
   }
 
