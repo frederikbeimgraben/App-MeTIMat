@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-white flex flex-col">
+<div class="h-dvh bg-white flex flex-col relative overflow-hidden">
   <!-- Main content area -->
   <main
     class="flex-1 absolute top-0 left-0 right-0 overflow-y-auto"
@@ -9,7 +9,7 @@
 
   <!-- Bottom Navigation Bar - Only show when authenticated and not in admin view -->
   @if (authService.isAuthenticated() && !currentRoute.startsWith('admin')) {
-  <nav class="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-gray-200 z-50">
+  <nav class="absolute bottom-0 left-0 right-0 bg-white border-t-2 border-gray-200 z-50">
     <div class="max-w-md mx-auto">
       <div class="flex justify-around items-center h-16">
         <!-- Orders (Bestellungen) -->
