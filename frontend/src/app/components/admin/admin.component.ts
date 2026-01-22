@@ -125,7 +125,7 @@ interface Order {
             "
             class="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 font-bold rounded-lg transition-all min-w-[120px]"
           >
-            <mat-icon class="scale-90">people</mat-icon>
+            <mat-icon style="width: 20px; height: 20px; font-size: 20px">people</mat-icon>
             <span>Users</span>
           </button>
           <button
@@ -137,7 +137,7 @@ interface Order {
             "
             class="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 font-bold rounded-lg transition-all min-w-[120px]"
           >
-            <mat-icon class="scale-90">medication</mat-icon>
+            <mat-icon style="width: 20px; height: 20px; font-size: 20px">medication</mat-icon>
             <span>Meds</span>
           </button>
           <button
@@ -149,7 +149,7 @@ interface Order {
             "
             class="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 font-bold rounded-lg transition-all min-w-[120px]"
           >
-            <mat-icon class="scale-90">shopping_cart</mat-icon>
+            <mat-icon style="width: 20px; height: 20px; font-size: 20px">shopping_cart</mat-icon>
             <span>Orders</span>
           </button>
           <button
@@ -161,7 +161,7 @@ interface Order {
             "
             class="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 font-bold rounded-lg transition-all min-w-[120px]"
           >
-            <mat-icon class="scale-90">place</mat-icon>
+            <mat-icon style="width: 20px; height: 20px; font-size: 20px">place</mat-icon>
             <span>Locations</span>
           </button>
         </div>
