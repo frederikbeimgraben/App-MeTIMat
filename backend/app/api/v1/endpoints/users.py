@@ -5,6 +5,7 @@ from app.core import security
 from app.models.user import User as UserModel
 from app.schemas.user import User, UserCreate, UserUpdate
 from fastapi import APIRouter, Depends, HTTPException, status
+from jose import JWTError, jwt
 from sqlalchemy.orm import Session
 
 router = APIRouter()

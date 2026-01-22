@@ -80,8 +80,6 @@ export class PrescriptionImportComponent implements OnInit, OnDestroy {
       this.ndef = new (window as any).NDEFReader();
       this.ctrl = new AbortController();
 
-      await this.ndef.scan({ signal: this.ctrl.signal });
-
       this.ndef.onreading = (event: any) => {
         console.log('NFC Reading event:', event);
         if (this.ctrl) {
@@ -97,6 +95,8 @@ export class PrescriptionImportComponent implements OnInit, OnDestroy {
         this.errorMessage = 'prescription.error';
         this.showError = true;
       };
+
+      await this.ndef.scan({ signal: this.ctrl.signal });
     } catch (error: any) {
       console.error('NFC error:', error);
       this.isScanning = false;
