@@ -17,8 +17,8 @@
         "files": [
           "/assets/**",
           "/*.(svg|cur|jpg|jpeg|png|apng|webp|avif|gif|otf|ttf|woff|woff2)",
-          "/assets/material-icons.css",
-          "/assets/material-icons.ttf"
+          "/assets/fonts/material-icons.css",
+          "/assets/fonts/material-icons.ttf"
         ]
       }
     }

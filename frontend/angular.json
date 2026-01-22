@@ -30,18 +30,21 @@
               },
               {
                 "glob": "**/*",
-                "input": "src/assets"
+                "input": "src/assets",
+                "output": "/assets"
               },
               {
                 "glob": "**/*",
                 "input": "node_modules/leaflet/dist/images",
                 "output": "/assets"
               },
-              "src/manifest.webmanifest",
-              "src/assets/material-icons.css",
-              "src/assets/material-icons.ttf"
+              "src/manifest.webmanifest"
             ],
-            "styles": ["src/styles/styles.css", "node_modules/leaflet/dist/leaflet.css"]
+            "styles": [
+              "src/styles/styles.css",
+              "node_modules/leaflet/dist/leaflet.css",
+              "src/assets/fonts/material-icons.css"
+            ]
           },
           "configurations": {
             "production": {
