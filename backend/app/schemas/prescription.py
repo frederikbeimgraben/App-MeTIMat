@@ -11,7 +11,7 @@ class PrescriptionBase(BaseModel):
 
 
 class PrescriptionCreate(PrescriptionBase):
-    order_id: int
+    order_id: Optional[int] = None
     medication_id: Optional[int] = None
 
 
@@ -21,7 +21,7 @@ class PrescriptionUpdate(PrescriptionBase):
 
 class PrescriptionInDBBase(PrescriptionBase):
     id: int
-    order_id: int
+    order_id: Optional[int] = None
     medication_id: Optional[int] = None
     created_at: datetime
     updated_at: datetime
