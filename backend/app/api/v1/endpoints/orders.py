@@ -116,19 +116,26 @@ def validate_qr_order(
     Validates an order via its QR access token and returns order info.
     This endpoint is used by the station/hardware to verify an order.
     """
-    if x_machine_token != settings.MACHINE_ACCESS_TOKEN:
-        return QRValidationResponse(valid=False, message="Machine authorization failed")
-
     order = (
         db.query(OrderModel)
         .options(joinedload(OrderModel.location), joinedload(OrderModel.prescriptions))
         .filter(OrderModel.access_token == request.qr_data)
         .first()
     )
+
     if not order:
         return QRValidationResponse(
             valid=False, message="Order not found or invalid token"
         )
+
+    # Check if the machine's token matches the location assigned to the order
+    if not order.location or order.location.validation_key != x_machine_token:
+        logger.warning(
+            f"Machine authorization failed for order {order.id}. "
+            f"Expected key: {order.location.validation_key if order.location else 'None'}, "
+            f"Received: {x_machine_token}"
+        )
+        return QRValidationResponse(valid=False, message="Machine authorization failed")
 
     return QRValidationResponse(
         valid=True, order=order, message="QR-Code erfolgreich validiert"
