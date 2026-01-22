@@ -23,6 +23,7 @@ interface Medication {
   price: number;
   category: string;
   prescription_required: boolean;
+  is_active: boolean;
 }
 
 interface Location {
@@ -573,6 +574,19 @@ interface Order {
                       >Prescription Required (RX)</label
                     >
                   </div>
+
+                  <div class="flex items-center gap-3 py-2">
+                    <input
+                      type="checkbox"
+                      id="med_is_active"
+                      formControlName="is_active"
+                      class="w-5 h-5 rounded border-gray-300 text-blue-900 focus:ring-blue-900"
+                    />
+                    <label for="med_is_active" class="font-medium text-gray-700"
+                      >Active (Available for Search)</label
+                    >
+                  </div>
+
                   <div class="flex gap-3 pt-4">
                     <button
                       type="button"
@@ -714,6 +728,7 @@ export class AdminComponent implements OnInit {
     price: [0, [Validators.required, Validators.min(0)]],
     category: ['all'],
     prescription_required: [false],
+    is_active: [true],
   });
 
   locForm = this.fb.group({
@@ -763,7 +778,7 @@ export class AdminComponent implements OnInit {
 
   private resetForms(): void {
     this.userForm.reset({ is_superuser: false, is_active: true });
-    this.medForm.reset();
+    this.medForm.reset({ is_active: true, category: 'all', prescription_required: false });
     this.locForm.reset({
       latitude: 52.52,
       longitude: 13.405,
@@ -803,8 +818,13 @@ export class AdminComponent implements OnInit {
   editMedication(med: Medication): void {
     this.editingId.set(med.id);
     this.medForm.patchValue({
-      ...med,
+      name: med.name,
+      pzn: med.pzn,
+      description: med.description,
+      price: med.price,
       category: med.category || 'all',
+      prescription_required: med.prescription_required,
+      is_active: med.is_active,
     });
     this.showModal.set(true);
   }

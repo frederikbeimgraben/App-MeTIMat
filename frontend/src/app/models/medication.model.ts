@@ -5,6 +5,8 @@ export interface Medication extends fhir4.Medication {
   // For simplicity, we'll assume they will be part of a custom profile or extension if needed.
   name?: string;
   price?: number;
+  category?: string;
+  prescription_required?: boolean;
 }
 
 export interface CartItem {

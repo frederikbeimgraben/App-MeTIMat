@@ -15,4 +15,6 @@ class Medication(Base):
     manufacturer = Column(String)
     package_size = Column(String)
     price = Column(Float, default=0.0)
+    category = Column(String, default="all")
+    prescription_required = Column(Boolean, default=False)
     is_active = Column(Boolean, default=True)

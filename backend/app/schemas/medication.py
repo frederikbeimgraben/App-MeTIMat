@@ -12,6 +12,8 @@ class MedicationBase(BaseModel):
     manufacturer: Optional[str] = None
     package_size: Optional[str] = None
     price: Optional[float] = 0.0
+    category: Optional[str] = "all"
+    prescription_required: Optional[bool] = False
     is_active: Optional[bool] = True
 
 
@@ -19,10 +21,17 @@ class MedicationCreate(MedicationBase):
     pass
 
 
-class MedicationUpdate(MedicationBase):
+class MedicationUpdate(BaseModel):
     name: Optional[str] = None
     pzn: Optional[str] = None
+    description: Optional[str] = None
+    dosage_form: Optional[str] = None
+    manufacturer: Optional[str] = None
+    package_size: Optional[str] = None
     price: Optional[float] = None
+    category: Optional[str] = None
+    prescription_required: Optional[bool] = None
+    is_active: Optional[bool] = None
 
 
 class MedicationInDBBase(MedicationBase):

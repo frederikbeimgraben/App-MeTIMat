@@ -104,7 +104,15 @@
             <!-- Header with Name and Manufacturer -->
             <div class="flex justify-between items-start mb-2">
               <div class="flex-1">
-                <h3 class="font-semibold text-gray-900">{{ getMedicationName(medication) }}</h3>
+                <div class="flex items-center gap-2">
+                  <h3 class="font-semibold text-gray-900">{{ getMedicationName(medication) }}</h3>
+                  @if (medication.prescription_required) {
+                    <span
+                      class="bg-red-50 text-red-700 px-1.5 py-0.5 rounded text-[10px] font-bold uppercase"
+                      >RX</span
+                    >
+                  }
+                </div>
                 <p class="text-sm text-gray-600">{{ getManufacturer(medication) }}</p>
               </div>
             </div>

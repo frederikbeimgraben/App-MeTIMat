@@ -8,6 +8,7 @@ from app.models.inventory import Inventory
 from app.models.location import Location
 from app.models.medication import Medication
 from app.models.user import User
+from sqlalchemy import text
 from sqlalchemy.exc import OperationalError
 
 logging.basicConfig(level=logging.INFO)
@@ -19,6 +20,39 @@ def init_db() -> None:
     Base.metadata.create_all(bind=engine)
 
     db = SessionLocal()
+
+    # Manual Migration for Medications table
+    logger.info("Checking for missing columns in 'medications' table...")
+    try:
+        # Add 'category' column if it doesn't exist
+        try:
+            db.execute(
+                text(
+                    "ALTER TABLE medications ADD COLUMN category VARCHAR DEFAULT 'all'"
+                )
+            )
+            db.commit()
+            logger.info("Added column 'category' to 'medications' table.")
+        except Exception as e:
+            db.rollback()
+            if "already exists" not in str(e).lower():
+                logger.warning(f"Note: {e}")
+
+        # Add 'prescription_required' column if it doesn't exist
+        try:
+            db.execute(
+                text(
+                    "ALTER TABLE medications ADD COLUMN prescription_required BOOLEAN DEFAULT FALSE"
+                )
+            )
+            db.commit()
+            logger.info("Added column 'prescription_required' to 'medications' table.")
+        except Exception as e:
+            db.rollback()
+            if "already exists" not in str(e).lower():
+                logger.warning(f"Note: {e}")
+    except Exception as e:
+        logger.error(f"Migration error: {e}")
     try:
         # Check if admin user exists
         admin_user = db.query(User).filter(User.email == "admin@metimat.de").first()
@@ -74,6 +108,8 @@ def init_db() -> None:
                     manufacturer="Ratiopharm",
                     package_size="20 Stk.",
                     price=9.95,
+                    category="pain",
+                    prescription_required=False,
                 ),
                 Medication(
                     name="Amoxicillin 1000mg",
@@ -83,6 +119,8 @@ def init_db() -> None:
                     manufacturer="Hexal",
                     package_size="10 Stk.",
                     price=14.50,
+                    category="antibiotics",
+                    prescription_required=True,
                 ),
             ]
             db.add_all(medications)
