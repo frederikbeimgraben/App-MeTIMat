@@ -59,13 +59,11 @@ interface Order {
             <mat-icon class="!m-0">arrow_back</mat-icon>
           </button>
           <div>
-            <h1 class="text-2xl md:text-3xl font-bold text-blue-900 leading-tight">
-              Admin Control Panel
-            </h1>
+            <h1 class="text-2xl md:text-3xl font-bold text-blue-900 leading-tight">Admin Panel</h1>
             <p class="text-sm text-gray-600">Manage System Resources</p>
           </div>
         </div>
-        <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+        <div class="flex items-center gap-2 w-full sm:w-auto justify-end flex-nowrap">
           <button
             (click)="openCreateModal()"
             class="hidden sm:flex h-10 items-center gap-2 px-6 bg-blue-900 text-white rounded-full shadow-lg hover:bg-blue-800 transition-all hover:scale-105"
@@ -95,10 +93,10 @@ interface Order {
       <div class="sm:hidden fixed bottom-6 right-6 flex flex-col gap-3 z-50 items-end">
         <button
           (click)="loadData()"
-          class="w-12 h-12 bg-white text-blue-900 rounded-full shadow-lg flex items-center justify-center border border-gray-200 hover:scale-110 active:scale-95 transition-all"
+          class="w-14 h-14 bg-white text-blue-900 rounded-full shadow-lg flex items-center justify-center border border-gray-200 hover:scale-110 active:scale-95 transition-all"
           aria-label="Reload Data"
         >
-          <mat-icon>refresh</mat-icon>
+          <mat-icon style="font-size: 28px; width: 28px; height: 28px">refresh</mat-icon>
         </button>
         <button
           (click)="openCreateModal()"
@@ -166,8 +164,8 @@ interface Order {
 
         <!-- Users Tab -->
         @if (activeTab() === 'users') {
-          <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-            <table class="w-full text-left border-collapse">
+          <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-x-auto">
+            <table class="w-full text-left border-collapse min-w-[600px]">
               <thead
                 class="bg-gray-50/50 border-b border-gray-100 text-[10px] uppercase text-gray-400 font-extrabold tracking-widest"
               >
@@ -274,8 +272,8 @@ interface Order {
 
         <!-- Orders Tab -->
         @if (activeTab() === 'orders') {
-          <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-            <table class="w-full text-left border-collapse">
+          <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-x-auto">
+            <table class="w-full text-left border-collapse min-w-[700px]">
               <thead
                 class="bg-gray-50/50 border-b border-gray-100 text-[10px] uppercase text-gray-400 font-extrabold tracking-widest"
               >
