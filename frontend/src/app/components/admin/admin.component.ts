@@ -45,8 +45,15 @@ interface Order {
   status: string;
   access_token: string;
   created_at: string;
-  prescriptions?: any[];
-  location?: any;
+  prescriptions?: Array<{
+    id: number;
+    medication_name: string;
+    pzn: string;
+  }>;
+  location?: {
+    name: string;
+    address?: string;
+  };
   identifier?: { value: string }[];
   locationReference?: { display: string; reference: string }[];
 }

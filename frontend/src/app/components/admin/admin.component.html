@@ -711,7 +711,7 @@
 
               <div class="bg-white rounded-lg p-4 inline-block shadow-sm">
                 <qrcode
-                  [qrdata]="order.access_token || order.id.toString() || ''"
+                  [qrdata]="order.access_token || order.id.toString()"
                   [width]="200"
                   [errorCorrectionLevel]="'M'"
                 ></qrcode>
@@ -767,7 +767,7 @@
                   }}
                 </p>
                 @if (order.location?.address) {
-                  <p class="text-sm text-gray-600 mt-1">{{ order.location.address }}</p>
+                  <p class="text-sm text-gray-600 mt-1">{{ order.location?.address }}</p>
                 }
               </div>
             </div>
