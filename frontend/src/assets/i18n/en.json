@@ -33,6 +33,8 @@
     "nfcInstructions": "Hold your electronic health card to the NFC reader",
     "scanningEGK": "Reading eGK...",
     "holdEGK": "Please hold your eGK to the NFC reader",
+    "nfcNotSupported": "NFC is not supported by this browser or device.",
+    "nfcPermissionDenied": "NFC access was denied or hardware is not ready.",
     "enterPin": "Enter PIN",
     "enterPinDescription": "Please enter your 6-digit eGK PIN",
     "pinError": "Please enter a 6-digit PIN",
@@ -58,6 +60,7 @@
     "select": "Select",
     "selectPrescriptionInstruction": "Select a prescription to add medications to your cart",
     "noPrescriptions": "No prescriptions available",
+    "noPrescriptionsOnCard": "No usable prescriptions found on the card.",
     "noPrescriptionsDescription": "You have no active prescriptions. Please import a prescription first.",
     "importNew": "Import New Prescription"
   },

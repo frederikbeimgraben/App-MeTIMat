@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -16,7 +16,7 @@ import { Prescription } from '../../models/prescription.model';
   templateUrl: './prescription-import.component.html',
   styleUrls: ['./prescription-import.component.css'],
 })
-export class PrescriptionImportComponent implements OnInit {
+export class PrescriptionImportComponent implements OnInit, OnDestroy {
   isScanning = false;
   showSuccess = false;
   showError = false;
@@ -26,6 +26,11 @@ export class PrescriptionImportComponent implements OnInit {
   showPinInput = false;
   pinCode = '';
   pinError = false;
+  isNfcSupported = true;
+  nfcDisabledReason = '';
+
+  private ndef: any = null;
+  private ctrl: AbortController | null = null;
 
   constructor(
     private router: Router,
@@ -35,6 +40,20 @@ export class PrescriptionImportComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadActivePrescriptions();
+    this.checkNfcSupport();
+  }
+
+  ngOnDestroy(): void {
+    if (this.ctrl) {
+      this.ctrl.abort();
+    }
+  }
+
+  checkNfcSupport(): void {
+    if (!('NDEFReader' in window)) {
+      this.isNfcSupported = false;
+      this.nfcDisabledReason = 'prescription.nfcNotSupported';
+    }
   }
 
   loadActivePrescriptions(): void {
@@ -49,19 +68,51 @@ export class PrescriptionImportComponent implements OnInit {
     });
   }
 
-  startNFCImport(): void {
-    this.isScanning = true;
-    this.showPinInput = false;
-    this.pinCode = '';
-    this.pinError = false;
-    // Simulate NFC scanning - detect card
-    setTimeout(() => {
+  async startNFCImport(): Promise<void> {
+    if (!this.isNfcSupported) return;
+
+    try {
+      this.isScanning = true;
+      this.showPinInput = false;
+      this.pinCode = '';
+      this.pinError = false;
+
+      this.ndef = new (window as any).NDEFReader();
+      this.ctrl = new AbortController();
+
+      await this.ndef.scan({ signal: this.ctrl.signal });
+
+      this.ndef.onreading = (event: any) => {
+        console.log('NFC Reading event:', event);
+        if (this.ctrl) {
+          this.ctrl.abort();
+          this.ctrl = null;
+        }
+        this.isScanning = false;
+        this.showPinInput = true;
+      };
+
+      this.ndef.onreadingerror = () => {
+        this.isScanning = false;
+        this.errorMessage = 'prescription.error';
+        this.showError = true;
+      };
+    } catch (error: any) {
+      console.error('NFC error:', error);
       this.isScanning = false;
-      this.showPinInput = true;
-    }, 2000);
+      this.errorMessage =
+        error.name === 'NotAllowedError'
+          ? 'prescription.nfcPermissionDenied'
+          : 'prescription.error';
+      this.showError = true;
+    }
   }
 
   cancelNFCImport(): void {
+    if (this.ctrl) {
+      this.ctrl.abort();
+      this.ctrl = null;
+    }
     this.isScanning = false;
     this.showPinInput = false;
     this.pinCode = '';
@@ -98,13 +149,13 @@ export class PrescriptionImportComponent implements OnInit {
           this.importedCount = imported.length;
           this.showSuccess = true;
         } else {
-          this.errorMessage = 'Keine verwendbaren Rezepte auf der Karte gefunden.';
+          this.errorMessage = 'prescription.noPrescriptionsOnCard';
           this.showError = true;
         }
       },
       error: (error: any) => {
         console.error('Error importing from eGK:', error);
-        this.errorMessage = 'Fehler beim Lesen der eGK.';
+        this.errorMessage = 'prescription.error';
         this.showError = true;
       },
     });

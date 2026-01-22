@@ -31,7 +31,7 @@
         <!-- eGK Import -->
         <button
           (click)="startNFCImport()"
-          [disabled]="isScanning || showPinInput"
+          [disabled]="isScanning || showPinInput || !isNfcSupported"
           class="bg-white rounded-lg shadow-sm border-2 border-gray-200 p-6 hover:border-blue-900 hover:bg-blue-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
         >
           <div
@@ -46,7 +46,11 @@
               {{ 'prescription.importWithEGK' | transloco }}
             </h3>
             <p class="text-sm text-gray-600 mt-1">
-              {{ 'prescription.egkDescription' | transloco }}
+              <span [class.text-red-500]="!isNfcSupported" [class.font-medium]="!isNfcSupported">
+                {{
+                  (isNfcSupported ? 'prescription.egkDescription' : nfcDisabledReason) | transloco
+                }}
+              </span>
             </p>
           </div>
         </button>
@@ -154,7 +158,9 @@
             <h2 class="text-lg font-semibold text-gray-900">
               {{ 'prescription.selectPrescription' | transloco }}
             </h2>
-            <p class="text-sm text-gray-600">Bitte wählen Sie das einzulösende Rezept aus:</p>
+            <p class="text-sm text-gray-600">
+              {{ 'prescription.selectPrescriptionInstruction' | transloco }}
+            </p>
           </div>
 
           <div class="flex-1 overflow-y-auto space-y-3 mb-4">
@@ -195,7 +201,7 @@
             <h2 class="text-lg font-semibold text-gray-900 mb-2">
               {{ 'prescription.importError' | transloco }}
             </h2>
-            <p class="text-sm text-gray-600 mb-4">{{ errorMessage }}</p>
+            <p class="text-sm text-gray-600 mb-4">{{ errorMessage | transloco }}</p>
             <button (click)="closeError()" class="btn btn-primary w-full">
               {{ 'common.ok' | transloco }}
             </button>

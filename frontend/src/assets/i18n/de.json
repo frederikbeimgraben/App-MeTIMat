@@ -33,6 +33,8 @@
     "nfcInstructions": "Halten Sie Ihre elektronische Gesundheitskarte an das NFC-Lesegerät",
     "scanningEGK": "eGK wird gelesen...",
     "holdEGK": "Bitte halten Sie Ihre eGK an das NFC-Lesegerät",
+    "nfcNotSupported": "NFC wird von diesem Browser oder Gerät nicht unterstützt.",
+    "nfcPermissionDenied": "NFC-Zugriff wurde verweigert oder die Hardware ist nicht bereit.",
     "enterPin": "PIN eingeben",
     "enterPinDescription": "Bitte geben Sie Ihre 6-stellige eGK-PIN ein",
     "pinError": "Bitte geben Sie eine 6-stellige PIN ein",
@@ -60,6 +62,7 @@
     "select": "Auswählen",
     "selectPrescriptionInstruction": "Wählen Sie ein Rezept aus, um die Medikamente in den Warenkorb zu legen",
     "noPrescriptions": "Keine Rezepte vorhanden",
+    "noPrescriptionsOnCard": "Keine verwendbaren Rezepte auf der Karte gefunden.",
     "noPrescriptionsDescription": "Sie haben noch keine aktiven Rezepte. Importieren Sie zuerst ein Rezept.",
     "importNew": "Neues Rezept importieren"
   },
