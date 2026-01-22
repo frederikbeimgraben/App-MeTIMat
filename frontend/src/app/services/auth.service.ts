@@ -52,11 +52,21 @@ export class AuthService {
       }
 
       // Always verify the token with the backend immediately
-      this.fetchCurrentUser().subscribe({
-        error: () => {
-          this.logout();
-        },
-      });
+      // Explicitly providing headers here to ensure they are present for the initial check
+      const headers = this.getAuthHeaders();
+      this.http
+        .get<User>(`${this.usersUrl}/me`, { headers })
+        .pipe(
+          tap((user) => {
+            this.userSignal.set(user);
+            localStorage.setItem(this.userKey, JSON.stringify(user));
+          }),
+        )
+        .subscribe({
+          error: () => {
+            this.logout();
+          },
+        });
     }
   }
 
@@ -92,7 +102,9 @@ export class AuthService {
   }
 
   private fetchCurrentUser(): Observable<User> {
-    return this.http.get<User>(`${this.usersUrl}/me`).pipe(
+    // Manually set headers to ensure they are available even if the interceptor has issues
+    const headers = this.getAuthHeaders();
+    return this.http.get<User>(`${this.usersUrl}/me`, { headers }).pipe(
       tap((user) => {
         this.userSignal.set(user);
         localStorage.setItem(this.userKey, JSON.stringify(user));

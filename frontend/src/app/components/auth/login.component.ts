@@ -101,13 +101,36 @@ export class LoginComponent {
     this.error.set(null);
 
     const { email, password } = this.loginForm.value;
+    console.log('Attempting login for:', email);
 
     this.authService.login(email!, password!).subscribe({
-      next: () => {
-        const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
-        this.router.navigateByUrl(returnUrl);
+      next: (user) => {
+        console.log('Login successful for user:', user.email);
+        let returnUrl = this.route.snapshot.queryParams['returnUrl'];
+
+        if (Array.isArray(returnUrl)) returnUrl = returnUrl[0];
+        const targetUrl = typeof returnUrl === 'string' && returnUrl ? returnUrl : '/';
+
+        console.log('Redirecting to:', targetUrl);
+
+        // Small delay ensures the AuthService signals have fully propagated before navigation
+        setTimeout(() => {
+          this.router.navigateByUrl(targetUrl).then(
+            (navigated) => {
+              if (!navigated) {
+                console.warn('SPA navigation failed, forcing reload to home');
+                window.location.href = '/app/';
+              }
+            },
+            (err) => {
+              console.error('Navigation error, forcing reload:', err);
+              window.location.href = '/app/';
+            },
+          );
+        }, 100);
       },
       error: (err) => {
+        console.error('Login failed:', err);
         this.error.set('Invalid credentials. Please try again.');
         this.loading.set(false);
       },
