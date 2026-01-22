@@ -38,6 +38,20 @@ with engine.connect() as conn:
         )
         conn.commit()
 
+    # Migration for prescriptions table
+    res_presc = conn.execute(
+        text(
+            "SELECT column_name FROM information_schema.columns WHERE table_name='prescriptions' AND column_name='user_id'"
+        )
+    ).fetchone()
+    if not res_presc:
+        conn.execute(
+            text(
+                "ALTER TABLE prescriptions ADD COLUMN user_id INTEGER REFERENCES users(id)"
+            )
+        )
+        conn.commit()
+
 app = FastAPI(
     title=settings.PROJECT_NAME,
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
