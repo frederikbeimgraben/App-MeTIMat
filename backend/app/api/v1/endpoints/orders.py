@@ -145,6 +145,44 @@ def validate_qr_order(
     )
 
 
+@router.post("/{order_id}/complete", response_model=Order)
+def complete_order(
+    *,
+    db: Session = Depends(deps.get_db),
+    order_id: int,
+    x_machine_token: Optional[str] = Header(None, alias="X-Machine-Token"),
+) -> Any:
+    """
+    Mark an order as completed. Used by the machine after successful dispensing.
+    """
+    order = (
+        db.query(OrderModel)
+        .options(joinedload(OrderModel.location))
+        .filter(OrderModel.id == order_id)
+        .first()
+    )
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+
+    # Check if the machine's token matches the location assigned to the order
+    if not order.location or order.location.validation_key != x_machine_token:
+        logger.warning(
+            f"Machine authorization failed for completing order {order.id}. "
+            f"Expected key: {order.location.validation_key if order.location else 'None'}, "
+            f"Received: {x_machine_token}"
+        )
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Machine authorization failed",
+        )
+
+    order.status = "completed"
+    db.add(order)
+    db.commit()
+    db.refresh(order)
+    return order
+
+
 @router.get("/{order_id}", response_model=Order)
 def read_order_by_id(
     order_id: int,
