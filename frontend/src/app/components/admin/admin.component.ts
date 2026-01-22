@@ -51,22 +51,22 @@ interface Order {
   imports: [CommonModule, FormsModule, ReactiveFormsModule, MatIconModule, TranslocoModule],
   template: `
     <div class="min-h-screen bg-gray-100 p-4 md:p-8 pb-24 md:pb-8">
-      <header
-        class="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 max-w-6xl mx-auto"
-      >
-        <div class="flex items-center gap-4">
+      <header class="mb-8 flex justify-between items-center gap-4 max-w-6xl mx-auto">
+        <div class="flex items-center gap-4 min-w-0">
           <button
             (click)="goBack()"
             class="h-10 w-10 flex items-center justify-center hover:bg-gray-200 rounded-full transition-colors shrink-0"
           >
             <mat-icon class="!m-0">arrow_back</mat-icon>
           </button>
-          <div>
-            <h1 class="text-2xl md:text-3xl font-bold text-blue-900 leading-tight">Admin Panel</h1>
-            <p class="text-sm text-gray-600">Manage System Resources</p>
+          <div class="min-w-0">
+            <h1 class="text-2xl md:text-3xl font-bold text-blue-900 leading-tight truncate">
+              Admin Panel
+            </h1>
+            <p class="text-sm text-gray-600 truncate">Manage System Resources</p>
           </div>
         </div>
-        <div class="flex items-center gap-2 w-full sm:w-auto justify-end flex-nowrap">
+        <div class="flex items-center gap-2 flex-nowrap shrink-0">
           <button
             (click)="openCreateModal()"
             class="hidden sm:flex h-10 items-center gap-2 px-6 bg-blue-900 text-white rounded-full shadow-lg hover:bg-blue-800 transition-all hover:scale-105"
@@ -802,7 +802,10 @@ export class AdminComponent implements OnInit {
 
   editMedication(med: Medication): void {
     this.editingId.set(med.id);
-    this.medForm.patchValue(med);
+    this.medForm.patchValue({
+      ...med,
+      category: med.category || 'all',
+    });
     this.showModal.set(true);
   }
 

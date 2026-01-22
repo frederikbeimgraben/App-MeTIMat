@@ -24,7 +24,7 @@ import { AuthService } from '../../services/auth.service';
             </mat-icon>
           </button>
         }
-        <h1 class="text-xl font-bold text-gray-900 flex-1">
+        <h1 class="text-xl font-bold text-gray-900 flex-1 truncate mr-2">
           @if (titleKey) {
             {{ titleKey | transloco }}
           } @else {
