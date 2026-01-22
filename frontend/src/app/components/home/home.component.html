@@ -27,10 +27,11 @@
         }
         <button
           (click)="logout()"
-          class="p-2 text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+          class="flex items-center space-x-1 px-3 py-1.5 text-gray-600 hover:bg-gray-100 rounded-full transition-colors border border-gray-200"
           aria-label="Logout"
         >
-          <mat-icon style="width: 24px; height: 24px; font-size: 24px">logout</mat-icon>
+          <mat-icon style="width: 20px; height: 20px; font-size: 20px">logout</mat-icon>
+          <span class="text-sm font-medium">Abmelden</span>
         </button>
       </div>
     </div>
@@ -68,19 +69,6 @@
 
       <!-- Additional Quick Actions Grid -->
       <div class="grid grid-cols-2 gap-4">
-        <!-- Show Locations (Map) -->
-        <button
-          (click)="showMachineLocations()"
-          class="bg-white rounded-lg shadow-sm border-2 border-gray-200 p-4 hover:border-blue-900 hover:bg-blue-50 transition-all"
-        >
-          <div class="flex flex-col items-center">
-            <mat-icon class="text-blue-900 mb-2" style="width: 32px; height: 32px; font-size: 32px"
-              >map</mat-icon
-            >
-            <span class="text-sm font-medium text-gray-900">Map View</span>
-          </div>
-        </button>
-
         <!-- My Orders -->
         <button
           (click)="viewMyOrders()"
@@ -93,6 +81,19 @@
             <span class="text-sm font-medium text-gray-900">{{
               'order.myOrders' | transloco
             }}</span>
+          </div>
+        </button>
+
+        <!-- Show Locations (Map) -->
+        <button
+          (click)="showMachineLocations()"
+          class="bg-white rounded-lg shadow-sm border-2 border-gray-200 p-4 hover:border-blue-900 hover:bg-blue-50 transition-all"
+        >
+          <div class="flex flex-col items-center">
+            <mat-icon class="text-blue-900 mb-2" style="width: 32px; height: 32px; font-size: 32px"
+              >map</mat-icon
+            >
+            <span class="text-sm font-medium text-gray-900">Map View</span>
           </div>
         </button>
       </div>

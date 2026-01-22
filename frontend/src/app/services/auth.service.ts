@@ -35,10 +35,10 @@ export class AuthService {
     private http: HttpClient,
     private router: Router,
   ) {
-    this.checkInitialAuth();
+    this.initializeFromStorage();
   }
 
-  private checkInitialAuth(): void {
+  private initializeFromStorage(): void {
     const token = localStorage.getItem(this.tokenKey);
     const savedUser = localStorage.getItem(this.userKey);
 
@@ -51,22 +51,13 @@ export class AuthService {
         }
       }
 
-      // Always verify the token with the backend immediately
-      // Explicitly providing headers here to ensure they are present for the initial check
-      const headers = this.getAuthHeaders();
-      this.http
-        .get<User>(`${this.usersUrl}/me`, { headers })
-        .pipe(
-          tap((user) => {
-            this.userSignal.set(user);
-            localStorage.setItem(this.userKey, JSON.stringify(user));
-          }),
-        )
-        .subscribe({
-          error: () => {
-            this.logout();
-          },
+      // Defer token verification call to avoid circular dependency (NG0200)
+      // during the initial injection phase of the application
+      setTimeout(() => {
+        this.fetchCurrentUser().subscribe({
+          error: () => this.logout(),
         });
+      }, 0);
     }
   }
 
