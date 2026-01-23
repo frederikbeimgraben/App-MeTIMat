@@ -11,7 +11,11 @@ def send_email(
     subject_template: str = "",
     html_template: str = "",
 ) -> None:
-    assert settings.EMAILS_FROM_EMAIL, "no outgoing email address configured"
+    if not settings.SMTP_HOST or not settings.EMAILS_FROM_EMAIL:
+        print(f"Email configuration incomplete, skipping email to {email_to}")
+        print(f"Subject: {subject_template}")
+        print(f"Content: {html_template}")
+        return
 
     message = MIMEMultipart("alternative")
     message["Subject"] = subject_template
@@ -20,12 +24,6 @@ def send_email(
 
     html_part = MIMEText(html_template, "html")
     message.attach(html_part)
-
-    if not settings.SMTP_HOST:
-        print(f"SMTP_HOST not set, skipping email to {email_to}")
-        print(f"Subject: {subject_template}")
-        print(f"Content: {html_template}")
-        return
 
     try:
         with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT) as server:

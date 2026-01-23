@@ -35,6 +35,14 @@ services:
       - POSTGRES_SERVER=postgresql
       - ENABLE_MOCK_PRESCRIPTIONS=${ENABLE_MOCK_PRESCRIPTIONS:-True}
       - SECRET_KEY=${SECRET_KEY}
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_TLS=${SMTP_TLS}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - EMAILS_FROM_EMAIL=${EMAILS_FROM_EMAIL}
+      - EMAILS_FROM_NAME=${EMAILS_FROM_NAME}
+      - FRONTEND_HOST=${FRONTEND_HOST}
     depends_on:
       postgresql:
         condition: service_healthy
