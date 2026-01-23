@@ -17,6 +17,7 @@ export interface Order {
   updated_at?: string;
   prescriptions?: any[];
   medications?: any[];
+  medication_items?: { medication: any; quantity: number }[];
   location_id?: number;
   location?: any;
 

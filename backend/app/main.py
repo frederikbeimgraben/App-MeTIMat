@@ -109,11 +109,24 @@ with engine.connect() as conn:
             CREATE TABLE IF NOT EXISTS order_medication_association (
                 order_id INTEGER REFERENCES orders(id) ON DELETE CASCADE,
                 medication_id INTEGER REFERENCES medications(id) ON DELETE CASCADE,
+                quantity INTEGER DEFAULT 1,
                 PRIMARY KEY (order_id, medication_id)
             )
             """
         )
     )
+    # Ensure quantity column exists if table was already there
+    res_assoc_qty = conn.execute(
+        text(
+            "SELECT column_name FROM information_schema.columns WHERE table_name='order_medication_association' AND column_name='quantity'"
+        )
+    ).fetchone()
+    if not res_assoc_qty:
+        conn.execute(
+            text(
+                "ALTER TABLE order_medication_association ADD COLUMN quantity INTEGER DEFAULT 1"
+            )
+        )
 
     conn.commit()
 

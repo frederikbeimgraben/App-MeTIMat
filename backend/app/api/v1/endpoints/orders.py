@@ -1,12 +1,12 @@
 import logging
+import secrets
 from typing import Any, List, Optional
 
 from app.api import deps
-
-logger = logging.getLogger(__name__)
-from app.core.config import settings
 from app.models.medication import Medication as MedicationModel
 from app.models.order import Order as OrderModel
+from app.models.order import OrderMedication
+from app.models.prescription import Prescription as PrescriptionModel
 from app.models.user import User as UserModel
 from app.schemas.order import (
     Order,
@@ -23,6 +23,7 @@ from app.services.email import (
 from fastapi import APIRouter, Depends, Header, HTTPException, status
 from sqlalchemy.orm import Session, joinedload
 
+logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
@@ -44,7 +45,9 @@ def read_orders(
         query.options(
             joinedload(OrderModel.location),
             joinedload(OrderModel.prescriptions),
-            joinedload(OrderModel.medications),
+            joinedload(OrderModel.medication_items).joinedload(
+                OrderMedication.medication
+            ),
         )
         .offset(skip)
         .limit(limit)
@@ -63,8 +66,6 @@ def create_order(
     """
     Create a new order.
     """
-    import secrets
-
     logger.info(
         f"Creating new order for user {current_user.id} at location {order_in.location_id}"
     )
@@ -97,8 +98,6 @@ def create_order(
     db.flush()
 
     if order_in.prescription_ids:
-        from app.models.prescription import Prescription as PrescriptionModel
-
         prescriptions = (
             db.query(PrescriptionModel)
             .filter(PrescriptionModel.id.in_(order_in.prescription_ids))
@@ -112,32 +111,43 @@ def create_order(
                 updated_data["status"] = "completed"
                 p.fhir_data = updated_data
 
-    # Link direct medications and calculate price
+    # Link direct medications and calculate price using quantities
     if order_in.medication_ids:
+        # Count occurrences in the list to determine quantity
+        med_counts = {}
+        for m_id in order_in.medication_ids:
+            med_counts[m_id] = med_counts.get(m_id, 0) + 1
+
         meds = (
             db.query(MedicationModel)
-            .filter(MedicationModel.id.in_(order_in.medication_ids))
+            .filter(MedicationModel.id.in_(med_counts.keys()))
             .all()
         )
-        db_obj.medications = meds
-        # Calculate price accounting for duplicates (quantities)
-        med_price_map = {m.id: float(m.price) for m in meds}
-        for m_id in order_in.medication_ids:
-            db_obj.total_price += med_price_map.get(m_id, 0.0)
 
-    # Add prescription fees (assumed 5.00€ per prescription)
+        for m in meds:
+            qty = med_counts[m.id]
+            # Create the association object with the specific quantity
+            assoc = OrderMedication(
+                order_id=db_obj.id, medication_id=m.id, quantity=qty
+            )
+            db.add(assoc)
+            db_obj.total_price += float(m.price) * qty
+
+    # Add prescription fees (assumed 5.00€ flat fee per prescription)
     if order_in.prescription_ids:
         db_obj.total_price += len(order_in.prescription_ids) * 5.0
 
     db.commit()
 
-    # Ensure location, medications and prescriptions are loaded for the response and email
+    # Reload with all relationships
     db_obj = (
         db.query(OrderModel)
         .options(
             joinedload(OrderModel.location),
             joinedload(OrderModel.prescriptions),
-            joinedload(OrderModel.medications),
+            joinedload(OrderModel.medication_items).joinedload(
+                OrderMedication.medication
+            ),
         )
         .filter(OrderModel.id == db_obj.id)
         .first()
@@ -148,25 +158,28 @@ def create_order(
         items = []
         total_price = float(db_obj.total_price)
 
-        # Add prescriptions to items list (Flat fee of 5.00€ assumed for prescriptions)
+        # Add prescriptions to items list (grouped by name)
+        prescription_counts = {}
         for p in db_obj.prescriptions:
             med_name = (
                 p.medication_name
                 or (p.fhir_data.get("medication_name") if p.fhir_data else None)
                 or "Verschriebenes Medikament"
             )
-            items.append({"name": med_name, "quantity": 1, "price": 5.0})
+            prescription_counts[med_name] = prescription_counts.get(med_name, 0) + 1
 
-        # Add OTC medications accounting for quantities if provided
-        med_counts = {}
-        if order_in.medication_ids:
-            for m_id in order_in.medication_ids:
-                med_counts[m_id] = med_counts.get(m_id, 0) + 1
+        for name, count in prescription_counts.items():
+            items.append({"name": name, "quantity": count, "price": 5.0 * count})
 
-        for m in db_obj.medications:
-            count = med_counts.get(m.id, 1)
+        # Add OTC medications using the stored quantities
+        for item in db_obj.medication_items:
+            m = item.medication
             items.append(
-                {"name": m.name, "quantity": count, "price": float(m.price) * count}
+                {
+                    "name": m.name,
+                    "quantity": item.quantity,
+                    "price": float(m.price) * item.quantity,
+                }
             )
 
         send_order_confirmation_email(
@@ -200,7 +213,9 @@ def validate_qr_order(
         .options(
             joinedload(OrderModel.location),
             joinedload(OrderModel.prescriptions),
-            joinedload(OrderModel.medications),
+            joinedload(OrderModel.medication_items).joinedload(
+                OrderMedication.medication
+            ),
         )
         .filter(OrderModel.access_token == request.qr_data)
         .first()
@@ -243,7 +258,9 @@ def complete_order(
         .options(
             joinedload(OrderModel.location),
             joinedload(OrderModel.prescriptions),
-            joinedload(OrderModel.medications),
+            joinedload(OrderModel.medication_items).joinedload(
+                OrderMedication.medication
+            ),
         )
         .filter(OrderModel.id == order_id)
         .first()
@@ -272,15 +289,15 @@ def complete_order(
         user = db.query(UserModel).filter(UserModel.id == order.user_id).first()
         if user and user.email:
             items = []
+            prescription_counts = {}
             for p in order.prescriptions:
-                items.append(
-                    {
-                        "name": p.medication_name or "Verschriebenes Medikament",
-                        "quantity": 1,
-                    }
-                )
-            for m in order.medications:
-                items.append({"name": m.name, "quantity": 1})
+                name = p.medication_name or "Verschriebenes Medikament"
+                prescription_counts[name] = prescription_counts.get(name, 0) + 1
+
+            for name, count in prescription_counts.items():
+                items.append({"name": name, "quantity": count})
+            for item in order.medication_items:
+                items.append({"name": item.medication.name, "quantity": item.quantity})
 
             send_pickup_confirmation_email(
                 email_to=user.email,
@@ -307,7 +324,9 @@ def read_order_by_id(
         .options(
             joinedload(OrderModel.location),
             joinedload(OrderModel.prescriptions),
-            joinedload(OrderModel.medications),
+            joinedload(OrderModel.medication_items).joinedload(
+                OrderMedication.medication
+            ),
         )
         .filter(OrderModel.id == order_id)
         .first()
@@ -336,7 +355,9 @@ def update_order(
         .options(
             joinedload(OrderModel.location),
             joinedload(OrderModel.prescriptions),
-            joinedload(OrderModel.medications),
+            joinedload(OrderModel.medication_items).joinedload(
+                OrderMedication.medication
+            ),
         )
         .filter(OrderModel.id == order_id)
         .first()

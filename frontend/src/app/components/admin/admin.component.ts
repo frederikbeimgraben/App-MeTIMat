@@ -78,6 +78,7 @@ export class AdminComponent implements OnInit {
     is_superuser: [false],
     is_active: [true],
     is_verified: [false],
+    newsletter: [false],
   });
 
   medForm = this.fb.group({
@@ -136,7 +137,12 @@ export class AdminComponent implements OnInit {
   }
 
   private resetForms(): void {
-    this.userForm.reset({ is_superuser: false, is_active: true, is_verified: false });
+    this.userForm.reset({
+      is_superuser: false,
+      is_active: true,
+      is_verified: false,
+      newsletter: false,
+    });
     this.medForm.reset({ is_active: true, category: 'all', prescription_required: false });
     this.locForm.reset({
       latitude: 52.52,
@@ -154,6 +160,7 @@ export class AdminComponent implements OnInit {
       is_superuser: user.is_superuser,
       is_active: user.is_active,
       is_verified: user.is_verified,
+      newsletter: user.newsletter,
       password: '',
     });
     this.showModal.set(true);

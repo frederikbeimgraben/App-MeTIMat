@@ -1,16 +1,24 @@
 from datetime import datetime
 
 from app.db.session import Base
-from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer, String, Table
+from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
-# Association table for many-to-many relationship between Orders and Medications
-order_medication_association = Table(
-    "order_medication_association",
-    Base.metadata,
-    Column("order_id", Integer, ForeignKey("orders.id", ondelete="CASCADE")),
-    Column("medication_id", Integer, ForeignKey("medications.id", ondelete="CASCADE")),
-)
+
+class OrderMedication(Base):
+    __tablename__ = "order_medication_association"
+
+    order_id = Column(
+        Integer, ForeignKey("orders.id", ondelete="CASCADE"), primary_key=True
+    )
+    medication_id = Column(
+        Integer, ForeignKey("medications.id", ondelete="CASCADE"), primary_key=True
+    )
+    quantity = Column(Integer, default=1, nullable=False)
+
+    # Relationships to access the objects from the association
+    order = relationship("Order", back_populates="medication_items")
+    medication = relationship("Medication")
 
 
 class Order(Base):
@@ -33,4 +41,13 @@ class Order(Base):
     user = relationship("User")
     location = relationship("Location")
     prescriptions = relationship("Prescription", back_populates="order")
-    medications = relationship("Medication", secondary=order_medication_association)
+
+    # Use the association object instead of secondary for quantity support
+    medication_items = relationship(
+        "OrderMedication", back_populates="order", cascade="all, delete-orphan"
+    )
+
+    @property
+    def medications(self):
+        """Helper property to maintain backward compatibility for medication access"""
+        return [item.medication for item in self.medication_items]

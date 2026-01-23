@@ -35,8 +35,17 @@ class OrderInDBBase(OrderBase):
         from_attributes = True
 
 
+class OrderMedicationSchema(BaseModel):
+    medication: Medication
+    quantity: int
+
+    class Config:
+        from_attributes = True
+
+
 class Order(OrderInDBBase):
     prescriptions: List[Prescription] = []
+    medication_items: List[OrderMedicationSchema] = []
     medications: List[Medication] = []
     location: Optional[Location] = None
 
