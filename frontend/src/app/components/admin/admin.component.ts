@@ -249,8 +249,10 @@ export class AdminComponent implements OnInit {
   }
 
   viewOrderDetails(order: Order): void {
-    this.selectedOrder.set(order);
-    this.showOrderDetailsModal.set(true);
+    this.http.get<Order>(`/api/v1/orders/${order.id}`).subscribe((fullOrder) => {
+      this.selectedOrder.set(fullOrder);
+      this.showOrderDetailsModal.set(true);
+    });
   }
 
   closeOrderDetails(): void {

@@ -43,6 +43,7 @@ def read_orders(
 
     orders = (
         query.options(
+            joinedload(OrderModel.user),
             joinedload(OrderModel.location),
             joinedload(OrderModel.prescriptions),
             joinedload(OrderModel.medication_items).joinedload(
