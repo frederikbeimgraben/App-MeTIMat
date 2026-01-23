@@ -1,13 +1,13 @@
-<div class="min-h-full bg-gray-50 pb-32">
+<div class="h-full bg-gray-50 flex flex-col overflow-hidden">
   <!-- Header -->
   <app-header-common
     titleKey="navigation.orders"
     [hasBackButton]="false"
-    class="z-[50]"
+    class="z-[50] flex-none"
   ></app-header-common>
 
   <!-- Content -->
-  <div class="max-w-md mx-auto px-4 py-4">
+  <div class="max-w-md mx-auto px-4 py-4 flex-1 overflow-y-auto pb-32">
     <!-- Active Orders -->
     @if (activeOrders.length > 0) {
       <div class="mb-6">
