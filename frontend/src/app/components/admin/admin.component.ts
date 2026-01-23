@@ -23,6 +23,9 @@ interface Medication {
   name: string;
   pzn: string;
   description: string;
+  dosage_form?: string;
+  manufacturer?: string;
+  package_size?: string;
   price: number;
   category: string;
   prescription_required: boolean;
@@ -90,6 +93,9 @@ export class AdminComponent implements OnInit {
     name: ['', Validators.required],
     pzn: ['', [Validators.required, Validators.pattern(/^[0-9]{8}$/)]],
     description: [''],
+    dosage_form: [''],
+    manufacturer: [''],
+    package_size: [''],
     price: [0, [Validators.required, Validators.min(0)]],
     category: ['all'],
     prescription_required: [false],
@@ -148,7 +154,14 @@ export class AdminComponent implements OnInit {
       is_verified: false,
       newsletter: false,
     });
-    this.medForm.reset({ is_active: true, category: 'all', prescription_required: false });
+    this.medForm.reset({
+      is_active: true,
+      category: 'all',
+      prescription_required: false,
+      dosage_form: '',
+      manufacturer: '',
+      package_size: '',
+    });
     this.locForm.reset({
       latitude: 52.52,
       longitude: 13.405,
@@ -193,6 +206,9 @@ export class AdminComponent implements OnInit {
       name: med.name,
       pzn: med.pzn,
       description: med.description,
+      dosage_form: med.dosage_form,
+      manufacturer: med.manufacturer,
+      package_size: med.package_size,
       price: med.price,
       category: med.category || 'all',
       prescription_required: med.prescription_required,
