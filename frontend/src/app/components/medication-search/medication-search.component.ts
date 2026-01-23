@@ -90,7 +90,7 @@ export class MedicationSearchComponent implements OnInit {
   }
 
   public getManufacturer(med: any): string {
-    return med.manufacturer?.display || (med as any).description || 'N/A';
+    return med.manufacturer || med.manufacturer?.display || 'N/A';
   }
 
   public getPzn(med: any): string {
@@ -113,10 +113,14 @@ export class MedicationSearchComponent implements OnInit {
   }
 
   public getForm(med: any): string {
-    return med.form?.text || (med as any).description || 'N/A';
+    if (med.dosage && med.dosage_form) {
+      return `${med.dosage} ${med.dosage_form}`;
+    }
+    return med.dosage || med.dosage_form || med.form?.text || 'N/A';
   }
 
   public getAmount(med: any): string {
+    if (med.package_size) return med.package_size;
     if (med.amount?.numerator) {
       return `${med.amount.numerator.value || ''} ${med.amount.numerator.unit || ''}`.trim();
     }
@@ -133,7 +137,12 @@ export class MedicationSearchComponent implements OnInit {
     let filtered = this.medications.filter((med) => {
       const name = this.getMedicationName(med).toLowerCase();
       const pzn = this.getPzn(med).toLowerCase();
-      return name.includes(searchLower) || pzn.includes(searchLower);
+      const manufacturer = this.getManufacturer(med).toLowerCase();
+      return (
+        name.includes(searchLower) ||
+        pzn.includes(searchLower) ||
+        manufacturer.includes(searchLower)
+      );
     });
 
     filtered = this.filterByCategory(filtered);

@@ -105,9 +105,16 @@
 
             <!-- Details -->
             <div class="text-sm text-gray-600 mb-3">
-              <p>{{ 'medication.dosage' | transloco }}: {{ getForm(medication) }}</p>
-              <p>{{ 'medication.packageSize' | transloco }}: {{ getAmount(medication) }}</p>
-              <p class="text-xs text-gray-400 mt-1">PZN: {{ getPzn(medication) }}</p>
+              <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+                <span class="font-medium text-gray-800">{{ getForm(medication) }}</span>
+                @if (getAmount(medication) !== 'N/A' && getAmount(medication) !== '1 Packung') {
+                  <span class="text-gray-300">•</span>
+                  <span>{{ getAmount(medication) }}</span>
+                }
+              </div>
+              <p class="text-xs text-gray-400 mt-1 font-mono tracking-wider">
+                PZN: {{ getPzn(medication) }}
+              </p>
             </div>
 
             <!-- Footer with Price and Add to Cart -->
