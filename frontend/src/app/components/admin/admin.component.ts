@@ -47,6 +47,9 @@ interface Order {
   status: string;
   access_token: string;
   created_at: string;
+  total_price?: number;
+  medication_items?: any[];
+  prescriptions?: any[];
 }
 
 type AdminTab = 'users' | 'meds' | 'orders' | 'locations';
@@ -70,6 +73,8 @@ export class AdminComponent implements OnInit {
   orders = signal<Order[]>([]);
   editingId = signal<number | null>(null);
   showModal = signal<boolean>(false);
+  showOrderDetailsModal = signal<boolean>(false);
+  selectedOrder = signal<Order | null>(null);
 
   userForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -236,6 +241,21 @@ export class AdminComponent implements OnInit {
         this.cancelEdit();
       });
     }
+  }
+
+  getUserEmail(userId: number): string {
+    const user = this.users().find((u) => u.id === userId);
+    return user ? user.email : `User #${userId}`;
+  }
+
+  viewOrderDetails(order: Order): void {
+    this.selectedOrder.set(order);
+    this.showOrderDetailsModal.set(true);
+  }
+
+  closeOrderDetails(): void {
+    this.showOrderDetailsModal.set(false);
+    this.selectedOrder.set(null);
   }
 
   // Order Actions
