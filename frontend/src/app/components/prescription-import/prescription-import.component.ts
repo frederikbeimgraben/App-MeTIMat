@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -36,6 +36,7 @@ export class PrescriptionImportComponent implements OnInit, OnDestroy {
     private router: Router,
     private prescriptionService: PrescriptionService,
     private medicationService: MedicationService,
+    private zone: NgZone,
   ) {}
 
   ngOnInit(): void {
@@ -69,7 +70,11 @@ export class PrescriptionImportComponent implements OnInit, OnDestroy {
   }
 
   async startNFCImport(): Promise<void> {
-    if (!this.isNfcSupported) return;
+    if (!this.isNfcSupported) {
+      console.log('NFC not supported, aborting scan.');
+      return;
+    }
+    console.log('Starting NFC import...');
 
     try {
       this.isScanning = true;
@@ -77,34 +82,44 @@ export class PrescriptionImportComponent implements OnInit, OnDestroy {
       this.pinCode = '';
       this.pinError = false;
 
+      console.log('Initializing NDEFReader...');
       this.ndef = new (window as any).NDEFReader();
       this.ctrl = new AbortController();
 
       this.ndef.onreading = (event: any) => {
-        console.log('NFC Reading event:', event);
-        if (this.ctrl) {
-          this.ctrl.abort();
-          this.ctrl = null;
-        }
-        this.isScanning = false;
-        this.showPinInput = true;
+        this.zone.run(() => {
+          console.log('NFC Reading event:', event);
+          if (this.ctrl) {
+            this.ctrl.abort();
+            this.ctrl = null;
+          }
+          this.isScanning = false;
+          this.showPinInput = true;
+        });
       };
 
-      this.ndef.onreadingerror = () => {
-        this.isScanning = false;
-        this.errorMessage = 'prescription.error';
-        this.showError = true;
+      this.ndef.onreadingerror = (event: any) => {
+        this.zone.run(() => {
+          console.error('NFC reading error:', event);
+          this.isScanning = false;
+          this.errorMessage = 'prescription.error';
+          this.showError = true;
+        });
       };
 
+      console.log('Calling ndef.scan()...');
       await this.ndef.scan({ signal: this.ctrl.signal });
+      console.log('ndef.scan() promise resolved. Waiting for NFC tag...');
     } catch (error: any) {
-      console.error('NFC error:', error);
-      this.isScanning = false;
-      this.errorMessage =
-        error.name === 'NotAllowedError'
-          ? 'prescription.nfcPermissionDenied'
-          : 'prescription.error';
-      this.showError = true;
+      this.zone.run(() => {
+        console.error('An error occurred during NFC setup or scan:', error);
+        this.isScanning = false;
+        this.errorMessage =
+          error.name === 'NotAllowedError'
+            ? 'prescription.nfcPermissionDenied'
+            : 'prescription.error';
+        this.showError = true;
+      });
     }
   }
 
