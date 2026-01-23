@@ -128,6 +128,7 @@
               <th class="px-6 py-4">Role</th>
               <th class="px-6 py-4">Status</th>
               <th class="px-6 py-4">Verified</th>
+              <th class="px-6 py-4">Newsletter</th>
               <th class="px-6 py-4 text-right">Actions</th>
             </tr>
           </thead>
@@ -172,6 +173,18 @@
                       user.is_verified ? 'verified' : 'pending'
                     }}</mat-icon>
                     {{ user.is_verified ? 'Yes' : 'No' }}
+                  </span>
+                </td>
+                <td class="px-6 py-4">
+                  <span
+                    class="inline-flex items-center gap-1.5 text-xs font-semibold"
+                    [class.text-teal-600]="user.newsletter"
+                    [class.text-gray-400]="!user.newsletter"
+                  >
+                    <mat-icon class="!text-[16px] !w-[16px] !h-[16px]">{{
+                      user.newsletter ? 'mail' : 'mail_outline'
+                    }}</mat-icon>
+                    {{ user.newsletter ? 'Subscribed' : 'No' }}
                   </span>
                 </td>
                 <td class="px-6 py-4 text-right">
@@ -446,6 +459,14 @@
                     class="w-5 h-5 rounded border-gray-300 text-blue-900 focus:ring-blue-900"
                   />
                   <span class="font-medium text-gray-700">Verified</span>
+                </label>
+                <label class="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    formControlName="newsletter"
+                    class="w-5 h-5 rounded border-gray-300 text-blue-900 focus:ring-blue-900"
+                  />
+                  <span class="font-medium text-gray-700">Newsletter</span>
                 </label>
               </div>
               <div class="flex gap-3 pt-4">

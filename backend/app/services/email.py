@@ -198,7 +198,7 @@ def send_pickup_ready_email(
             <p style="font-size: 14px; color: #666;">Alternativ können Sie den QR-Code auch in der <strong>MeTIMat App</strong> unter "Bestelldetails" abrufen.</p>
 
             <div style="font-size: 24px; font-weight: bold; letter-spacing: 5px; text-align: center; padding: 20px; background: #ffffff; border: 2px dashed #0d9488; color: #0d9488; border-radius: 8px;">
-                {pickup_code}
+                {pickup_code[:8].lower()}
             </div>
             <p style="text-align: center; font-size: 12px; color: #666;">(Manueller Abhol-Code)</p>
         </div>

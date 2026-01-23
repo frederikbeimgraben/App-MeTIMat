@@ -51,6 +51,8 @@ def create_user(
         is_superuser=user_in.is_superuser,
         is_active=user_in.is_active,
         is_verified=user_in.is_verified,
+        newsletter=user_in.newsletter,
+        accepted_terms=user_in.accepted_terms,
     )
     db.add(db_obj)
     db.commit()

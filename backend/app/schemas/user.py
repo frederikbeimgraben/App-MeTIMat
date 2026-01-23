@@ -10,6 +10,8 @@ class UserBase(BaseModel):
     is_superuser: bool = False
     full_name: Optional[str] = None
     is_verified: bool = False
+    newsletter: bool = False
+    accepted_terms: bool = False
 
 
 # Properties to receive via API on creation

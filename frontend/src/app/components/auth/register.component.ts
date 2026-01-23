@@ -99,6 +99,46 @@ import { TranslocoModule } from '@ngneat/transloco';
               </div>
             </div>
 
+            <div class="space-y-4">
+              <div class="flex items-start">
+                <div class="flex items-center h-5">
+                  <input
+                    id="acceptTerms"
+                    type="checkbox"
+                    formControlName="acceptTerms"
+                    class="focus:ring-teal-500 h-4 w-4 text-teal-600 border-gray-300 rounded"
+                  />
+                </div>
+                <div class="ml-3 text-sm">
+                  <label for="acceptTerms" class="font-medium text-gray-700">
+                    Ich akzeptiere die
+                    <a
+                      href="https://metimat.de/agbs"
+                      target="_blank"
+                      class="text-teal-600 hover:text-teal-500 underline"
+                      >AGB</a
+                    >
+                  </label>
+                </div>
+              </div>
+
+              <div class="flex items-start">
+                <div class="flex items-center h-5">
+                  <input
+                    id="newsletter"
+                    type="checkbox"
+                    formControlName="newsletter"
+                    class="focus:ring-teal-500 h-4 w-4 text-teal-600 border-gray-300 rounded"
+                  />
+                </div>
+                <div class="ml-3 text-sm">
+                  <label for="newsletter" class="font-medium text-gray-700">
+                    Ich möchte den Newsletter abonnieren (optional)
+                  </label>
+                </div>
+              </div>
+            </div>
+
             @if (error()) {
               <div class="text-red-600 text-sm text-center">
                 {{ error() }}
@@ -132,6 +172,8 @@ export class RegisterComponent {
     fullName: ['', Validators.required],
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]],
+    acceptTerms: [false, Validators.requiredTrue],
+    newsletter: [false],
   });
 
   loading = signal(false);
@@ -145,9 +187,9 @@ export class RegisterComponent {
     this.loading.set(true);
     this.error.set(null);
 
-    const { email, password, fullName } = this.registerForm.value;
+    const { email, password, fullName, acceptTerms, newsletter } = this.registerForm.value;
 
-    this.authService.register(email!, password!, fullName!).subscribe({
+    this.authService.register(email!, password!, fullName!, acceptTerms!, newsletter!).subscribe({
       next: (user) => {
         this.loading.set(false);
         this.success.set(true);

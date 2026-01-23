@@ -12,3 +12,5 @@ class User(Base):
     is_active = Column(Boolean(), default=True)
     is_superuser = Column(Boolean(), default=False)
     is_verified = Column(Boolean(), default=False)
+    newsletter = Column(Boolean(), default=False)
+    accepted_terms = Column(Boolean(), default=False)

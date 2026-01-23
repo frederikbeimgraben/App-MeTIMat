@@ -14,6 +14,8 @@ interface User {
   is_superuser: boolean;
   is_active: boolean;
   is_verified: boolean;
+  newsletter: boolean;
+  accepted_terms: boolean;
 }
 
 interface Medication {

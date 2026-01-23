@@ -81,6 +81,8 @@ def register_user(
         is_superuser=False,
         is_active=True,
         is_verified=False,
+        newsletter=user_in.newsletter,
+        accepted_terms=user_in.accepted_terms,
     )
     db.add(db_obj)
     db.commit()

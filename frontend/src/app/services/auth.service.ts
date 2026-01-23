@@ -62,11 +62,19 @@ export class AuthService {
     }
   }
 
-  register(email: string, password: string, fullName: string): Observable<User> {
+  register(
+    email: string,
+    password: string,
+    fullName: string,
+    acceptedTerms: boolean = false,
+    newsletter: boolean = false,
+  ): Observable<User> {
     const body = {
       email,
       password,
       full_name: fullName,
+      accepted_terms: acceptedTerms,
+      newsletter,
     };
     return this.http.post<User>(`${this.apiUrl}/register`, body);
   }
