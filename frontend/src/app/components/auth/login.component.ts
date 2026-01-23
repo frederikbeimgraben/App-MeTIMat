@@ -27,12 +27,6 @@ import { TranslocoModule } from '@ngneat/transloco';
             <img class="h-16 w-auto" src="assets/logo/favicon.svg" alt="MeTIMat Logo" />
           </div>
           <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">MeTIMat Login</h2>
-          <p class="mt-2 text-center text-sm text-gray-600">
-            Or
-            <a routerLink="/register" class="font-medium text-teal-600 hover:text-teal-500">
-              create a new account
-            </a>
-          </p>
         </div>
         <form class="mt-8 space-y-6" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
           <div class="rounded-md shadow-sm -space-y-px">
@@ -79,6 +73,16 @@ import { TranslocoModule } from '@ngneat/transloco';
               </span>
               {{ loading() ? 'Logging in...' : 'Sign in' }}
             </button>
+          </div>
+
+          <div class="flex items-center justify-center space-y-2 flex-col">
+            <div class="text-sm text-gray-600">Don't have an account yet?</div>
+            <a
+              routerLink="/register"
+              class="w-full flex justify-center py-2 px-4 border border-teal-600 text-sm font-medium rounded-md text-teal-600 bg-white hover:bg-teal-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
+            >
+              Create new account
+            </a>
           </div>
         </form>
       </div>
