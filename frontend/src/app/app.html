@@ -1,16 +1,25 @@
-<div class="h-dvh bg-white flex flex-col relative overflow-hidden">
+<div
+  class="h-dvh flex flex-col relative overflow-hidden"
+  [class.items-center]="!currentRoute.startsWith('admin')"
+  [class.bg-gray-100]="!currentRoute.startsWith('admin')"
+  [class.bg-white]="currentRoute.startsWith('admin')"
+>
   <!-- Main content area -->
   <main
-    class="flex-1 absolute top-0 left-0 right-0 overflow-y-auto"
-    [class.bottom-16]="authService.isAuthenticated() && !currentRoute.startsWith('admin')"
+    class="flex-1 w-full relative overflow-y-auto bg-white"
+    [class.max-w-md]="!currentRoute.startsWith('admin')"
+    [class.shadow-2xl]="!currentRoute.startsWith('admin')"
+    [class.mb-16]="authService.isAuthenticated() && !currentRoute.startsWith('admin')"
   >
     <router-outlet></router-outlet>
   </main>
 
   <!-- Bottom Navigation Bar - Only show when authenticated and not in admin view -->
   @if (authService.isAuthenticated() && !currentRoute.startsWith('admin')) {
-  <nav class="absolute bottom-0 left-0 right-0 bg-white border-t-2 border-gray-200 z-50">
-    <div class="max-w-md mx-auto">
+  <nav
+    class="fixed bottom-0 w-full max-w-md left-1/2 -translate-x-1/2 bg-white border-t-2 border-gray-200 z-50"
+  >
+    <div class="mx-auto">
       <div class="flex justify-around items-center h-16">
         <!-- Orders (Bestellungen) -->
         <button
@@ -71,17 +80,21 @@
   <!-- Floating Cart Button -->
   @if (authService.isAuthenticated() && !currentRoute.startsWith('admin') && currentRoute !== 'cart'
   && cartItemCount > 0) {
-  <button
-    (click)="navigateTo('cart')"
-    class="fixed bottom-20 right-4 w-14 h-14 bg-blue-900 text-white rounded-full shadow-2xl flex items-center justify-center z-[60] hover:scale-110 active:scale-95 transition-all"
-    aria-label="Warenkorb"
-  >
-    <mat-icon style="width: 28px; height: 28px; font-size: 28px">shopping_cart</mat-icon>
-    <span
-      class="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full border-2 border-white shadow-sm"
-    >
-      {{ cartItemCount }}
-    </span>
-  </button>
+  <div class="fixed bottom-20 w-full max-w-md left-1/2 -translate-x-1/2 pointer-events-none z-[60]">
+    <div class="relative w-full h-full">
+      <button
+        (click)="navigateTo('cart')"
+        class="absolute right-4 bottom-0 w-14 h-14 bg-blue-900 text-white rounded-full shadow-2xl flex items-center justify-center pointer-events-auto hover:scale-110 active:scale-95 transition-all"
+        aria-label="Warenkorb"
+      >
+        <mat-icon style="width: 28px; height: 28px; font-size: 28px">shopping_cart</mat-icon>
+        <span
+          class="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full border-2 border-white shadow-sm"
+        >
+          {{ cartItemCount }}
+        </span>
+      </button>
+    </div>
+  </div>
   }
 </div>

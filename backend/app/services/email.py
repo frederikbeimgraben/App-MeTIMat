@@ -43,7 +43,7 @@ def get_base_template(content: str) -> str:
         <div class="container">
             <div class="header">
                 <img src="{LOGO_SVG_BASE64_DATA}" alt="MeTIMat Logo" class="logo-img">
-                <div class="brand-name">MeTIMat</div>
+                <div class="brand-name"><span style="color: rgb(30 58 138);">MeTI</span><span style="color: rgb(20 184 166);">Mat</span></div>
             </div>
             <div class="content">
                 {content}
@@ -176,7 +176,7 @@ def send_pickup_ready_email(
     qr = qrcode.QRCode(version=1, box_size=10, border=4)
     qr.add_data(pickup_code)
     qr.make(fit=True)
-    img = qr.make_image(fill_color="#1e3a8a", back_color="white")
+    img = qr.make_image(fill_color="black", back_color="white")
 
     buffered = io.BytesIO()
     img.save(buffered, format="PNG")
