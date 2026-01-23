@@ -81,7 +81,10 @@ export class OrderConfirmationComponent implements OnInit, OnDestroy {
   viewOrderDetails(): void {
     const orderId = this.order()?.id;
     if (orderId) {
-      this.router.navigate(['/orders', orderId], { queryParams: { fromConfirmation: 'true' } });
+      this.router.navigate(['/orders', orderId], {
+        queryParams: { fromConfirmation: 'true' },
+        replaceUrl: true,
+      });
     }
   }
 

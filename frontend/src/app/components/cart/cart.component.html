@@ -28,25 +28,22 @@
       <!-- Cart Items Section -->
       <div class="lg:col-span-2">
         <!-- Grouped Items -->
-        <div *ngFor="let group of groupedItems | keyvalue" class="mb-4">
-          <div
-            class="rounded-lg border-2 overflow-hidden"
-            [ngClass]="getGroupClass($any(group.key))"
-          >
+        <div *ngFor="let group of groupedItems" class="mb-4">
+          <div class="rounded-lg border-2 overflow-hidden" [ngClass]="getGroupClass(group.key)">
             <!-- Group Header -->
             <div class="px-4 py-3 bg-white border-b flex items-center gap-2">
-              <mat-icon class="text-gray-600">{{ getGroupIcon($any(group.key)) }}</mat-icon>
-              <h3 class="font-semibold">{{ getGroupTitle($any(group.key)) }}</h3>
+              <mat-icon class="text-gray-600">{{ getGroupIcon(group.key) }}</mat-icon>
+              <h3 class="font-semibold">{{ getGroupTitle(group.key) }}</h3>
               <span class="text-sm text-gray-500 ml-auto">
-                {{ $any(group.value).length }}
-                {{ $any(group.value).length === 1 ? 'Artikel' : 'Artikel' }}
+                {{ group.value.length }}
+                {{ group.value.length === 1 ? 'Artikel' : 'Artikel' }}
               </span>
             </div>
 
             <!-- Items in Group -->
             <div class="bg-white">
               <div
-                *ngFor="let item of $any(group.value); let last = last"
+                *ngFor="let item of group.value; let last = last"
                 class="p-4"
                 [class.border-b]="!last"
               >
@@ -165,9 +162,7 @@
             <div class="px-4 py-3 bg-gray-50 border-t">
               <div class="flex justify-between items-center">
                 <span class="text-sm text-gray-600">{{ 'cart.groupSubtotal' | transloco }}</span>
-                <span class="font-semibold">{{
-                  formatPrice(calculateSubtotal($any(group.value)))
-                }}</span>
+                <span class="font-semibold">{{ formatPrice(calculateSubtotal(group.value)) }}</span>
               </div>
             </div>
           </div>

@@ -20,7 +20,7 @@ import { LocationService } from '../../services/location.service';
 })
 export class CartComponent implements OnInit, OnDestroy {
   cart: Cart | null = null;
-  groupedItems: { [key: string]: CartItem[] } = {};
+  groupedItems: { key: string; value: CartItem[] }[] = [];
   selectedMachine: VendingMachine | null = null;
   hasUnfulfilledPrescriptions = false;
   showClearConfirmation = false;
@@ -40,7 +40,7 @@ export class CartComponent implements OnInit, OnDestroy {
       this.cart = cart;
 
       // Group items manually to ensure sync and reactivity
-      const grouped: { [key: string]: CartItem[] } = {};
+      const groupedMap: { [key: string]: CartItem[] } = {};
       if (cart && cart.items) {
         cart.items.forEach((item) => {
           let key = 'otc';
@@ -50,13 +50,18 @@ export class CartComponent implements OnInit, OnDestroy {
             key = 'prescription-required';
           }
 
-          if (!grouped[key]) {
-            grouped[key] = [];
+          if (!groupedMap[key]) {
+            groupedMap[key] = [];
           }
-          grouped[key].push(item);
+          groupedMap[key].push(item);
         });
       }
-      this.groupedItems = grouped;
+
+      // Convert to array for stable template rendering and reactivity
+      this.groupedItems = Object.keys(groupedMap).map((key) => ({
+        key,
+        value: groupedMap[key],
+      }));
 
       // Check for unfulfilled prescriptions
       this.hasUnfulfilledPrescriptions = cart.items.some(

@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -77,13 +77,18 @@ export class HeaderCommonComponent {
   @Input() title: string = '';
   @Input() titleKey: string = '';
   @Input() hasBackButton: boolean = true;
+  @Output() backClick = new EventEmitter<void>();
 
   public authService = inject(AuthService);
   private location = inject(Location);
   private router = inject(Router);
 
   goBack(): void {
-    this.location.back();
+    if (this.backClick.observed) {
+      this.backClick.emit();
+    } else {
+      this.location.back();
+    }
   }
 
   logout(): void {
