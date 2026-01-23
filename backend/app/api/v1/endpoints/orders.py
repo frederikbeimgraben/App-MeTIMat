@@ -219,6 +219,7 @@ def validate_qr_order(
             ),
         )
         .filter(OrderModel.access_token == request.qr_data)
+        .filter(OrderModel.status == "available for pickup")
         .first()
     )
 
