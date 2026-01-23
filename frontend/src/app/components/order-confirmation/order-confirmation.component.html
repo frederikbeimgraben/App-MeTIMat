@@ -36,6 +36,61 @@
         </p>
       </div>
 
+      <!-- Order Items Summary -->
+      <div class="bg-white rounded-xl shadow-sm border p-4 mb-6">
+        <h3 class="text-lg font-bold text-gray-900 mb-3">{{ 'order.items' | transloco }}</h3>
+        <div class="space-y-4">
+          @for (item of order()?.medication_items; track item.medication.id) {
+            <div
+              class="flex justify-between items-start border-b border-gray-50 pb-2 last:border-0 last:pb-0"
+            >
+              <div class="flex-1">
+                <p class="font-bold text-gray-900">
+                  {{ item.medication.name }}
+                  @if (item.quantity > 1) {
+                    <span class="text-blue-900 ml-1">x{{ item.quantity }}</span>
+                  }
+                </p>
+                <p class="text-xs text-gray-500">
+                  @if (item.medication.dosage || item.medication.dosage_form) {
+                    <span>
+                      {{ item.medication.dosage
+                      }}{{ item.medication.dosage && item.medication.dosage_form ? ' ' : ''
+                      }}{{ item.medication.dosage_form }}
+                    </span>
+                  }
+                  @if (item.medication.manufacturer) {
+                    <span class="ml-1 text-gray-400 border-l pl-1">{{
+                      item.medication.manufacturer
+                    }}</span>
+                  }
+                </p>
+              </div>
+              <p class="font-bold text-gray-900 text-sm">
+                {{ item.medication.price * item.quantity | number: '1.2-2' }} €
+              </p>
+            </div>
+          }
+          @for (item of order()?.prescriptions; track item.id) {
+            <div
+              class="flex justify-between items-start border-b border-gray-50 pb-2 last:border-0 last:pb-0"
+            >
+              <div class="flex-1">
+                <p class="font-bold text-gray-900">{{ item.medication_name }} (Rezept)</p>
+                <p class="text-xs text-gray-500">PZN: {{ item.pzn }}</p>
+              </div>
+              <p class="font-bold text-gray-900 text-sm">5.00 €</p>
+            </div>
+          }
+        </div>
+        <div class="border-t border-gray-100 mt-3 pt-3 flex justify-between items-center">
+          <span class="font-bold text-gray-600">{{ 'order.total' | transloco }}</span>
+          <span class="text-lg font-black text-blue-900">
+            {{ order()?.total_price || 0 | number: '1.2-2' }} €
+          </span>
+        </div>
+      </div>
+
       <!-- Pickup Info -->
       <div class="bg-blue-50 rounded-xl p-4 mb-8 flex items-start">
         <mat-icon class="text-blue-900 mr-3 mt-1">store</mat-icon>

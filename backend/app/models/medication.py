@@ -11,6 +11,7 @@ class Medication(Base):
         String, unique=True, index=True, nullable=False
     )  # Pharma-Zentral-Nummer
     description = Column(String)
+    dosage = Column(String)  # e.g. "400mg"
     dosage_form = Column(String)
     manufacturer = Column(String)
     package_size = Column(String)

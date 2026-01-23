@@ -58,6 +58,22 @@ def init_db() -> None:
                 "ALTER TABLE medications ADD COLUMN IF NOT EXISTS prescription_required BOOLEAN DEFAULT FALSE"
             )
         )
+        db.execute(
+            text("ALTER TABLE medications ADD COLUMN IF NOT EXISTS dosage VARCHAR")
+        )
+        db.execute(
+            text("ALTER TABLE medications ADD COLUMN IF NOT EXISTS dosage_form VARCHAR")
+        )
+        db.execute(
+            text(
+                "ALTER TABLE medications ADD COLUMN IF NOT EXISTS manufacturer VARCHAR"
+            )
+        )
+        db.execute(
+            text(
+                "ALTER TABLE medications ADD COLUMN IF NOT EXISTS package_size VARCHAR"
+            )
+        )
         db.commit()
         logger.info("Checked/Added missing columns to 'medications' table.")
     except Exception as e:
@@ -105,6 +121,7 @@ def init_db() -> None:
                     name="Ibuprofen 400mg Akut",
                     pzn="12345678",
                     description="Pain reliever and anti-inflammatory",
+                    dosage="400mg",
                     dosage_form="Tablet",
                     manufacturer="Ratiopharm",
                     package_size="20 Stk.",
@@ -116,6 +133,7 @@ def init_db() -> None:
                     name="Amoxicillin 1000mg",
                     pzn="87654321",
                     description="Antibiotic",
+                    dosage="1000mg",
                     dosage_form="Film-coated tablet",
                     manufacturer="Hexal",
                     package_size="10 Stk.",

@@ -233,9 +233,11 @@
                       {{ med.manufacturer }}
                     </p>
                   }
-                  @if (med.dosage_form || med.package_size) {
+                  @if (med.dosage || med.dosage_form || med.package_size) {
                     <p class="text-xs text-gray-500">
-                      {{ med.dosage_form }}{{ med.dosage_form && med.package_size ? ' | ' : ''
+                      {{ med.dosage }}{{ med.dosage && med.dosage_form ? ' ' : ''
+                      }}{{ med.dosage_form
+                      }}{{ (med.dosage || med.dosage_form) && med.package_size ? ' | ' : ''
                       }}{{ med.package_size }}
                     </p>
                   }
@@ -544,6 +546,17 @@
                   />
                 </div>
                 <div class="grid gap-2">
+                  <label class="text-xs font-bold text-gray-500 uppercase">Dosage (mg)</label>
+                  <input
+                    type="text"
+                    formControlName="dosage"
+                    class="w-full p-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-900/20 focus:border-blue-900 outline-none"
+                  />
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-4">
+                <div class="grid gap-2">
                   <label class="text-xs font-bold text-gray-500 uppercase">Dosage Form</label>
                   <input
                     type="text"
@@ -551,9 +564,6 @@
                     class="w-full p-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-900/20 focus:border-blue-900 outline-none"
                   />
                 </div>
-              </div>
-
-              <div class="grid grid-cols-2 gap-4">
                 <div class="grid gap-2">
                   <label class="text-xs font-bold text-gray-500 uppercase">Package Size</label>
                   <input
@@ -562,6 +572,9 @@
                     class="w-full p-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-900/20 focus:border-blue-900 outline-none"
                   />
                 </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-4">
                 <div class="grid gap-2">
                   <label class="text-xs font-bold text-gray-500 uppercase">Price (€)</label>
                   <input
@@ -571,22 +584,21 @@
                     class="w-full p-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-900/20 focus:border-blue-900 outline-none"
                   />
                 </div>
-              </div>
-
-              <div class="grid gap-2">
-                <label class="text-xs font-bold text-gray-500 uppercase">Category</label>
-                <select
-                  formControlName="category"
-                  class="w-full p-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-900/20 focus:border-blue-900 outline-none"
-                >
-                  <option value="all">General</option>
-                  <option value="pain">Schmerzmittel</option>
-                  <option value="antibiotics">Antibiotika</option>
-                  <option value="allergy">Allergie</option>
-                  <option value="vitamins">Vitamine</option>
-                  <option value="cold">Erkältung</option>
-                  <option value="stomach">Magen-Darm</option>
-                </select>
+                <div class="grid gap-2">
+                  <label class="text-xs font-bold text-gray-500 uppercase">Category</label>
+                  <select
+                    formControlName="category"
+                    class="w-full p-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-900/20 focus:border-blue-900 outline-none"
+                  >
+                    <option value="all">General</option>
+                    <option value="pain">Schmerzmittel</option>
+                    <option value="antibiotics">Antibiotika</option>
+                    <option value="allergy">Allergie</option>
+                    <option value="vitamins">Vitamine</option>
+                    <option value="cold">Erkältung</option>
+                    <option value="stomach">Magen-Darm</option>
+                  </select>
+                </div>
               </div>
 
               <div class="grid gap-2">

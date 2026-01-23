@@ -108,6 +108,18 @@ with engine.connect() as conn:
             "ALTER TABLE medications ADD COLUMN IF NOT EXISTS prescription_required BOOLEAN DEFAULT FALSE"
         )
     )
+    conn.execute(
+        text("ALTER TABLE medications ADD COLUMN IF NOT EXISTS dosage VARCHAR")
+    )
+    conn.execute(
+        text("ALTER TABLE medications ADD COLUMN IF NOT EXISTS dosage_form VARCHAR")
+    )
+    conn.execute(
+        text("ALTER TABLE medications ADD COLUMN IF NOT EXISTS manufacturer VARCHAR")
+    )
+    conn.execute(
+        text("ALTER TABLE medications ADD COLUMN IF NOT EXISTS package_size VARCHAR")
+    )
 
     # Migration for orders table: ensure total_price exists
     res_order_price = conn.execute(

@@ -23,6 +23,7 @@ interface Medication {
   name: string;
   pzn: string;
   description: string;
+  dosage?: string;
   dosage_form?: string;
   manufacturer?: string;
   package_size?: string;
@@ -93,6 +94,7 @@ export class AdminComponent implements OnInit {
     name: ['', Validators.required],
     pzn: ['', [Validators.required, Validators.pattern(/^[0-9]{8}$/)]],
     description: [''],
+    dosage: [''],
     dosage_form: [''],
     manufacturer: [''],
     package_size: [''],
@@ -158,6 +160,7 @@ export class AdminComponent implements OnInit {
       is_active: true,
       category: 'all',
       prescription_required: false,
+      dosage: '',
       dosage_form: '',
       manufacturer: '',
       package_size: '',
@@ -206,6 +209,7 @@ export class AdminComponent implements OnInit {
       name: med.name,
       pzn: med.pzn,
       description: med.description,
+      dosage: med.dosage,
       dosage_form: med.dosage_form,
       manufacturer: med.manufacturer,
       package_size: med.package_size,

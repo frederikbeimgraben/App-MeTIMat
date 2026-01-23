@@ -8,6 +8,7 @@ class MedicationBase(BaseModel):
     name: str
     pzn: str
     description: Optional[str] = None
+    dosage: Optional[str] = None
     dosage_form: Optional[str] = None
     manufacturer: Optional[str] = None
     package_size: Optional[str] = None
@@ -25,6 +26,7 @@ class MedicationUpdate(BaseModel):
     name: Optional[str] = None
     pzn: Optional[str] = None
     description: Optional[str] = None
+    dosage: Optional[str] = None
     dosage_form: Optional[str] = None
     manufacturer: Optional[str] = None
     package_size: Optional[str] = None
