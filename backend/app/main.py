@@ -80,16 +80,34 @@ with engine.connect() as conn:
             )
         )
 
-    # Migration for users table: ensure is_verified exists
-    res_user_verified = conn.execute(
+    # Migration for users table: ensure new columns exist
+    conn.execute(
         text(
-            "SELECT column_name FROM information_schema.columns WHERE table_name='users' AND column_name='is_verified'"
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS is_verified BOOLEAN DEFAULT FALSE"
         )
-    ).fetchone()
-    if not res_user_verified:
-        conn.execute(
-            text("ALTER TABLE users ADD COLUMN is_verified BOOLEAN DEFAULT FALSE")
+    )
+    conn.execute(
+        text(
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS newsletter BOOLEAN DEFAULT FALSE"
         )
+    )
+    conn.execute(
+        text(
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS accepted_terms BOOLEAN DEFAULT FALSE"
+        )
+    )
+
+    # Migration for medications table: ensure new columns exist
+    conn.execute(
+        text(
+            "ALTER TABLE medications ADD COLUMN IF NOT EXISTS category VARCHAR DEFAULT 'all'"
+        )
+    )
+    conn.execute(
+        text(
+            "ALTER TABLE medications ADD COLUMN IF NOT EXISTS prescription_required BOOLEAN DEFAULT FALSE"
+        )
+    )
 
     # Migration for orders table: ensure total_price exists
     res_order_price = conn.execute(
