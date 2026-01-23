@@ -1,11 +1,10 @@
-<div class="h-full bg-gray-50 flex flex-col overflow-hidden">
+<div class="min-h-screen bg-gray-50">
   <app-header-common
     [title]="isCheckoutFlow ? 'Abholautomat auswählen' : 'Automat auswählen'"
     titleKey="location.selectPickup"
-    class="flex-none sticky top-0 z-[50]"
   ></app-header-common>
 
-  <div class="container mx-auto px-4 flex-1 overflow-y-auto">
+  <div class="container mx-auto px-4">
     <!-- Location Map Component -->
     <app-location-map
       [mode]="'select'"

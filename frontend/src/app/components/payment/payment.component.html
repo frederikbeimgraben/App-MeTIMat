@@ -1,10 +1,7 @@
-<div class="h-full bg-gray-50 flex flex-col overflow-hidden">
-  <app-header-common
-    [titleKey]="'payment.title'"
-    class="flex-none sticky top-0 z-[50]"
-  ></app-header-common>
+<div class="min-h-screen bg-gray-50 pb-24">
+  <app-header-common [titleKey]="'payment.title'"></app-header-common>
 
-  <div class="max-w-md mx-auto px-4 py-6 flex-1 overflow-y-auto">
+  <div class="max-w-md mx-auto px-4 py-6">
     <!-- Order Summary Card -->
     <div class="bg-white rounded-xl shadow-sm border p-4 mb-6">
       <h2 class="text-lg font-bold text-blue-900 mb-4">{{ 'cart.orderSummary' | transloco }}</h2>

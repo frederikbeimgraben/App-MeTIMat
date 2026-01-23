@@ -1,13 +1,9 @@
-<div class="h-full bg-gray-50 flex flex-col overflow-hidden">
-  <app-header-common
-    titleKey="order.title"
-    (backClick)="goBack()"
-    class="flex-none sticky top-0 z-[50]"
-  ></app-header-common>
+<div class="h-full bg-gray-50 pb-24 overflow-y-auto">
+  <app-header-common titleKey="order.title" (backClick)="goBack()"></app-header-common>
 
   <!-- Content -->
   @if (order(); as o) {
-    <div class="max-w-md mx-auto px-4 py-2 flex-1 overflow-y-auto">
+    <div class="max-w-md mx-auto px-4 py-2">
       <!-- Order Status Card -->
       <div class="bg-white rounded-lg shadow-sm border-2 border-gray-200 p-4 mb-4">
         <div class="flex justify-between items-start mb-4">

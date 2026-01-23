@@ -1,10 +1,7 @@
-<div class="h-full bg-gray-50 flex flex-col overflow-hidden">
-  <app-header-common
-    [title]="'cart.title' | transloco"
-    class="flex-none sticky top-0 z-[50]"
-  ></app-header-common>
+<div class="min-h-screen bg-gray-50">
+  <app-header-common [title]="'cart.title' | transloco"></app-header-common>
 
-  <div class="container mx-auto px-4 py-6 max-w-6xl flex-1 overflow-y-auto">
+  <div class="container mx-auto px-4 py-6 max-w-6xl">
     <!-- Empty Cart State -->
     <div *ngIf="!cart || cart.items.length === 0" class="text-center py-12">
       <mat-icon class="text-gray-400 mb-4" style="font-size: 60px; width: 60px; height: 60px"

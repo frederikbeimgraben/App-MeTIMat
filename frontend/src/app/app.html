@@ -6,7 +6,7 @@
 >
   <!-- Main content area -->
   <main
-    class="flex-1 w-full relative overflow-hidden bg-white flex flex-col"
+    class="flex-1 w-full relative overflow-y-auto bg-white"
     [class.max-w-md]="!currentRoute.startsWith('admin')"
     [class.shadow-2xl]="!currentRoute.startsWith('admin')"
     [class.mb-16]="authService.isAuthenticated() && !currentRoute.startsWith('admin')"
