@@ -211,7 +211,12 @@ export class MedicationSearchComponent implements OnInit {
 
   removeFromCart(medication: Medication): void {
     if (medication.id) {
-      this.cartService.removeFromCart(medication.id);
+      const currentQty = this.getCartQuantity(medication.id);
+      if (currentQty <= 1) {
+        this.cartService.removeFromCart(medication.id);
+      } else {
+        this.cartService.updateQuantity(medication.id, currentQty - 1);
+      }
     }
   }
 
