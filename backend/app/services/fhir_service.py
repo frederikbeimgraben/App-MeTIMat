@@ -45,7 +45,10 @@ class FHIRService:
             return {"valid": False, "error": str(e)}
 
     def create_mock_prescription(
-        self, patient_name: str = "Max Mustermann"
+        self,
+        patient_name: str = "Max Mustermann",
+        medication_name: Optional[str] = None,
+        medication_pzn: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Generates a mock FHIR Bundle containing a MedicationRequest,
@@ -94,8 +97,8 @@ class FHIRService:
                     coding=[
                         Coding(
                             system="http://fhir.de/CodeSystem/ifa/pzn",
-                            code=settings.MOCK_PRESCRIPTION_PZN,
-                            display=settings.MOCK_PRESCRIPTION_NAME,
+                            code=medication_pzn or settings.MOCK_PRESCRIPTION_PZN,
+                            display=medication_name or settings.MOCK_PRESCRIPTION_NAME,
                         )
                     ]
                 )

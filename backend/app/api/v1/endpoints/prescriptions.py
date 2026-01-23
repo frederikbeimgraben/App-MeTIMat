@@ -1,3 +1,4 @@
+import random
 from typing import Any, Dict, List, Optional
 
 from app.api import deps
@@ -64,39 +65,40 @@ def import_egk_prescriptions(
             detail="Mock prescription creation is disabled.",
         )
 
-    # 1. Generate mock FHIR data
+    # 1. Select a random prescription-required medication from the DB
+    rx_medications = (
+        db.query(MedicationModel)
+        .filter(MedicationModel.prescription_required == True)
+        .all()
+    )
+
+    if not rx_medications:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No prescription-required medications found in database.",
+        )
+
+    selected_med = random.choice(rx_medications)
+
+    # 2. Generate mock FHIR data
     bundle = fhir_service.create_mock_prescription(
-        patient_name=current_user.full_name or "Max Mustermann"
+        patient_name=current_user.full_name or "Max Mustermann",
+        medication_name=selected_med.name,
+        medication_pzn=selected_med.pzn,
     )
 
     imported_prescriptions = []
 
-    # 2. Process bundle and save to DB
+    # 3. Process bundle and save to DB
     for entry in bundle.get("entry", []):
         resource = entry.get("resource", {})
         if resource.get("resourceType") == "MedicationRequest":
-            # Extract basic info for convenience columns
-            med_name = settings.MOCK_PRESCRIPTION_NAME
-            pzn = settings.MOCK_PRESCRIPTION_PZN
-
-            # Try to get better info from the resource
-            if "medication" in resource and "concept" in resource["medication"]:
-                codings = resource["medication"]["concept"].get("coding", [])
-                if codings:
-                    med_name = codings[0].get("display", med_name)
-                    pzn = codings[0].get("code", pzn)
-
-            # Check if medication exists in our DB
-            medication = (
-                db.query(MedicationModel).filter(MedicationModel.pzn == pzn).first()
-            )
-
             db_prescription = PrescriptionModel(
                 user_id=current_user.id,
                 order_id=None,
-                medication_id=medication.id if medication else None,
-                medication_name=med_name,
-                pzn=pzn,
+                medication_id=selected_med.id,
+                medication_name=selected_med.name,
+                pzn=selected_med.pzn,
                 fhir_data=jsonable_encoder(resource),
             )
             db.add(db_prescription)
@@ -126,9 +128,26 @@ def import_scanned_prescription(
             detail="Mock prescription creation is disabled.",
         )
 
-    # Generate mock FHIR
+    # 1. Select a random prescription-required medication from the DB
+    rx_medications = (
+        db.query(MedicationModel)
+        .filter(MedicationModel.prescription_required == True)
+        .all()
+    )
+
+    if not rx_medications:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No prescription-required medications found in database.",
+        )
+
+    selected_med = random.choice(rx_medications)
+
+    # 2. Generate mock FHIR
     bundle = fhir_service.create_mock_prescription(
-        patient_name=current_user.full_name or "Max Mustermann"
+        patient_name=current_user.full_name or "Max Mustermann",
+        medication_name=selected_med.name,
+        medication_pzn=selected_med.pzn,
     )
 
     # Take the first MedicationRequest from the bundle
@@ -141,19 +160,12 @@ def import_scanned_prescription(
         {},
     )
 
-    # Check if medication exists in our DB
-    medication = (
-        db.query(MedicationModel)
-        .filter(MedicationModel.pzn == settings.MOCK_PRESCRIPTION_PZN)
-        .first()
-    )
-
     db_prescription = PrescriptionModel(
         user_id=current_user.id,
         order_id=None,
-        medication_id=medication.id if medication else None,
-        medication_name=settings.MOCK_PRESCRIPTION_NAME,
-        pzn=settings.MOCK_PRESCRIPTION_PZN,
+        medication_id=selected_med.id,
+        medication_name=selected_med.name,
+        pzn=selected_med.pzn,
         fhir_data=jsonable_encoder(resource),
     )
     db.add(db_prescription)
