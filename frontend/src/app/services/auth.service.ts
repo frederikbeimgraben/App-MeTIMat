@@ -9,6 +9,7 @@ export interface User {
   full_name: string;
   is_active: boolean;
   is_superuser: boolean;
+  is_verified: boolean;
 }
 
 export interface TokenResponse {
@@ -59,6 +60,21 @@ export class AuthService {
         });
       }, 0);
     }
+  }
+
+  register(email: string, password: string, fullName: string): Observable<User> {
+    const body = {
+      email,
+      password,
+      full_name: fullName,
+    };
+    return this.http.post<User>(`${this.apiUrl}/register`, body);
+  }
+
+  verifyEmail(token: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/verify-email`, {
+      params: { token },
+    });
   }
 
   login(email: string, password: string): Observable<User> {

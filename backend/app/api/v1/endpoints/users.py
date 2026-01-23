@@ -48,6 +48,7 @@ def create_user(
         full_name=user_in.full_name,
         is_superuser=user_in.is_superuser,
         is_active=user_in.is_active,
+        is_verified=user_in.is_verified,
     )
     db.add(db_obj)
     db.commit()

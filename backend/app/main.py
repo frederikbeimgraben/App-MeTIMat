@@ -80,6 +80,17 @@ with engine.connect() as conn:
             )
         )
 
+    # Migration for users table: ensure is_verified exists
+    res_user_verified = conn.execute(
+        text(
+            "SELECT column_name FROM information_schema.columns WHERE table_name='users' AND column_name='is_verified'"
+        )
+    ).fetchone()
+    if not res_user_verified:
+        conn.execute(
+            text("ALTER TABLE users ADD COLUMN is_verified BOOLEAN DEFAULT FALSE")
+        )
+
     conn.commit()
 
 app = FastAPI(

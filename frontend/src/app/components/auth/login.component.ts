@@ -1,7 +1,7 @@
 import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslocoModule } from '@ngneat/transloco';
@@ -9,7 +9,14 @@ import { TranslocoModule } from '@ngneat/transloco';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, MatIconModule, TranslocoModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatIconModule,
+    TranslocoModule,
+    RouterLink,
+  ],
   template: `
     <div
       class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8"
@@ -20,6 +27,12 @@ import { TranslocoModule } from '@ngneat/transloco';
             <img class="h-16 w-auto" src="assets/logo/favicon.svg" alt="MeTIMat Logo" />
           </div>
           <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">MeTIMat Login</h2>
+          <p class="mt-2 text-center text-sm text-gray-600">
+            Or
+            <a routerLink="/register" class="font-medium text-teal-600 hover:text-teal-500">
+              create a new account
+            </a>
+          </p>
         </div>
         <form class="mt-8 space-y-6" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
           <div class="rounded-md shadow-sm -space-y-px">

@@ -64,6 +64,7 @@ def init_db() -> None:
                 full_name="Administrator",
                 is_superuser=True,
                 is_active=True,
+                is_verified=True,
             )
             db.add(admin_user)
 
