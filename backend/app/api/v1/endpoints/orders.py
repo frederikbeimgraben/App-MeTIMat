@@ -100,10 +100,8 @@ def create_order(
             .filter(PrescriptionModel.id.in_(order_in.prescription_ids))
             .all()
         )
+        db_obj.prescriptions = prescriptions
         for p in prescriptions:
-            # Link to the new confirmed order
-            p.order_id = db_obj.id
-
             # Update FHIR status to completed to invalidate for future use
             if p.fhir_data:
                 updated_data = dict(p.fhir_data)
@@ -118,45 +116,18 @@ def create_order(
             .all()
         )
         db_obj.medications = meds
-        db_obj.total_price += sum(float(m.price) for m in meds)
+        # Calculate price accounting for duplicates (quantities)
+        med_price_map = {m.id: float(m.price) for m in meds}
+        for m_id in order_in.medication_ids:
+            db_obj.total_price += med_price_map.get(m_id, 0.0)
 
     # Add prescription fees (assumed 5.00€ per prescription)
     if order_in.prescription_ids:
         db_obj.total_price += len(order_in.prescription_ids) * 5.0
 
     db.commit()
-    db.refresh(db_obj)
 
-    # Send order confirmation email
-    try:
-        items = []
-        total_price = 0.0
-
-        # Add prescriptions to items list (Flat fee of 5.00€ assumed for prescriptions)
-        for p in db_obj.prescriptions:
-            med_name = (
-                p.fhir_data.get("medication_name", "Verschriebenes Medikament")
-                if p.fhir_data
-                else "Verschriebenes Medikament"
-            )
-            items.append({"name": med_name, "quantity": 1, "price": 5.0})
-            total_price += 5.0
-
-        # Add OTC medications from the newly persisted relationship
-        for m in db_obj.medications:
-            items.append({"name": m.name, "quantity": 1, "price": float(m.price)})
-            total_price += float(m.price)
-
-        send_order_confirmation_email(
-            email_to=current_user.email,
-            order_id=db_obj.id,
-            items=items,
-            total_price=total_price,
-        )
-    except Exception as e:
-        logger.error(f"Failed to send order confirmation email: {e}")
-
-    # Ensure location, medications and prescriptions are loaded for the response model
+    # Ensure location, medications and prescriptions are loaded for the response and email
     db_obj = (
         db.query(OrderModel)
         .options(
@@ -167,6 +138,41 @@ def create_order(
         .filter(OrderModel.id == db_obj.id)
         .first()
     )
+
+    # Send order confirmation email
+    try:
+        items = []
+        total_price = float(db_obj.total_price)
+
+        # Add prescriptions to items list (Flat fee of 5.00€ assumed for prescriptions)
+        for p in db_obj.prescriptions:
+            med_name = (
+                p.medication_name
+                or (p.fhir_data.get("medication_name") if p.fhir_data else None)
+                or "Verschriebenes Medikament"
+            )
+            items.append({"name": med_name, "quantity": 1, "price": 5.0})
+
+        # Add OTC medications accounting for quantities if provided
+        med_counts = {}
+        if order_in.medication_ids:
+            for m_id in order_in.medication_ids:
+                med_counts[m_id] = med_counts.get(m_id, 0) + 1
+
+        for m in db_obj.medications:
+            count = med_counts.get(m.id, 1)
+            items.append(
+                {"name": m.name, "quantity": count, "price": float(m.price) * count}
+            )
+
+        send_order_confirmation_email(
+            email_to=current_user.email,
+            order_id=db_obj.id,
+            items=items,
+            total_price=total_price,
+        )
+    except Exception as e:
+        logger.error(f"Failed to send order confirmation email: {e}")
 
     logger.info(
         f"Order {db_obj.id} created successfully with access token {db_obj.access_token[:8]}..."

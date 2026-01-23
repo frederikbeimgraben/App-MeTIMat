@@ -80,6 +80,7 @@ export class PaymentComponent implements OnInit {
           (item.medication as any).name || item.medication.code?.coding?.[0]?.display || 'N/A',
         quantity: item.quantity,
         price: this.cartService.getMedicationPrice(item.medication, !!item.prescription),
+        prescriptionId: item.prescription?.id,
       }));
 
       const prescriptionIds = cartData.items

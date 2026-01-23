@@ -86,7 +86,9 @@ export class OrderService {
       status: 'pending',
       location_id: parseInt(pickupLocationId),
       prescription_ids: prescriptionIds,
-      // In a real app, we would send items and pickupLocationId to the backend
+      medication_ids: items
+        .filter((item) => !item.prescriptionId)
+        .flatMap((item) => Array(item.quantity).fill(parseInt(item.medicationId))),
     };
 
     return this.http.post<Order>('/api/v1/orders/', orderPayload).pipe(
