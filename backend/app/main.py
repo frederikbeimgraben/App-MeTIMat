@@ -67,6 +67,21 @@ with engine.connect() as conn:
     except Exception as e:
         logger.warning(f"Could not update inventory foreign key: {e}")
 
+    # Migration for inventory table medication_id: ensure ON DELETE CASCADE
+    try:
+        conn.execute(
+            text(
+                "ALTER TABLE inventory DROP CONSTRAINT IF EXISTS inventory_medication_id_fkey"
+            )
+        )
+        conn.execute(
+            text(
+                "ALTER TABLE inventory ADD CONSTRAINT inventory_medication_id_fkey FOREIGN KEY (medication_id) REFERENCES medications(id) ON DELETE CASCADE"
+            )
+        )
+    except Exception as e:
+        logger.warning(f"Could not update inventory foreign key for medication: {e}")
+
     # Migration for prescriptions table
     res_presc = conn.execute(
         text(
@@ -79,6 +94,19 @@ with engine.connect() as conn:
                 "ALTER TABLE prescriptions ADD COLUMN user_id INTEGER REFERENCES users(id) ON DELETE SET NULL"
             )
         )
+    try:
+        conn.execute(
+            text(
+                "ALTER TABLE prescriptions DROP CONSTRAINT IF EXISTS prescriptions_medication_id_fkey"
+            )
+        )
+        conn.execute(
+            text(
+                "ALTER TABLE prescriptions ADD CONSTRAINT prescriptions_medication_id_fkey FOREIGN KEY (medication_id) REFERENCES medications(id) ON DELETE CASCADE"
+            )
+        )
+    except Exception as e:
+        logger.warning(f"Could not update prescriptions foreign key: {e}")
 
     # Migration for users table: ensure new columns exist
     conn.execute(

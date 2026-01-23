@@ -10,7 +10,9 @@ class Inventory(Base):
     location_id = Column(
         Integer, ForeignKey("locations.id", ondelete="CASCADE"), index=True
     )
-    medication_id = Column(Integer, ForeignKey("medications.id"), index=True)
+    medication_id = Column(
+        Integer, ForeignKey("medications.id", ondelete="CASCADE"), index=True
+    )
     quantity = Column(Integer, default=0)
 
     location = relationship("Location", back_populates="inventory")

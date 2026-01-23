@@ -11,7 +11,9 @@ class Prescription(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=True)
     order_id = Column(Integer, ForeignKey("orders.id"), nullable=True)
-    medication_id = Column(Integer, ForeignKey("medications.id"), nullable=True)
+    medication_id = Column(
+        Integer, ForeignKey("medications.id", ondelete="CASCADE"), nullable=True
+    )
 
     # Basic details often required for display even without full FHIR parsing
     medication_name = Column(String, index=True, nullable=True)
