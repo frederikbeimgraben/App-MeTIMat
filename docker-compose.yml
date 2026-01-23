@@ -43,6 +43,7 @@ services:
       - EMAILS_FROM_EMAIL=${EMAILS_FROM_EMAIL}
       - EMAILS_FROM_NAME=${EMAILS_FROM_NAME}
       - FRONTEND_HOST=${FRONTEND_HOST}
+      - ADMIN_PW=${ADMIN_PW}
     depends_on:
       postgresql:
         condition: service_healthy
