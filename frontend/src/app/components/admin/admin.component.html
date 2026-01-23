@@ -115,7 +115,9 @@
 
     <!-- Users Tab -->
     @if (activeTab() === 'users') {
-      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-x-auto max-h-[600px] overflow-y-auto">
+      <div
+        class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-x-auto max-h-[600px] overflow-y-auto"
+      >
         <table class="w-full text-left border-collapse min-w-[600px]">
           <thead
             class="bg-gray-50/50 border-b border-gray-100 text-[10px] uppercase text-gray-400 font-extrabold tracking-widest"
@@ -125,6 +127,7 @@
               <th class="px-6 py-4">Email</th>
               <th class="px-6 py-4">Role</th>
               <th class="px-6 py-4">Status</th>
+              <th class="px-6 py-4">Verified</th>
               <th class="px-6 py-4 text-right">Actions</th>
             </tr>
           </thead>
@@ -157,6 +160,18 @@
                       [class.bg-red-500]="!user.is_active"
                     ></span>
                     {{ user.is_active ? 'Active' : 'Inactive' }}
+                  </span>
+                </td>
+                <td class="px-6 py-4">
+                  <span
+                    class="inline-flex items-center gap-1.5 text-xs font-semibold"
+                    [class.text-green-600]="user.is_verified"
+                    [class.text-amber-600]="!user.is_verified"
+                  >
+                    <mat-icon class="!text-[16px] !w-[16px] !h-[16px]">{{
+                      user.is_verified ? 'verified' : 'pending'
+                    }}</mat-icon>
+                    {{ user.is_verified ? 'Yes' : 'No' }}
                   </span>
                 </td>
                 <td class="px-6 py-4 text-right">
@@ -244,7 +259,9 @@
 
     <!-- Orders Tab -->
     @if (activeTab() === 'orders') {
-      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-x-auto max-h-[600px] overflow-y-auto">
+      <div
+        class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-x-auto max-h-[600px] overflow-y-auto"
+      >
         <table class="w-full text-left border-collapse min-w-[700px]">
           <thead
             class="bg-gray-50/50 border-b border-gray-100 text-[10px] uppercase text-gray-400 font-extrabold tracking-widest"
@@ -421,6 +438,14 @@
                     class="w-5 h-5 rounded border-gray-300 text-blue-900 focus:ring-blue-900"
                   />
                   <span class="font-medium text-gray-700">Active</span>
+                </label>
+                <label class="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    formControlName="is_verified"
+                    class="w-5 h-5 rounded border-gray-300 text-blue-900 focus:ring-blue-900"
+                  />
+                  <span class="font-medium text-gray-700">Verified</span>
                 </label>
               </div>
               <div class="flex gap-3 pt-4">

@@ -9,7 +9,7 @@ class Prescription(Base):
     __tablename__ = "prescriptions"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=True)
     order_id = Column(Integer, ForeignKey("orders.id"), nullable=True)
     medication_id = Column(Integer, ForeignKey("medications.id"), nullable=True)
 

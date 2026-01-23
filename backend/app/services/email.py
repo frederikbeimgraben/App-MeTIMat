@@ -4,6 +4,7 @@ import smtplib
 from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from email.utils import formataddr, formatdate, make_msgid
 from typing import Any, Dict, List
 
 import qrcode
@@ -73,8 +74,12 @@ def send_email(
     # Use MIMEMultipart for better compatibility across mail clients
     message = MIMEMultipart("related")
     message["Subject"] = subject
-    message["From"] = f"{settings.EMAILS_FROM_NAME} <{settings.EMAILS_FROM_EMAIL}>"
+    message["From"] = formataddr(
+        (settings.EMAILS_FROM_NAME, settings.EMAILS_FROM_EMAIL)
+    )
     message["To"] = email_to
+    message["Date"] = formatdate(localtime=True)
+    message["Message-ID"] = make_msgid()
 
     # Create the HTML part
     msg_alternative = MIMEMultipart("alternative")
@@ -85,7 +90,12 @@ def send_email(
 
     # Attach the logo as CID
     try:
-        logo_data = base64.b64decode(LOGO_SVG_BASE64_DATA)
+        # Strip data URI prefix if present
+        b64_data = LOGO_SVG_BASE64_DATA
+        if "," in b64_data:
+            b64_data = b64_data.split(",", 1)[1]
+
+        logo_data = base64.b64decode(b64_data)
         image = MIMEImage(logo_data, _subtype="svg+xml")
         image.add_header("Content-ID", "<logo>")
         image.add_header("Content-Disposition", "inline", filename="logo.svg")
@@ -188,7 +198,7 @@ def send_pickup_ready_email(
             <p style="font-size: 14px; color: #666;">Alternativ können Sie den QR-Code auch in der <strong>MeTIMat App</strong> unter "Bestelldetails" abrufen.</p>
 
             <div style="font-size: 24px; font-weight: bold; letter-spacing: 5px; text-align: center; padding: 20px; background: #ffffff; border: 2px dashed #0d9488; color: #0d9488; border-radius: 8px;">
-                {pickup_code[:8].upper()}
+                {pickup_code}
             </div>
             <p style="text-align: center; font-size: 12px; color: #666;">(Manueller Abhol-Code)</p>
         </div>
