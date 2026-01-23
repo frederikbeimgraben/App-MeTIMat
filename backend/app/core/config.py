@@ -20,9 +20,7 @@ class Settings(BaseSettings):
     MOCK_PRESCRIPTION_NAME: str = os.getenv(
         "MOCK_PRESCRIPTION_NAME", "Amoxicillin 1000mg"
     )
-    ADMIN_PASS: str = os.getenv(
-        "ADMIN_PW", "6cd53aa5ef5ffb1fd309de0943c13338c4c05aa5f5f03745282e6a94731ffed2"
-    )
+    ADMIN_PASS: str = os.environ["ADMIN_PW"]
 
     # Database
     POSTGRES_SERVER: str = os.getenv("POSTGRES_SERVER", "postgresql")
