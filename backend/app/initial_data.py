@@ -21,6 +21,19 @@ def init_db() -> None:
 
     db = SessionLocal()
 
+    # Manual Migration for Users table: ensure is_verified column exists
+    logger.info("Checking for missing columns in 'users' table...")
+    try:
+        db.execute(
+            text("ALTER TABLE users ADD COLUMN is_verified BOOLEAN DEFAULT FALSE")
+        )
+        db.commit()
+        logger.info("Added column 'is_verified' to 'users' table.")
+    except Exception as e:
+        db.rollback()
+        if "already exists" not in str(e).lower():
+            logger.warning(f"Note: {e}")
+
     # Manual Migration for Medications table
     logger.info("Checking for missing columns in 'medications' table...")
     try:
