@@ -76,7 +76,7 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
 
   startPolling(orderId: string | number): void {
     this._loading.set(true);
-    this.pollingSubscription = interval(3000)
+    this.pollingSubscription = interval(500)
       .pipe(
         startWith(0),
         switchMap(() => this.orderService.getOrderById(orderId)),
