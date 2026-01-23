@@ -2,6 +2,8 @@ from typing import Any, List
 
 from app.api import deps
 from app.core import security
+from app.models.order import Order as OrderModel
+from app.models.prescription import Prescription as PrescriptionModel
 from app.models.user import User as UserModel
 from app.schemas.user import User, UserCreate, UserUpdate
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -161,6 +163,12 @@ def delete_user(
         )
     if user.id == current_user.id:
         raise HTTPException(status_code=400, detail="Users cannot delete themselves")
+
+    # Manually delete associated data to avoid foreign key violations
+    # since the database schema might not have been migrated with CASCADE yet.
+    db.query(PrescriptionModel).filter(PrescriptionModel.user_id == user_id).delete()
+    db.query(OrderModel).filter(OrderModel.user_id == user_id).delete()
+
     db.delete(user)
     db.commit()
     return user
