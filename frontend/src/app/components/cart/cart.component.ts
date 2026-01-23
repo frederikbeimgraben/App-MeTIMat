@@ -9,6 +9,7 @@ import { CartService, CartItem, Cart } from '../../services/cart.service';
 import { VendingMachineService } from '../../services/vending-machine.service';
 import { VendingMachine } from '../../models/vending-machine.model';
 import { Subscription } from 'rxjs';
+import { LocationService } from '../../services/location.service';
 
 @Component({
   selector: 'app-cart',
@@ -30,6 +31,7 @@ export class CartComponent implements OnInit, OnDestroy {
     private router: Router,
     private cartService: CartService,
     private vendingMachineService: VendingMachineService,
+    private locationService: LocationService,
   ) {}
 
   ngOnInit(): void {
@@ -53,9 +55,14 @@ export class CartComponent implements OnInit, OnDestroy {
       });
     this.subscriptions.add(prescriptionSub);
 
-    // Get selected vending machine
-    // selectedMachine is now a FHIR Location (VendingMachine extends Location)
-    this.selectedMachine = this.vendingMachineService.getSelectedMachine();
+    // Subscribe to selected vending machine changes
+    const machineSub = this.vendingMachineService.selectedMachine$.subscribe((machine) => {
+      this.selectedMachine = machine;
+      if (!machine) {
+        this.findAndSelectNearestMachine();
+      }
+    });
+    this.subscriptions.add(machineSub);
   }
 
   ngOnDestroy(): void {
@@ -144,6 +151,45 @@ export class CartComponent implements OnInit, OnDestroy {
         this.router.navigate(['/checkout/payment']);
       }
     }
+  }
+
+  private findAndSelectNearestMachine(): void {
+    this.locationService.getUserLocation().subscribe((userLocation) => {
+      if (!userLocation) {
+        console.warn('Could not get user location to find nearest machine.');
+        return;
+      }
+
+      this.vendingMachineService.getAllMachines().subscribe((machines) => {
+        if (!machines || machines.length === 0) {
+          console.warn('No vending machines available to select from.');
+          return;
+        }
+
+        let nearestMachine: VendingMachine | null = null;
+        let minDistance = Infinity;
+
+        for (const machine of machines) {
+          if (machine.position) {
+            const distance = this.locationService.calculateDistance(
+              userLocation.latitude,
+              userLocation.longitude,
+              machine.position.latitude,
+              machine.position.longitude,
+            );
+
+            if (distance < minDistance) {
+              minDistance = distance;
+              nearestMachine = machine;
+            }
+          }
+        }
+
+        if (nearestMachine) {
+          this.vendingMachineService.selectMachine(nearestMachine);
+        }
+      });
+    });
   }
 
   getMedicationName(item: CartItem): string {

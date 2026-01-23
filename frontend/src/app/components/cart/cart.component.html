@@ -206,11 +206,7 @@
               <p class="font-medium text-sm">{{ selectedMachine.name || 'N/A' }}</p>
               <p class="text-xs text-gray-600">{{ selectedMachine.description || 'N/A' }}</p>
               <p class="text-xs text-gray-600">
-                {{ selectedMachine.address?.line?.[0] || 'N/A' }},
-                {{ selectedMachine.address?.city || 'N/A' }}
-              </p>
-              <p class="text-xs text-gray-600">
-                {{ selectedMachine.address?.postalCode || 'N/A' }}
+                {{ selectedMachine.address?.line?.[0] || 'N/A' }}
               </p>
             </div>
             <div *ngIf="!selectedMachine" class="bg-yellow-50 rounded p-3">

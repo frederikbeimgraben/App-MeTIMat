@@ -113,6 +113,10 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
   }
 
   goBack(): void {
-    this.location.back();
+    if (this.route.snapshot.queryParamMap.get('fromConfirmation')) {
+      this.router.navigate(['/orders']);
+    } else {
+      this.location.back();
+    }
   }
 }

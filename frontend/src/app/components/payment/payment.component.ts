@@ -21,6 +21,7 @@ export class PaymentComponent implements OnInit {
   private cartService = inject(CartService);
   private orderService = inject(OrderService);
   private vendingMachineService = inject(VendingMachineService);
+  private paymentSuccessChime = new Audio('assets/sounds/chime.mp3');
 
   cart = this.cartService.cart$;
   selectedMethod = signal<'creditCard' | null>(null);
@@ -92,6 +93,7 @@ export class PaymentComponent implements OnInit {
             // 3. Confirm payment -> transitions to 'available for pickup'
             this.orderService.confirmPayment(order.id).subscribe(() => {
               this.cartService.clearCart();
+              this.paymentSuccessChime.play();
               this.router.navigate(['/checkout/confirmation'], {
                 queryParams: { orderId: order.id },
               });

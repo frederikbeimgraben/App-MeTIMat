@@ -31,13 +31,16 @@ export class PrescriptionImportComponent implements OnInit, OnDestroy {
 
   private ndef: any = null;
   private ctrl: AbortController | null = null;
+  private scanSuccessChime: HTMLAudioElement;
 
   constructor(
     private router: Router,
     private prescriptionService: PrescriptionService,
     private medicationService: MedicationService,
     private zone: NgZone,
-  ) {}
+  ) {
+    this.scanSuccessChime = new Audio('assets/sounds/chime.mp3');
+  }
 
   ngOnInit(): void {
     this.loadActivePrescriptions();
@@ -93,6 +96,7 @@ export class PrescriptionImportComponent implements OnInit, OnDestroy {
             this.ctrl.abort();
             this.ctrl = null;
           }
+          this.scanSuccessChime.play();
           this.isScanning = false;
           this.showPinInput = true;
         });

@@ -26,6 +26,7 @@ export class OrderConfirmationComponent implements OnInit, OnDestroy {
   loading = signal(true);
   qrCodeData = signal<string>('');
   private pollingSubscription?: Subscription;
+  private orderCompletedChime = new Audio('assets/sounds/chime.mp3');
 
   ngOnInit(): void {
     this.route.queryParams.subscribe((params) => {
@@ -58,6 +59,7 @@ export class OrderConfirmationComponent implements OnInit, OnDestroy {
             // Live redirect if order is completed
             if (order.status === 'completed') {
               this.pollingSubscription?.unsubscribe();
+              this.orderCompletedChime.play();
               this.viewOrderDetails();
               return;
             }
@@ -79,7 +81,7 @@ export class OrderConfirmationComponent implements OnInit, OnDestroy {
   viewOrderDetails(): void {
     const orderId = this.order()?.id;
     if (orderId) {
-      this.router.navigate(['/orders', orderId]);
+      this.router.navigate(['/orders', orderId], { queryParams: { fromConfirmation: 'true' } });
     }
   }
 
