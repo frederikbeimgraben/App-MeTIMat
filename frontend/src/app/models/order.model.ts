@@ -33,7 +33,7 @@ export interface OrderItem {
   medicationName: string;
   quantity: number;
   price: number;
-  prescriptionId?: string;
+  prescriptionId?: string | number;
 }
 
 export interface PickupLocation {
