@@ -73,8 +73,8 @@ export class AdminComponent implements OnInit {
   orders = signal<Order[]>([]);
   editingId = signal<number | null>(null);
   showModal = signal<boolean>(false);
-  showOrderDetailsModal = signal<boolean>(false);
-  selectedOrder = signal<Order | null>(null);
+  showOrderDetailsModal = false;
+  selectedOrder: Order | null = null;
 
   userForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -250,14 +250,14 @@ export class AdminComponent implements OnInit {
 
   viewOrderDetails(order: Order): void {
     this.http.get<Order>(`/api/v1/orders/${order.id}`).subscribe((fullOrder) => {
-      this.selectedOrder.set(fullOrder);
-      this.showOrderDetailsModal.set(true);
+      this.selectedOrder = fullOrder;
+      this.showOrderDetailsModal = true;
     });
   }
 
   closeOrderDetails(): void {
-    this.showOrderDetailsModal.set(false);
-    this.selectedOrder.set(null);
+    this.showOrderDetailsModal = false;
+    this.selectedOrder = null;
   }
 
   // Order Actions
