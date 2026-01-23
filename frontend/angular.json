@@ -75,10 +75,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "medical-consultation-app:build:production"
+              "buildTarget": "metimat:build:production"
             },
             "development": {
-              "buildTarget": "medical-consultation-app:build:development"
+              "buildTarget": "metimat:build:development"
             }
           },
           "defaultConfiguration": "development"
