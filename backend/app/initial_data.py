@@ -25,47 +25,44 @@ def init_db() -> None:
     logger.info("Checking for missing columns in 'users' table...")
     try:
         db.execute(
-            text("ALTER TABLE users ADD COLUMN is_verified BOOLEAN DEFAULT FALSE")
+            text(
+                "ALTER TABLE users ADD COLUMN IF NOT EXISTS is_verified BOOLEAN DEFAULT FALSE"
+            )
+        )
+        db.execute(
+            text(
+                "ALTER TABLE users ADD COLUMN IF NOT EXISTS newsletter BOOLEAN DEFAULT FALSE"
+            )
+        )
+        db.execute(
+            text(
+                "ALTER TABLE users ADD COLUMN IF NOT EXISTS accepted_terms BOOLEAN DEFAULT FALSE"
+            )
         )
         db.commit()
-        logger.info("Added column 'is_verified' to 'users' table.")
+        logger.info("Checked/Added missing columns to 'users' table.")
     except Exception as e:
         db.rollback()
-        if "already exists" not in str(e).lower():
-            logger.warning(f"Note: {e}")
+        logger.warning(f"Note during users table migration: {e}")
 
     # Manual Migration for Medications table
     logger.info("Checking for missing columns in 'medications' table...")
     try:
-        # Add 'category' column if it doesn't exist
-        try:
-            db.execute(
-                text(
-                    "ALTER TABLE medications ADD COLUMN category VARCHAR DEFAULT 'all'"
-                )
+        db.execute(
+            text(
+                "ALTER TABLE medications ADD COLUMN IF NOT EXISTS category VARCHAR DEFAULT 'all'"
             )
-            db.commit()
-            logger.info("Added column 'category' to 'medications' table.")
-        except Exception as e:
-            db.rollback()
-            if "already exists" not in str(e).lower():
-                logger.warning(f"Note: {e}")
-
-        # Add 'prescription_required' column if it doesn't exist
-        try:
-            db.execute(
-                text(
-                    "ALTER TABLE medications ADD COLUMN prescription_required BOOLEAN DEFAULT FALSE"
-                )
+        )
+        db.execute(
+            text(
+                "ALTER TABLE medications ADD COLUMN IF NOT EXISTS prescription_required BOOLEAN DEFAULT FALSE"
             )
-            db.commit()
-            logger.info("Added column 'prescription_required' to 'medications' table.")
-        except Exception as e:
-            db.rollback()
-            if "already exists" not in str(e).lower():
-                logger.warning(f"Note: {e}")
+        )
+        db.commit()
+        logger.info("Checked/Added missing columns to 'medications' table.")
     except Exception as e:
-        logger.error(f"Migration error: {e}")
+        db.rollback()
+        logger.warning(f"Note during medications table migration: {e}")
     try:
         # Check if admin user exists
         admin_user = db.query(User).filter(User.email == "admin@metimat.de").first()
