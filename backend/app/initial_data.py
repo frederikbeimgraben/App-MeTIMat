@@ -91,24 +91,14 @@ def init_db() -> None:
             )
             locations = [
                 Location(
-                    name="Zentral-Apotheke",
-                    address="Hauptstraße 10, 10115 Berlin",
-                    latitude=52.5200,
-                    longitude=13.4050,
-                    opening_hours="08:00 - 20:00",
-                    is_pharmacy=True,
-                    location_type="pharmacy",
-                    validation_key="apotheke-geheim-123",
-                ),
-                Location(
-                    name="MeTIMat Automat 01",
-                    address="Kurfürstendamm 50, 10707 Berlin",
-                    latitude=52.5020,
-                    longitude=13.3280,
+                    name="MeTIMat Prototyp v1",
+                    address="Pestalozzistraße 4, 72762 Reutlingen",
+                    latitude=48.48173086680169,
+                    longitude=9.18742563603867,
                     opening_hours="24/7",
                     is_pharmacy=False,
                     location_type="vending_machine",
-                    validation_key="automat-geheim-456",
+                    validation_key="1l8uu8F2ZeZk2skuB0sWfUhAIgmWg5WH",
                 ),
             ]
             db.add_all(locations)
