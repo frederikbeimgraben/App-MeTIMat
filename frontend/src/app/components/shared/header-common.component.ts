@@ -10,7 +10,7 @@ import { AuthService } from '../../services/auth.service';
   standalone: true,
   imports: [CommonModule, MatIconModule, TranslocoModule],
   template: `
-    <header class="bg-white shadow-sm border-b-2 border-gray-200 sticky top-0 z-10">
+    <header class="bg-white shadow-sm border-b-2 border-gray-200 sticky top-0 z-[50]">
       <div class="max-w-md mx-auto px-4 h-16 flex items-center">
         @if (hasBackButton) {
           <button
@@ -64,7 +64,7 @@ import { AuthService } from '../../services/auth.service';
     `
       :host {
         display: block;
-        @apply w-full sticky top-0;
+        @apply w-full sticky top-0 z-[50];
       }
 
       .header-actions:empty {
