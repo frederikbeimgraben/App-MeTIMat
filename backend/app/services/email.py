@@ -1,10 +1,12 @@
 import base64
+import io
 import smtplib
 from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from typing import Any, Dict, List
 
+import qrcode
 from app.core.config import settings
 
 from .logo import LOGO_SVG_BASE64_DATA
@@ -160,19 +162,37 @@ def send_pickup_ready_email(
 ) -> None:
     subject = f"{settings.PROJECT_NAME} - Bereit zur Abholung #{order_id}"
 
+    # Generate QR Code
+    qr = qrcode.QRCode(version=1, box_size=10, border=4)
+    qr.add_data(pickup_code)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="#0d9488", back_color="white")
+
+    buffered = io.BytesIO()
+    img.save(buffered, format="PNG")
+    qr_base64 = base64.b64encode(buffered.getvalue()).decode()
+    qr_data_uri = f"data:image/png;base64,{qr_base64}"
+
     content = f"""
         <h2>Ihre Medikamente sind abholbereit!</h2>
         <p>Gute Nachrichten! Ihre Bestellung #{order_id} liegt nun zur Abholung bereit.</p>
         <div class="order-details">
             <p style="margin-top:0;"><strong>Standort:</strong><br>{pickup_location}</p>
             <p><strong>QR-Code & Abholung:</strong></p>
-            <p>Bitte nutzen Sie den <strong>QR-Code in der MeTIMat App</strong> unter "Bestelldetails", um Ihre Medikamente am Automaten abzuholen.</p>
+            <p>Bitte scannen Sie den folgenden QR-Code am Terminal des Automaten, um das Fach zu öffnen:</p>
+
+            <div style="text-align: center; margin: 25px 0;">
+                <img src="{qr_data_uri}" alt="Abhol QR-Code" style="width: 200px; height: 200px; border: 1px solid #eee; padding: 10px; background: white; border-radius: 8px;">
+            </div>
+
+            <p style="font-size: 14px; color: #666;">Alternativ können Sie den QR-Code auch in der <strong>MeTIMat App</strong> unter "Bestelldetails" abrufen.</p>
+
             <div style="font-size: 24px; font-weight: bold; letter-spacing: 5px; text-align: center; padding: 20px; background: #ffffff; border: 2px dashed #0d9488; color: #0d9488; border-radius: 8px;">
                 {pickup_code}
             </div>
             <p style="text-align: center; font-size: 12px; color: #666;">(Manueller Abhol-Code)</p>
         </div>
-        <p>Scannen Sie den QR-Code einfach am Terminal des Automaten, um das Fach zu öffnen.</p>
+        <p>Wir freuen uns auf Ihren Besuch!</p>
     """
     send_email(email_to, subject, get_base_template(content))
 
