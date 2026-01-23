@@ -33,13 +33,20 @@ export class OrdersComponent implements OnInit {
     this.loading = true;
     this.orderService.getAllOrders().subscribe({
       next: (orders) => {
-        this.orders = orders;
-        this.activeOrders = orders.filter(
+        // Sort orders by date (newest first)
+        const sortedOrders = [...orders].sort((a, b) => {
+          const dateA = new Date(a.created_at).getTime();
+          const dateB = new Date(b.created_at).getTime();
+          return dateB - dateA;
+        });
+
+        this.orders = sortedOrders;
+        this.activeOrders = sortedOrders.filter(
           (order) =>
             (order.status as string) === 'pending' ||
             (order.status as string) === 'available for pickup',
         );
-        this.completedOrders = orders.filter((order) => order.status === 'completed');
+        this.completedOrders = sortedOrders.filter((order) => order.status === 'completed');
         this.loading = false;
       },
       error: (error) => {
