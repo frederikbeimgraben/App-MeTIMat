@@ -15,7 +15,11 @@ from app.schemas.order import (
     QRScanRequest,
     QRValidationResponse,
 )
-from app.services.email import send_order_confirmation_email, send_pickup_ready_email
+from app.services.email import (
+    send_order_confirmation_email,
+    send_pickup_confirmation_email,
+    send_pickup_ready_email,
+)
 from fastapi import APIRouter, Depends, Header, HTTPException, status
 from sqlalchemy.orm import Session, joinedload
 
@@ -236,7 +240,11 @@ def complete_order(
     """
     order = (
         db.query(OrderModel)
-        .options(joinedload(OrderModel.location))
+        .options(
+            joinedload(OrderModel.location),
+            joinedload(OrderModel.prescriptions),
+            joinedload(OrderModel.medications),
+        )
         .filter(OrderModel.id == order_id)
         .first()
     )
@@ -259,19 +267,28 @@ def complete_order(
     db.add(order)
     db.commit()
 
-    # Send pickup verification/ready email (for simulated "ready" state or completion)
+    # Send pickup confirmation email
     try:
         user = db.query(UserModel).filter(UserModel.id == order.user_id).first()
         if user and user.email:
-            location_name = order.location.name if order.location else "MeTIMat Station"
-            send_pickup_ready_email(
+            items = []
+            for p in order.prescriptions:
+                items.append(
+                    {
+                        "name": p.medication_name or "Verschriebenes Medikament",
+                        "quantity": 1,
+                    }
+                )
+            for m in order.medications:
+                items.append({"name": m.name, "quantity": 1})
+
+            send_pickup_confirmation_email(
                 email_to=user.email,
                 order_id=order.id,
-                pickup_location=location_name,
-                pickup_code=order.access_token[:8].upper(),
+                items=items,
             )
     except Exception as e:
-        logger.error(f"Failed to send pickup notification email: {e}")
+        logger.error(f"Failed to send pickup confirmation email: {e}")
     db.refresh(order)
     return order
 
@@ -329,6 +346,7 @@ def update_order(
     if order.user_id != current_user.id and not current_user.is_superuser:
         raise HTTPException(status_code=400, detail="Not enough permissions")
 
+    old_status = order.status
     update_data = order_in.model_dump(exclude_unset=True)
     for field, value in update_data.items():
         setattr(order, field, value)
@@ -336,6 +354,24 @@ def update_order(
     db.add(order)
     db.commit()
     db.refresh(order)
+
+    # If status transitioned to available for pickup, send email
+    if old_status != "available for pickup" and order.status == "available for pickup":
+        try:
+            user = db.query(UserModel).filter(UserModel.id == order.user_id).first()
+            if user and user.email:
+                location_name = (
+                    order.location.name if order.location else "MeTIMat Station"
+                )
+                send_pickup_ready_email(
+                    email_to=user.email,
+                    order_id=order.id,
+                    pickup_location=location_name,
+                    pickup_code=order.access_token[:8].upper(),
+                )
+        except Exception as e:
+            logger.error(f"Failed to send pickup ready email: {e}")
+
     return order
 
 

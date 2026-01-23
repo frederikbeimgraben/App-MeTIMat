@@ -165,11 +165,39 @@ def send_pickup_ready_email(
         <p>Gute Nachrichten! Ihre Bestellung #{order_id} liegt nun zur Abholung bereit.</p>
         <div class="order-details">
             <p style="margin-top:0;"><strong>Standort:</strong><br>{pickup_location}</p>
-            <p><strong>Ihr Abhol-Code:</strong></p>
-            <div style="font-size: 32px; font-weight: bold; letter-spacing: 5px; text-align: center; padding: 20px; background: #ffffff; border: 2px dashed #0d9488; color: #0d9488; border-radius: 8px;">
+            <p><strong>QR-Code & Abholung:</strong></p>
+            <p>Bitte nutzen Sie den <strong>QR-Code in der MeTIMat App</strong> unter "Bestelldetails", um Ihre Medikamente am Automaten abzuholen.</p>
+            <div style="font-size: 24px; font-weight: bold; letter-spacing: 5px; text-align: center; padding: 20px; background: #ffffff; border: 2px dashed #0d9488; color: #0d9488; border-radius: 8px;">
                 {pickup_code}
             </div>
+            <p style="text-align: center; font-size: 12px; color: #666;">(Manueller Abhol-Code)</p>
         </div>
-        <p>Bitte geben Sie diesen Code am Automaten ein oder zeigen Sie ihn dem Personal in der Apotheke.</p>
+        <p>Scannen Sie den QR-Code einfach am Terminal des Automaten, um das Fach zu öffnen.</p>
+    """
+    send_email(email_to, subject, get_base_template(content))
+
+
+def send_pickup_confirmation_email(
+    email_to: str, order_id: int, items: List[Dict[str, Any]]
+) -> None:
+    subject = f"{settings.PROJECT_NAME} - Abholung bestätigt #{order_id}"
+
+    items_html = ""
+    for item in items:
+        items_html += (
+            f"<li>{item.get('name', 'Medikament')} x {item.get('quantity', 1)}</li>"
+        )
+
+    content = f"""
+        <h2>Vielen Dank für Ihren Besuch!</h2>
+        <p>Hiermit bestätigen wir die erfolgreiche Abholung Ihrer Bestellung #{order_id}.</p>
+        <div class="order-details">
+            <h3 style="margin-top:0;">Abgeholte Artikel</h3>
+            <ul style="padding-left: 20px; color: #4a5568;">
+                {items_html}
+            </ul>
+        </div>
+        <p>Wir hoffen, Sie sind mit unserem Service zufrieden. Bei Fragen stehen wir Ihnen jederzeit gerne zur Verfügung.</p>
+        <p>Gute Besserung wünscht Ihr MeTIMat Team!</p>
     """
     send_email(email_to, subject, get_base_template(content))

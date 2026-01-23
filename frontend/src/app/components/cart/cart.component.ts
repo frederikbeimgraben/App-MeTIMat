@@ -20,7 +20,7 @@ import { LocationService } from '../../services/location.service';
 })
 export class CartComponent implements OnInit, OnDestroy {
   cart: Cart | null = null;
-  groupedItems: Map<string, CartItem[]> = new Map();
+  groupedItems: { [key: string]: CartItem[] } = {};
   selectedMachine: VendingMachine | null = null;
   hasUnfulfilledPrescriptions = false;
   showClearConfirmation = false;
@@ -35,25 +35,35 @@ export class CartComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    // Subscribe to cart changes
+    // Subscribe to cart changes and derive grouped items and prescription status
     const cartSub = this.cartService.cart$.subscribe((cart) => {
       this.cart = cart;
+
+      // Group items manually to ensure sync and reactivity
+      const grouped: { [key: string]: CartItem[] } = {};
+      if (cart && cart.items) {
+        cart.items.forEach((item) => {
+          let key = 'otc';
+          if (item.prescription && item.prescription.id) {
+            key = item.prescription.id.toString();
+          } else if (item.medication.prescription_required) {
+            key = 'prescription-required';
+          }
+
+          if (!grouped[key]) {
+            grouped[key] = [];
+          }
+          grouped[key].push(item);
+        });
+      }
+      this.groupedItems = grouped;
+
+      // Check for unfulfilled prescriptions
+      this.hasUnfulfilledPrescriptions = cart.items.some(
+        (item) => item.medication.prescription_required && !item.prescription,
+      );
     });
     this.subscriptions.add(cartSub);
-
-    // Subscribe to grouped items (will be empty map for now as per service refactoring)
-    const groupedSub = this.cartService.getItemsGroupedByPrescription().subscribe((grouped) => {
-      this.groupedItems = grouped;
-    });
-    this.subscriptions.add(groupedSub);
-
-    // Check for unfulfilled prescriptions (will return true for now as per service refactoring)
-    const prescriptionSub = this.cartService
-      .hasUnfulfilledPrescriptionItems()
-      .subscribe((hasUnfulfilled) => {
-        this.hasUnfulfilledPrescriptions = hasUnfulfilled;
-      });
-    this.subscriptions.add(prescriptionSub);
 
     // Subscribe to selected vending machine changes
     const machineSub = this.vendingMachineService.selectedMachine$.subscribe((machine) => {

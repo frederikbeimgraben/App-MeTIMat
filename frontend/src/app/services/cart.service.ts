@@ -184,17 +184,21 @@ export class CartService {
   }
 
   // Group items by prescription
-  getItemsGroupedByPrescription(): Observable<Map<string, CartItem[]>> {
+  getItemsGroupedByPrescription(): Observable<{ [key: string]: CartItem[] }> {
     return this.cartItems$.pipe(
       map((items) => {
-        const grouped = new Map<string, CartItem[]>();
+        const grouped: { [key: string]: CartItem[] } = {};
         items.forEach((item) => {
+          let key = 'otc';
           if (item.prescription && item.prescription.id) {
-            const key = item.prescription.id.toString();
-            const current = grouped.get(key) || [];
-            current.push(item);
-            grouped.set(key, current);
+            key = item.prescription.id.toString();
+          } else if (item.medication.prescription_required) {
+            key = 'prescription-required';
           }
+          if (!grouped[key]) {
+            grouped[key] = [];
+          }
+          grouped[key].push(item);
         });
         return grouped;
       }),
@@ -203,9 +207,11 @@ export class CartService {
 
   // Check if cart has items that require prescription but don't have one attached
   hasUnfulfilledPrescriptionItems(): Observable<boolean> {
-    // Placeholder logic: assume if we added it without prescription, it's fine for now unless flagged otherwise.
-    // Real implementation would check Medication properties.
-    return new Observable((obs) => obs.next(false));
+    return this.cartItems$.pipe(
+      map((items) =>
+        items.some((item) => item.medication.prescription_required && !item.prescription),
+      ),
+    );
   }
 
   // Attach prescription to items that need it
