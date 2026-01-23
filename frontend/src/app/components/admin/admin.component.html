@@ -116,7 +116,7 @@
     <!-- Users Tab -->
     @if (activeTab() === 'users') {
       <div
-        class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-x-auto max-h-[600px] overflow-y-auto"
+        class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-x-auto max-h-[75vh] overflow-y-auto mb-20"
       >
         <table class="w-full text-left border-collapse min-w-[600px]">
           <thead
@@ -212,7 +212,7 @@
 
     <!-- Medications Tab -->
     @if (activeTab() === 'meds') {
-      <div class="max-h-[700px] overflow-y-auto px-1 pb-4">
+      <div class="max-h-[75vh] overflow-y-auto px-1 pb-24">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           @for (med of medications(); track med.id) {
             <div
@@ -328,57 +328,61 @@
 
     <!-- Locations Tab -->
     @if (activeTab() === 'locations') {
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        @for (loc of locations(); track loc.id) {
-          <div
-            class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group"
-          >
-            <div class="flex justify-between items-start mb-4">
-              <div class="flex items-center gap-3">
-                <div
-                  class="p-3 rounded-xl bg-blue-50 text-blue-900 group-hover:bg-blue-900 group-hover:text-white transition-colors shadow-inner"
-                >
-                  <mat-icon>{{
-                    loc.location_type === 'pharmacy' ? 'local_pharmacy' : 'smart_toy'
-                  }}</mat-icon>
+      <div class="max-h-[75vh] overflow-y-auto px-1 pb-24">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          @for (loc of locations(); track loc.id) {
+            <div
+              class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group"
+            >
+              <div class="flex justify-between items-start mb-4">
+                <div class="flex items-center gap-3">
+                  <div
+                    class="p-3 rounded-xl bg-blue-50 text-blue-900 group-hover:bg-blue-900 group-hover:text-white transition-colors shadow-inner"
+                  >
+                    <mat-icon>{{
+                      loc.location_type === 'pharmacy' ? 'local_pharmacy' : 'smart_toy'
+                    }}</mat-icon>
+                  </div>
+                  <h3 class="font-bold text-lg text-gray-900 leading-tight">{{ loc.name }}</h3>
                 </div>
-                <h3 class="font-bold text-lg text-gray-900 leading-tight">{{ loc.name }}</h3>
+                <div class="flex gap-1">
+                  <button
+                    (click)="editLocation(loc)"
+                    class="h-9 w-9 flex items-center justify-center text-blue-600 hover:bg-blue-50 rounded-lg"
+                  >
+                    <mat-icon class="!m-0">edit</mat-icon>
+                  </button>
+                  <button
+                    (click)="deleteResource('locations', loc.id)"
+                    class="h-9 w-9 flex items-center justify-center text-red-600 hover:bg-red-50 rounded-lg"
+                  >
+                    <mat-icon class="!m-0">delete</mat-icon>
+                  </button>
+                </div>
               </div>
-              <div class="flex gap-1">
-                <button
-                  (click)="editLocation(loc)"
-                  class="h-9 w-9 flex items-center justify-center text-blue-600 hover:bg-blue-50 rounded-lg"
-                >
-                  <mat-icon class="!m-0">edit</mat-icon>
-                </button>
-                <button
-                  (click)="deleteResource('locations', loc.id)"
-                  class="h-9 w-9 flex items-center justify-center text-red-600 hover:bg-red-50 rounded-lg"
-                >
-                  <mat-icon class="!m-0">delete</mat-icon>
-                </button>
+              <div class="space-y-3 text-sm">
+                <p class="text-gray-600 flex items-start gap-2">
+                  <mat-icon class="text-blue-900/40 scale-75 mt-0.5">place</mat-icon>
+                  <span class="flex-1">{{ loc.address }}</span>
+                </p>
+                <p class="text-gray-600 flex items-center gap-2">
+                  <mat-icon class="text-blue-900/40 scale-75">schedule</mat-icon>
+                  <span>{{ loc.opening_hours || 'N/A' }}</span>
+                </p>
+                <div class="mt-6 p-3 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                  <p
+                    class="text-[10px] text-gray-400 uppercase font-extrabold mb-1 tracking-widest"
+                  >
+                    Validation Key
+                  </p>
+                  <p class="font-mono text-xs select-all text-blue-900 font-bold">
+                    {{ loc.validation_key || 'No Key Set' }}
+                  </p>
+                </div>
               </div>
             </div>
-            <div class="space-y-3 text-sm">
-              <p class="text-gray-600 flex items-start gap-2">
-                <mat-icon class="text-blue-900/40 scale-75 mt-0.5">place</mat-icon>
-                <span class="flex-1">{{ loc.address }}</span>
-              </p>
-              <p class="text-gray-600 flex items-center gap-2">
-                <mat-icon class="text-blue-900/40 scale-75">schedule</mat-icon>
-                <span>{{ loc.opening_hours || 'N/A' }}</span>
-              </p>
-              <div class="mt-6 p-3 bg-gray-50 rounded-xl border border-dashed border-gray-200">
-                <p class="text-[10px] text-gray-400 uppercase font-extrabold mb-1 tracking-widest">
-                  Validation Key
-                </p>
-                <p class="font-mono text-xs select-all text-blue-900 font-bold">
-                  {{ loc.validation_key || 'No Key Set' }}
-                </p>
-              </div>
-            </div>
-          </div>
-        }
+          }
+        </div>
       </div>
     }
   </div>
