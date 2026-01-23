@@ -107,11 +107,13 @@ export class CartComponent implements OnInit, OnDestroy {
   }
 
   decreaseQuantity(item: CartItem): void {
-    const newQuantity = Math.max(item.quantity - 1, 0);
     const medicationId = item.medication.id;
-    if (medicationId) {
-      // Ensure medicationId is not undefined
-      this.cartService.updateQuantity(medicationId, newQuantity);
+    if (!medicationId) return;
+
+    if (item.quantity <= 1) {
+      this.cartService.removeFromCart(medicationId);
+    } else {
+      this.cartService.updateQuantity(medicationId, item.quantity - 1);
     }
   }
 
