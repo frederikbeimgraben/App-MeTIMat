@@ -15,6 +15,7 @@ from app.schemas.order import (
     QRScanRequest,
     QRValidationResponse,
 )
+from app.services.email import send_order_confirmation_email, send_pickup_ready_email
 from fastapi import APIRouter, Depends, Header, HTTPException, status
 from sqlalchemy.orm import Session, joinedload
 
@@ -109,6 +110,40 @@ def create_order(
     db.commit()
     db.refresh(db_obj)
 
+    # Send order confirmation email
+    try:
+        items = []
+        total_price = 0.0
+
+        # Add prescriptions to items list
+        for p in db_obj.prescriptions:
+            med_name = (
+                p.fhir_data.get("medication_name", "Verschriebenes Medikament")
+                if p.fhir_data
+                else "Verschriebenes Medikament"
+            )
+            items.append({"name": med_name, "quantity": 1, "price": 0.0})
+
+        # If there were direct medication IDs (though restricted in this flow currently)
+        if order_in.medication_ids:
+            meds = (
+                db.query(MedicationModel)
+                .filter(MedicationModel.id.in_(order_in.medication_ids))
+                .all()
+            )
+            for m in meds:
+                items.append({"name": m.name, "quantity": 1, "price": float(m.price)})
+                total_price += float(m.price)
+
+        send_order_confirmation_email(
+            email_to=current_user.email,
+            order_id=db_obj.id,
+            items=items,
+            total_price=total_price,
+        )
+    except Exception as e:
+        logger.error(f"Failed to send order confirmation email: {e}")
+
     # Ensure location and prescriptions are loaded for the response model
     db_obj = (
         db.query(OrderModel)
@@ -197,6 +232,20 @@ def complete_order(
     order.status = "completed"
     db.add(order)
     db.commit()
+
+    # Send pickup verification/ready email (for simulated "ready" state or completion)
+    try:
+        user = db.query(UserModel).filter(UserModel.id == order.user_id).first()
+        if user and user.email:
+            location_name = order.location.name if order.location else "MeTIMat Station"
+            send_pickup_ready_email(
+                email_to=user.email,
+                order_id=order.id,
+                pickup_location=location_name,
+                pickup_code=order.access_token[:8].upper(),
+            )
+    except Exception as e:
+        logger.error(f"Failed to send pickup notification email: {e}")
     db.refresh(order)
     return order
 

@@ -31,7 +31,7 @@ import { TranslocoModule } from '@ngneat/transloco';
         <form class="mt-8 space-y-6" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
           <div class="rounded-md shadow-sm -space-y-px">
             <div>
-              <label for="email-address" class="sr-only">Email address</label>
+              <label for="email-address" class="sr-only">E-Mail-Adresse</label>
               <input
                 id="email-address"
                 name="email"
@@ -39,11 +39,11 @@ import { TranslocoModule } from '@ngneat/transloco';
                 formControlName="email"
                 required
                 class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-teal-500 focus:border-teal-500 focus:z-10 sm:text-sm"
-                placeholder="Email address"
+                placeholder="E-Mail-Adresse"
               />
             </div>
             <div>
-              <label for="password" class="sr-only">Password</label>
+              <label for="password" class="sr-only">Passwort</label>
               <input
                 id="password"
                 name="password"
@@ -51,7 +51,7 @@ import { TranslocoModule } from '@ngneat/transloco';
                 formControlName="password"
                 required
                 class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-teal-500 focus:border-teal-500 focus:z-10 sm:text-sm"
-                placeholder="Password"
+                placeholder="Passwort"
               />
             </div>
           </div>
@@ -71,17 +71,17 @@ import { TranslocoModule } from '@ngneat/transloco';
               <span class="absolute left-0 inset-y-0 flex items-center pl-3">
                 <mat-icon class="text-teal-400 group-hover:text-teal-300">lock</mat-icon>
               </span>
-              {{ loading() ? 'Logging in...' : 'Sign in' }}
+              {{ loading() ? 'Anmeldung...' : 'Anmelden' }}
             </button>
           </div>
 
           <div class="flex items-center justify-center space-y-2 flex-col">
-            <div class="text-sm text-gray-600">Don't have an account yet?</div>
+            <div class="text-sm text-gray-600">Noch kein Konto?</div>
             <a
               routerLink="/register"
               class="w-full flex justify-center py-2 px-4 border border-teal-600 text-sm font-medium rounded-md text-teal-600 bg-white hover:bg-teal-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
             >
-              Create new account
+              Neues Konto erstellen
             </a>
           </div>
         </form>
@@ -146,7 +146,7 @@ export class LoginComponent {
       },
       error: (err) => {
         console.error('Login failed:', err);
-        this.error.set('Invalid credentials. Please try again.');
+        this.error.set('Ungültige Zugangsdaten. Bitte versuchen Sie es erneut.');
         this.loading.set(false);
       },
     });
