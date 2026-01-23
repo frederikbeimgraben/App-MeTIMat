@@ -43,7 +43,11 @@
         <h2 class="text-lg font-semibold text-gray-900 mb-3">{{ 'order.items' | transloco }}</h2>
 
         <div class="space-y-3">
-          @if (o.prescriptions && o.prescriptions.length > 0) {
+          @if (
+            (o.prescriptions && o.prescriptions.length > 0) ||
+            (o.medications && o.medications.length > 0)
+          ) {
+            <!-- Prescriptions -->
             @for (item of o.prescriptions; track item.id) {
               <div class="border-b border-gray-100 pb-3 last:border-0 last:pb-0">
                 <div class="flex justify-between items-start">
@@ -51,8 +55,23 @@
                     <p class="font-medium text-gray-900">
                       {{ item.medication_name || 'Unbekanntes Medikament' }}
                     </p>
+                    <p class="text-sm text-gray-600">PZN: {{ item.pzn || 'N/A' }} (Rezept)</p>
+                  </div>
+                  <p class="font-semibold text-gray-900">5.00 €</p>
+                </div>
+              </div>
+            }
+            <!-- OTC Medications -->
+            @for (item of o.medications; track item.id) {
+              <div class="border-b border-gray-100 pb-3 last:border-0 last:pb-0">
+                <div class="flex justify-between items-start">
+                  <div class="flex-1">
+                    <p class="font-medium text-gray-900">
+                      {{ item.name }}
+                    </p>
                     <p class="text-sm text-gray-600">PZN: {{ item.pzn || 'N/A' }}</p>
                   </div>
+                  <p class="font-semibold text-gray-900">{{ item.price | number: '1.2-2' }} €</p>
                 </div>
               </div>
             }

@@ -12,9 +12,11 @@ export interface Order {
   user_id?: number;
   status: OrderStatus;
   access_token?: string;
+  total_price?: number;
   created_at: string;
   updated_at?: string;
   prescriptions?: any[];
+  medications?: any[];
   location_id?: number;
   location?: any;
 

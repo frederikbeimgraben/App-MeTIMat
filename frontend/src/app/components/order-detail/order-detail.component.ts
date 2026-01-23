@@ -37,8 +37,22 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
 
   orderTotal = computed(() => {
     const order = this._order();
-    if (!order?.prescriptions) return '0.00 €';
-    const total = order.prescriptions.length * 5;
+    if (!order) return '0.00 €';
+
+    // If total_price is provided by backend, use it
+    if (order.total_price !== undefined) {
+      return `${order.total_price.toFixed(2)} €`;
+    }
+
+    // Fallback calculation
+    let total = 0;
+    if (order.prescriptions) {
+      total += order.prescriptions.length * 5.0;
+    }
+    if (order.medications) {
+      total += order.medications.reduce((sum, med) => sum + (med.price || 0), 0);
+    }
+
     return `${total.toFixed(2)} €`;
   });
 

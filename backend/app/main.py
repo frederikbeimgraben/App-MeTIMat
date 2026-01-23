@@ -91,6 +91,30 @@ with engine.connect() as conn:
             text("ALTER TABLE users ADD COLUMN is_verified BOOLEAN DEFAULT FALSE")
         )
 
+    # Migration for orders table: ensure total_price exists
+    res_order_price = conn.execute(
+        text(
+            "SELECT column_name FROM information_schema.columns WHERE table_name='orders' AND column_name='total_price'"
+        )
+    ).fetchone()
+    if not res_order_price:
+        conn.execute(
+            text("ALTER TABLE orders ADD COLUMN total_price FLOAT DEFAULT 0.0")
+        )
+
+    # Migration for order_medication_association table
+    conn.execute(
+        text(
+            """
+            CREATE TABLE IF NOT EXISTS order_medication_association (
+                order_id INTEGER REFERENCES orders(id) ON DELETE CASCADE,
+                medication_id INTEGER REFERENCES medications(id) ON DELETE CASCADE,
+                PRIMARY KEY (order_id, medication_id)
+            )
+            """
+        )
+    )
+
     conn.commit()
 
 app = FastAPI(

@@ -4,6 +4,7 @@ from typing import List, Optional
 from pydantic import BaseModel
 
 from .location import Location
+from .medication import Medication
 from .prescription import Prescription
 
 
@@ -26,6 +27,7 @@ class OrderInDBBase(OrderBase):
     user_id: int
     location_id: Optional[int] = None
     access_token: Optional[str] = None
+    total_price: float = 0.0
     created_at: datetime
     updated_at: datetime
 
@@ -35,6 +37,7 @@ class OrderInDBBase(OrderBase):
 
 class Order(OrderInDBBase):
     prescriptions: List[Prescription] = []
+    medications: List[Medication] = []
     location: Optional[Location] = None
 
 

@@ -38,7 +38,9 @@ def read_orders(
 
     orders = (
         query.options(
-            joinedload(OrderModel.location), joinedload(OrderModel.prescriptions)
+            joinedload(OrderModel.location),
+            joinedload(OrderModel.prescriptions),
+            joinedload(OrderModel.medications),
         )
         .offset(skip)
         .limit(limit)
@@ -85,6 +87,7 @@ def create_order(
         location_id=order_in.location_id,
         status=order_in.status,
         access_token=secrets.token_urlsafe(32),
+        total_price=0.0,
     )
     db.add(db_obj)
     db.flush()
@@ -107,6 +110,20 @@ def create_order(
                 updated_data["status"] = "completed"
                 p.fhir_data = updated_data
 
+    # Link direct medications and calculate price
+    if order_in.medication_ids:
+        meds = (
+            db.query(MedicationModel)
+            .filter(MedicationModel.id.in_(order_in.medication_ids))
+            .all()
+        )
+        db_obj.medications = meds
+        db_obj.total_price += sum(float(m.price) for m in meds)
+
+    # Add prescription fees (assumed 5.00€ per prescription)
+    if order_in.prescription_ids:
+        db_obj.total_price += len(order_in.prescription_ids) * 5.0
+
     db.commit()
     db.refresh(db_obj)
 
@@ -115,25 +132,20 @@ def create_order(
         items = []
         total_price = 0.0
 
-        # Add prescriptions to items list
+        # Add prescriptions to items list (Flat fee of 5.00€ assumed for prescriptions)
         for p in db_obj.prescriptions:
             med_name = (
                 p.fhir_data.get("medication_name", "Verschriebenes Medikament")
                 if p.fhir_data
                 else "Verschriebenes Medikament"
             )
-            items.append({"name": med_name, "quantity": 1, "price": 0.0})
+            items.append({"name": med_name, "quantity": 1, "price": 5.0})
+            total_price += 5.0
 
-        # If there were direct medication IDs (though restricted in this flow currently)
-        if order_in.medication_ids:
-            meds = (
-                db.query(MedicationModel)
-                .filter(MedicationModel.id.in_(order_in.medication_ids))
-                .all()
-            )
-            for m in meds:
-                items.append({"name": m.name, "quantity": 1, "price": float(m.price)})
-                total_price += float(m.price)
+        # Add OTC medications from the newly persisted relationship
+        for m in db_obj.medications:
+            items.append({"name": m.name, "quantity": 1, "price": float(m.price)})
+            total_price += float(m.price)
 
         send_order_confirmation_email(
             email_to=current_user.email,
@@ -144,10 +156,14 @@ def create_order(
     except Exception as e:
         logger.error(f"Failed to send order confirmation email: {e}")
 
-    # Ensure location and prescriptions are loaded for the response model
+    # Ensure location, medications and prescriptions are loaded for the response model
     db_obj = (
         db.query(OrderModel)
-        .options(joinedload(OrderModel.location), joinedload(OrderModel.prescriptions))
+        .options(
+            joinedload(OrderModel.location),
+            joinedload(OrderModel.prescriptions),
+            joinedload(OrderModel.medications),
+        )
         .filter(OrderModel.id == db_obj.id)
         .first()
     )
@@ -171,7 +187,11 @@ def validate_qr_order(
     """
     order = (
         db.query(OrderModel)
-        .options(joinedload(OrderModel.location), joinedload(OrderModel.prescriptions))
+        .options(
+            joinedload(OrderModel.location),
+            joinedload(OrderModel.prescriptions),
+            joinedload(OrderModel.medications),
+        )
         .filter(OrderModel.access_token == request.qr_data)
         .first()
     )
@@ -261,7 +281,11 @@ def read_order_by_id(
     """
     order = (
         db.query(OrderModel)
-        .options(joinedload(OrderModel.location), joinedload(OrderModel.prescriptions))
+        .options(
+            joinedload(OrderModel.location),
+            joinedload(OrderModel.prescriptions),
+            joinedload(OrderModel.medications),
+        )
         .filter(OrderModel.id == order_id)
         .first()
     )
@@ -286,7 +310,11 @@ def update_order(
     """
     order = (
         db.query(OrderModel)
-        .options(joinedload(OrderModel.location), joinedload(OrderModel.prescriptions))
+        .options(
+            joinedload(OrderModel.location),
+            joinedload(OrderModel.prescriptions),
+            joinedload(OrderModel.medications),
+        )
         .filter(OrderModel.id == order_id)
         .first()
     )
