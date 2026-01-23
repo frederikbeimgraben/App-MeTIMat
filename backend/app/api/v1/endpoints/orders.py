@@ -367,7 +367,7 @@ def update_order(
                     email_to=user.email,
                     order_id=order.id,
                     pickup_location=location_name,
-                    pickup_code=order.access_token[:8].upper(),
+                    pickup_code=order.access_token,
                 )
         except Exception as e:
             logger.error(f"Failed to send pickup ready email: {e}")
