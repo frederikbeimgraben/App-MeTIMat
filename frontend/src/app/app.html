@@ -24,11 +24,11 @@
             >shopping_bag</mat-icon
           >
           <span class="text-xs font-medium">{{ 'navigation.orders' | transloco }}</span>
-          @if (cartItemCount > 0) {
+          @if (activeOrderCount > 0) {
           <span
-            class="absolute top-1 right-2 bg-red-600 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold"
+            class="absolute top-1 right-2 bg-blue-600 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold"
           >
-            {{ cartItemCount }}
+            {{ activeOrderCount }}
           </span>
           }
         </button>
@@ -66,5 +66,22 @@
       </div>
     </div>
   </nav>
+  }
+
+  <!-- Floating Cart Button -->
+  @if (authService.isAuthenticated() && !currentRoute.startsWith('admin') && currentRoute !== 'cart'
+  && cartItemCount > 0) {
+  <button
+    (click)="navigateTo('cart')"
+    class="fixed bottom-20 right-4 w-14 h-14 bg-blue-900 text-white rounded-full shadow-2xl flex items-center justify-center z-[60] hover:scale-110 active:scale-95 transition-all"
+    aria-label="Warenkorb"
+  >
+    <mat-icon style="width: 28px; height: 28px; font-size: 28px">shopping_cart</mat-icon>
+    <span
+      class="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full border-2 border-white shadow-sm"
+    >
+      {{ cartItemCount }}
+    </span>
+  </button>
   }
 </div>

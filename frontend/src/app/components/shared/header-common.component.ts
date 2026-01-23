@@ -4,7 +4,6 @@ import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslocoModule } from '@ngneat/transloco';
 import { AuthService } from '../../services/auth.service';
-import { CartService } from '../../services/cart.service';
 
 @Component({
   selector: 'app-header-common',
@@ -36,25 +35,6 @@ import { CartService } from '../../services/cart.service';
           <div class="header-actions">
             <ng-content select="[headerActions]"></ng-content>
           </div>
-
-          @if (!router.url.includes('/admin') && (cartService.cart$ | async); as cart) {
-            @if (cart.itemCount > 0) {
-              <button
-                (click)="goToCart()"
-                class="h-10 w-10 flex items-center justify-center text-blue-600 hover:bg-gray-100 rounded-full transition-colors relative"
-                aria-label="Cart"
-              >
-                <mat-icon style="width: 24px; height: 24px; font-size: 24px"
-                  >shopping_cart</mat-icon
-                >
-                <span
-                  class="absolute top-1 right-1 bg-red-600 text-white text-[10px] font-bold h-4 w-4 flex items-center justify-center rounded-full border border-white shadow-sm"
-                >
-                  {{ cart.itemCount }}
-                </span>
-              </button>
-            }
-          }
 
           @if (authService.isAdmin()) {
             <button
@@ -100,7 +80,6 @@ export class HeaderCommonComponent {
   @Output() backClick = new EventEmitter<void>();
 
   public authService = inject(AuthService);
-  public cartService = inject(CartService);
   private location = inject(Location);
   public router = inject(Router);
 
@@ -118,9 +97,5 @@ export class HeaderCommonComponent {
 
   goToAdmin(): void {
     this.router.navigate(['/admin']);
-  }
-
-  goToCart(): void {
-    this.router.navigate(['/cart']);
   }
 }

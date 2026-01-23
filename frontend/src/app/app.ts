@@ -7,6 +7,7 @@ import { filter, takeUntil } from 'rxjs/operators';
 import { Subject, Subscription } from 'rxjs';
 import { CartService } from './services/cart.service';
 import { AuthService } from './services/auth.service';
+import { OrderService } from './services/order.service';
 
 @Component({
   selector: 'app-root',
@@ -18,6 +19,7 @@ import { AuthService } from './services/auth.service';
 export class App implements OnInit, OnDestroy {
   currentRoute: string = 'home';
   cartItemCount: number = 0;
+  activeOrderCount: number = 0;
 
   // Use public for template access
   public authService = inject(AuthService);
@@ -29,6 +31,7 @@ export class App implements OnInit, OnDestroy {
     private router: Router,
     private transloco: TranslocoService,
     private cartService: CartService,
+    private orderService: OrderService,
   ) {
     // Set default language
     this.transloco.setActiveLang('de');
@@ -51,6 +54,18 @@ export class App implements OnInit, OnDestroy {
       this.cartItemCount = cart.itemCount;
     });
     this.subscriptions.add(cartSub);
+
+    // Subscribe to orders updates
+    const orderSub = this.orderService.orders$.subscribe((orders) => {
+      this.activeOrderCount = orders.filter(
+        (o) =>
+          (o.status as string) === 'pending' || (o.status as string) === 'available for pickup',
+      ).length;
+    });
+    this.subscriptions.add(orderSub);
+
+    // Initial fetch of orders
+    this.orderService.getAllOrders().subscribe();
   }
 
   ngOnDestroy(): void {
