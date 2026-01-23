@@ -105,6 +105,7 @@
     "subtotal": "Zwischensumme",
     "groupSubtotal": "Gruppensumme",
     "prescriptionRequired": "Rezept erforderlich",
+    "prescriptionPresent": "Rezept vorhanden",
     "prescriptionRequiredDescription": "Einige Artikel benötigen ein gültiges Rezept. Bitte fügen Sie ein Rezept hinzu, um fortzufahren.",
     "addPrescription": "Rezept hinzufügen",
     "orderSummary": "Bestellübersicht",

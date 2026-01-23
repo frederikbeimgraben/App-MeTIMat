@@ -77,7 +77,10 @@
                     </div>
 
                     <!-- Prescription Badge -->
-                    <div class="mt-2">
+                    <div
+                      class="mt-2"
+                      *ngIf="item.medication.prescription_required || item.prescription"
+                    >
                       <span
                         class="inline-flex items-center gap-1 px-2 py-1 text-xs rounded"
                         [ngClass]="
@@ -91,8 +94,8 @@
                         }}</mat-icon>
                         {{
                           item.prescription
-                            ? 'Rezept vorhanden'
-                            : 'Rezept erforderlich (FHIR Refactoring)'
+                            ? ('cart.prescriptionPresent' | transloco)
+                            : ('cart.prescriptionRequired' | transloco)
                         }}
                       </span>
                     </div>

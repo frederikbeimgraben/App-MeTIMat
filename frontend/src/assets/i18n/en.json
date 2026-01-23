@@ -102,6 +102,7 @@
     "subtotal": "Subtotal",
     "groupSubtotal": "Group Subtotal",
     "prescriptionRequired": "Prescription Required",
+    "prescriptionPresent": "Prescription Present",
     "prescriptionRequiredDescription": "Some items require a valid prescription. Please add a prescription to continue.",
     "addPrescription": "Add Prescription",
     "orderSummary": "Order Summary",
