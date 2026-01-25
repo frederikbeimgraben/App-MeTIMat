@@ -1,3 +1,4 @@
+from app import models  # noqa
 from app.api.v1.api import api_router
 from app.core.config import settings
 from fastapi import FastAPI
