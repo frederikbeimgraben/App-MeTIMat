@@ -5,11 +5,11 @@ WORKDIR /app
 
 # Copy package files and install dependencies
 # Context is the project root, so we copy from the frontend directory
-COPY frontend/package*.json ./
+COPY package*.json ./
 RUN npm install
 
 # Copy the rest of the frontend source code
-COPY frontend/ ./
+COPY . ./
 
 # Build the Angular application
 # The output path is configured in angular.json to be relative to the project root (../public/app)
