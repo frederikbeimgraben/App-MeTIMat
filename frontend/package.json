@@ -36,6 +36,8 @@
     "@ngneat/transloco": "^6.0.4",
     "@types/fhir": "^0.0.41",
     "@types/leaflet": "^1.9.21",
+    "@zxing/browser": "^0.1.5",
+    "@zxing/library": "^0.21.3",
     "angularx-qrcode": "^21.0.0",
     "leaflet": "^1.9.4",
     "ngx-angular-qrcode": "^1.0.2",
