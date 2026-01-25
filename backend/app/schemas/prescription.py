@@ -5,14 +5,14 @@ from pydantic import BaseModel
 
 
 class PrescriptionBase(BaseModel):
-    medication_name: Optional[str] = None
-    pzn: Optional[str] = None
-    fhir_data: Optional[Dict[str, Any]] = None
+    medication_name: str | None = None
+    pzn: str | None = None
+    fhir_data: Dict[str, Any] | None = None
 
 
 class PrescriptionCreate(PrescriptionBase):
-    order_id: Optional[int] = None
-    medication_id: Optional[int] = None
+    order_id: int | None = None
+    medication_id: int | None = None
 
 
 class PrescriptionUpdate(PrescriptionBase):
@@ -21,8 +21,8 @@ class PrescriptionUpdate(PrescriptionBase):
 
 class PrescriptionInDBBase(PrescriptionBase):
     id: int
-    order_id: Optional[int] = None
-    medication_id: Optional[int] = None
+    order_id: int | None = None
+    medication_id: int | None = None
     created_at: datetime
     updated_at: datetime
 

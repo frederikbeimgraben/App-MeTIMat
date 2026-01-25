@@ -1,5 +1,3 @@
-from typing import Optional
-
 from pydantic import BaseModel
 
 
@@ -7,15 +5,15 @@ from pydantic import BaseModel
 class MedicationBase(BaseModel):
     name: str
     pzn: str
-    description: Optional[str] = None
-    dosage: Optional[str] = None
-    dosage_form: Optional[str] = None
-    manufacturer: Optional[str] = None
-    package_size: Optional[str] = None
-    price: Optional[float] = 0.0
-    category: Optional[str] = "all"
-    prescription_required: Optional[bool] = False
-    is_active: Optional[bool] = True
+    description: str | None = None
+    dosage: str | None = None
+    dosage_form: str | None = None
+    manufacturer: str | None = None
+    package_size: str | None = None
+    price: float | None = 0.0
+    category: str | None = "all"
+    prescription_required: bool | None = False
+    is_active: bool | None = True
 
 
 class MedicationCreate(MedicationBase):
@@ -23,17 +21,17 @@ class MedicationCreate(MedicationBase):
 
 
 class MedicationUpdate(BaseModel):
-    name: Optional[str] = None
-    pzn: Optional[str] = None
-    description: Optional[str] = None
-    dosage: Optional[str] = None
-    dosage_form: Optional[str] = None
-    manufacturer: Optional[str] = None
-    package_size: Optional[str] = None
-    price: Optional[float] = None
-    category: Optional[str] = None
-    prescription_required: Optional[bool] = None
-    is_active: Optional[bool] = None
+    name: str | None = None
+    pzn: str | None = None
+    description: str | None = None
+    dosage: str | None = None
+    dosage_form: str | None = None
+    manufacturer: str | None = None
+    package_size: str | None = None
+    price: float | None = None
+    category: str | None = None
+    prescription_required: bool | None = None
+    is_active: bool | None = None
 
 
 class MedicationInDBBase(MedicationBase):

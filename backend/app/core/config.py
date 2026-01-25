@@ -1,6 +1,5 @@
 import os
 import subprocess
-from typing import Optional
 
 from pydantic import EmailStr
 from pydantic_settings import BaseSettings
@@ -52,12 +51,12 @@ class Settings(BaseSettings):
 
     # SMTP Settings
     SMTP_TLS: bool = os.getenv("SMTP_TLS", "True").lower() == "true"
-    SMTP_PORT: Optional[int] = int(os.getenv("SMTP_PORT", "587"))
-    SMTP_HOST: Optional[str] = os.getenv("SMTP_HOST")
-    SMTP_USER: Optional[str] = os.getenv("SMTP_USER")
-    SMTP_PASSWORD: Optional[str] = os.getenv("SMTP_PASSWORD")
-    EMAILS_FROM_EMAIL: Optional[EmailStr] = os.getenv("EMAILS_FROM_EMAIL")
-    EMAILS_FROM_NAME: Optional[str] = os.getenv("EMAILS_FROM_NAME", "MeTIMat")
+    SMTP_PORT: int | None = int(os.getenv("SMTP_PORT", "587"))
+    SMTP_HOST: str | None = os.getenv("SMTP_HOST")
+    SMTP_USER: str | None = os.getenv("SMTP_USER")
+    SMTP_PASSWORD: str | None = os.getenv("SMTP_PASSWORD")
+    EMAILS_FROM_EMAIL: EmailStr | None = os.getenv("EMAILS_FROM_EMAIL")
+    EMAILS_FROM_NAME: str | None = os.getenv("EMAILS_FROM_NAME", "MeTIMat")
 
     class Config:
         case_sensitive = True

@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta, timezone
-from typing import Any, Optional, Union
+from typing import Any, Union
 
 from app.core.config import settings
 from jose import JWTError, jwt
@@ -11,7 +11,7 @@ ALGORITHM = "HS256"
 
 
 def create_access_token(
-    subject: Union[str, Any], expires_delta: Optional[timedelta] = None
+    subject: Union[str, Any], expires_delta: timedelta | None = None
 ) -> str:
     if expires_delta is not None:
         expire = datetime.now(timezone.utc) + expires_delta
@@ -43,7 +43,7 @@ def generate_verification_token(email: str) -> str:
     return encoded_jwt
 
 
-def verify_verification_token(token: str) -> Optional[str]:
+def verify_verification_token(token: str) -> str | None:
     try:
         decoded_token = jwt.decode(token, settings.SECRET_KEY, algorithms=[ALGORITHM])
         return decoded_token["sub"]

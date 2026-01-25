@@ -1,7 +1,7 @@
 # pyright: reportCallIssue=false
 import uuid
 from datetime import datetime, timezone
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 from app.core.config import settings
 
@@ -50,8 +50,8 @@ class FHIRService:
     def create_mock_prescription(
         self,
         patient_name: str = "Max Mustermann",
-        medication_name: Optional[str] = None,
-        medication_pzn: Optional[str] = None,
+        medication_name: str | None = None,
+        medication_pzn: str | None = None,
     ) -> Dict[str, Any]:
         """
         Generates a mock FHIR Bundle containing a MedicationRequest,

@@ -1,5 +1,5 @@
 import random
-from typing import Any, Dict, List, Optional
+from typing import Any, List
 
 from app.api import deps
 from app.core.config import settings

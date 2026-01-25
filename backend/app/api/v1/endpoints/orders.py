@@ -1,6 +1,6 @@
 import logging
 import secrets
-from typing import Any, List, Optional
+from typing import Any, List
 
 from app.api import deps
 from app.models.medication import Medication as MedicationModel
@@ -203,7 +203,7 @@ def validate_qr_order(
     *,
     db: Session = Depends(deps.get_db),
     request: QRScanRequest,
-    x_machine_token: Optional[str] = Header(None, alias="X-Machine-Token"),
+    x_machine_token: str | None = Header(None, alias="X-Machine-Token"),
 ) -> Any:
     """
     Validates an order via its QR access token and returns order info.
@@ -250,7 +250,7 @@ def complete_order(
     *,
     db: Session = Depends(deps.get_db),
     order_id: int,
-    x_machine_token: Optional[str] = Header(None, alias="X-Machine-Token"),
+    x_machine_token: str | None = Header(None, alias="X-Machine-Token"),
 ) -> Any:
     """
     Mark an order as completed. Used by the machine after successful dispensing.

@@ -1,10 +1,10 @@
-from typing import Any, List, Optional
+from typing import Any, List
 
 from app.api import deps
 from app.models.location import Location as LocationModel
 from app.models.user import User as UserModel
 from app.schemas.location import Location, LocationCreate, LocationUpdate
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 router = APIRouter()
@@ -15,7 +15,7 @@ def read_locations(
     db: Session = Depends(deps.get_db),
     skip: int = 0,
     limit: int = 100,
-    medication_ids: Optional[str] = None,
+    medication_ids: str | None = None,
     current_user: UserModel = Depends(deps.get_current_user),
 ) -> Any:
     """

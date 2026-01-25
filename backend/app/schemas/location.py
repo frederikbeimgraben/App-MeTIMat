@@ -1,5 +1,3 @@
-from typing import Optional
-
 from pydantic import BaseModel
 
 
@@ -9,10 +7,10 @@ class LocationBase(BaseModel):
     address: str
     latitude: float
     longitude: float
-    opening_hours: Optional[str] = None
-    is_pharmacy: Optional[bool] = True
-    location_type: Optional[str] = "vending_machine"
-    validation_key: Optional[str] = None
+    opening_hours: str | None = None
+    is_pharmacy: bool | None = True
+    location_type: str | None = "vending_machine"
+    validation_key: str | None = None
 
 
 class LocationCreate(LocationBase):
@@ -20,14 +18,14 @@ class LocationCreate(LocationBase):
 
 
 class LocationUpdate(LocationBase):
-    name: Optional[str] = None
-    address: Optional[str] = None
-    latitude: Optional[float] = None
-    longitude: Optional[float] = None
-    opening_hours: Optional[str] = None
-    is_pharmacy: Optional[bool] = None
-    location_type: Optional[str] = None
-    validation_key: Optional[str] = None
+    name: str | None = None
+    address: str | None = None
+    latitude: float | None = None
+    longitude: float | None = None
+    opening_hours: str | None = None
+    is_pharmacy: bool | None = None
+    location_type: str | None = None
+    validation_key: str | None = None
 
 
 class LocationInDBBase(LocationBase):

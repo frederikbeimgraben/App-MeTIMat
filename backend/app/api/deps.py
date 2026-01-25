@@ -1,4 +1,4 @@
-from typing import Generator, Optional
+from typing import Generator
 
 from app.core.config import settings
 from app.core.security import ALGORITHM
@@ -15,7 +15,7 @@ reusable_oauth2 = OAuth2PasswordBearer(tokenUrl=f"{settings.API_V1_STR}/auth/log
 
 
 def get_db() -> Generator:
-    db: Optional[Session] = None
+    db: Session | None = None
     try:
         db = SessionLocal()
         yield db
