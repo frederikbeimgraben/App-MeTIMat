@@ -24,18 +24,19 @@ def login_access_token(
     """
     user = db.query(UserModel).filter(UserModel.email == form_data.username).first()
     if not user or not security.verify_password(
-        form_data.password, user.hashed_password
+        form_data.password,
+        user.hashed_password,  # type: ignore
     ):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Incorrect email or password",
         )
-    elif not user.is_active:
+    elif not user.is_active:  # type: ignore
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Inactive user",
         )
-    elif not user.is_verified:
+    elif not user.is_verified:  # type: ignore
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Email not verified",
@@ -114,7 +115,7 @@ def verify_email(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found",
         )
-    user.is_verified = True
+    user.is_verified = True  # type: ignore
     db.add(user)
     db.commit()
     return {"message": "Email verified successfully"}

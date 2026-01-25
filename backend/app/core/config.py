@@ -1,6 +1,6 @@
 import os
 import subprocess
-from typing import List, Optional
+from typing import Optional
 
 from pydantic import EmailStr
 from pydantic_settings import BaseSettings

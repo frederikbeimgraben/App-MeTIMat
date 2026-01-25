@@ -15,11 +15,13 @@ reusable_oauth2 = OAuth2PasswordBearer(tokenUrl=f"{settings.API_V1_STR}/auth/log
 
 
 def get_db() -> Generator:
+    db: Optional[Session] = None
     try:
         db = SessionLocal()
         yield db
     finally:
-        db.close()
+        if db is not None:
+            db.close()
 
 
 def get_current_user(
@@ -36,7 +38,7 @@ def get_current_user(
     user = db.query(User).filter(User.id == token_data.sub).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    if not user.is_active:
+    if not user.is_active:  # type: ignore
         raise HTTPException(status_code=400, detail="Inactive user")
     return user
 
@@ -44,7 +46,7 @@ def get_current_user(
 def get_current_active_superuser(
     current_user: User = Depends(get_current_user),
 ) -> User:
-    if not current_user.is_superuser:
+    if not current_user.is_superuser:  # type: ignore
         raise HTTPException(
             status_code=400, detail="The user doesn't have enough privileges"
         )

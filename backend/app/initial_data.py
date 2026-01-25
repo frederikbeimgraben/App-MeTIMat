@@ -30,7 +30,7 @@ def wait_for_db() -> None:
             db.execute(text("SELECT 1"))
             logger.info("Database connection established.")
             return
-        except (OperationalError, Exception) as e:
+        except (OperationalError, Exception) as _:
             attempts += 1
             logger.info(f"Waiting for database... (Attempt {attempts}/{max_retries})")
             time.sleep(retry_interval)
@@ -114,7 +114,7 @@ def init_db() -> None:
                         Inventory(
                             location_id=loc.id,
                             medication_id=med.id,
-                            quantity=10 if loc.location_type == "pharmacy" else 5,
+                            quantity=10 if loc.location_type == "pharmacy" else 5,  # type: ignore
                         )
                     )
 
