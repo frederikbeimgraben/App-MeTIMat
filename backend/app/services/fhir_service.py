@@ -1,10 +1,13 @@
+# pyright: reportCallIssue=false
 import uuid
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 from app.core.config import settings
 
 # fhir.resources uses Pydantic models to enforce FHIR standards.
+# These models are dynamically generated using Pydantic v1, which can confuse
+# static type checkers like Pyright, leading to false "missing arguments" errors.
 from fhir.resources.bundle import Bundle, BundleEntry
 from fhir.resources.codeableconcept import CodeableConcept
 from fhir.resources.codeablereference import CodeableReference
@@ -121,11 +124,8 @@ class FHIRService:
             ],
         )
 
-        # Return as dictionary
-        try:
-            return bundle.model_dump()
-        except AttributeError:
-            return bundle.dict()
+        # Return as dictionary (fhir.resources 7.1.0 uses Pydantic v1)
+        return bundle.dict()
 
 
 fhir_service = FHIRService()
