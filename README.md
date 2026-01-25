@@ -59,19 +59,19 @@ FRONTEND_HOST=http://localhost:8081
 ## Komponenten-Details
 
 ### 1. Backend
-Das Backend basiert auf **FastAPI** und bietet eine performante Schnittstelle.
+Das Backend basiert auf **FastAPI** in **Python**:
 - **Datenbank**: PostgreSQL, angebunden über **SQLAlchemy**.
 - **Migrationen**: Verwaltet durch **Alembic**.
 - **Validierung**: Pydantic-Modelle für Request/Response-Validierung.
 
 ### 2. Frontend
-Ein modernes Single-Page-Application (SPA) Framework.
+Das Frontend ist eine als PWA installierbare Single Page Application. Sie enthält ein Admin-Interface unter /app/admin
 - **Framework**: **Angular**.
 - **Styling**: **Tailwind CSS** für responsives Design.
 - **Deployment**: Wird vom Dockerfile in einem NGINX-Container deployed.
 
 ### 3. Machine-Firmware
-Die Firmware ist für den Betrieb auf einem lokalen Terminal konzipiert.
+Die Firmware ist für den Betrieb auf einem lokalen Raspberry Pi >3b mit einem 7" Touchscreen konzipiert.
 - **GUI**: Erstellt mit **PyQt6**.
 - **Scanning**: Nutzt **OpenCV** zur Echtzeit-Erkennung von QR-Codes über die Kamera.
 - **Kommunikation**: Interagiert via REST-API mit dem zentralen Backend.
