@@ -1,4 +1,4 @@
-# MeTIMat Project - Technische Dokumentation
+# MeTIMat – eHealth im WiSe 2025/26 an der Hochschule Reutlingen, MeTI
 
 Dieses Repository enthält den Quellcode für das MeTIMat-System, eine integrierte Lösung zur Verwaltung und Ausgabe von Medikamenten, bestehend aus einem Backend, einem Web-Frontend und einer dedizierten Maschinen-Firmware.
 
