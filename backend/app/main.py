@@ -28,7 +28,7 @@ app.add_middleware(
 )
 
 
-@app.get("/")
+@app.get("/api")
 def root():
     """
     Root endpoint providing basic API information.
