@@ -1,5 +1,7 @@
 # MeTIMat – eHealth im WiSe 2025/26 an der Hochschule Reutlingen, MeTI
 
+> DIESES REPOSITORY ENTHÄLT WEGEN EINES REBUILDS NICHT DEN GESAMTEN VERSIONSVERLAUF
+
 Dieses Repository enthält den Quellcode für das MeTIMat-System, eine integrierte Lösung zur Verwaltung und Ausgabe von Medikamenten, bestehend aus einem Backend, einem Web-Frontend und einer dedizierten Maschinen-Firmware.
 
 Unsere Instanz läuft unter [app.MeTIMat.de](https://app.metimat.de/). Für ein SSL-Zertifikat sollte ein weiterer Proxy vorgeschaltet werden – in unserem Fall NginxProxyManager.
