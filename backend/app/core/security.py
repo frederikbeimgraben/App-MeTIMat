@@ -2,8 +2,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Any, Optional, Union
 
 from app.core.config import settings
-from jose import jwt
-from jose.jwt.exceptions import JWTError
+from jose import JWTError, jwt
 from passlib.context import CryptContext
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
