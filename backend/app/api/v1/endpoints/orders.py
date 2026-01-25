@@ -57,7 +57,7 @@ def read_orders(
         List[Order]: A list of order objects with related data (user, location, medications).
     """
     query = db.query(OrderModel)
-    if not current_user.is_superuser:
+    if not current_user.is_superuser:  # type: ignore
         query = query.filter(OrderModel.user_id == current_user.id)
 
     orders = (
@@ -141,7 +141,7 @@ def create_order(
         db_obj.prescriptions = prescriptions
         for p in prescriptions:
             # Update FHIR status to completed to invalidate for future use
-            if p.fhir_data:
+            if p.fhir_data:  # type: ignore
                 updated_data = dict(p.fhir_data)  # type: ignore
                 updated_data["status"] = "completed"  # type: ignore
                 p.fhir_data = updated_data  # type: ignore
@@ -350,7 +350,7 @@ def complete_order(
     # Send pickup confirmation email
     try:
         user = db.query(UserModel).filter(UserModel.id == order.user_id).first()
-        if user and user.email:
+        if user and user.email:  # type: ignore
             items = []
             prescription_counts = {}
             for p in order.prescriptions:
@@ -409,7 +409,7 @@ def read_order_by_id(
     )
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
-    if order.user_id != current_user.id and not current_user.is_superuser:
+    if order.user_id != current_user.id and not current_user.is_superuser:  # type: ignore
         raise HTTPException(status_code=400, detail="Not enough permissions")
     return order
 
@@ -455,7 +455,7 @@ def update_order(
     )
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
-    if order.user_id != current_user.id and not current_user.is_superuser:
+    if order.user_id != current_user.id and not current_user.is_superuser:  # type: ignore
         raise HTTPException(status_code=400, detail="Not enough permissions")
 
     old_status = order.status
@@ -468,10 +468,10 @@ def update_order(
     db.refresh(order)
 
     # If status transitioned to available for pickup, send email
-    if old_status != "available for pickup" and order.status == "available for pickup":
+    if old_status != "available for pickup" and order.status == "available for pickup":  # type: ignore
         try:
             user = db.query(UserModel).filter(UserModel.id == order.user_id).first()
-            if user and user.email:
+            if user and user.email:  # type: ignore
                 location_name = (
                     order.location.name if order.location else "MeTIMat Station"
                 )
@@ -513,7 +513,7 @@ def delete_order(
     order = db.query(OrderModel).filter(OrderModel.id == order_id).first()
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
-    if order.user_id != current_user.id and not current_user.is_superuser:
+    if order.user_id != current_user.id and not current_user.is_superuser:  # type: ignore
         raise HTTPException(status_code=400, detail="Not enough permissions")
 
     db.delete(order)

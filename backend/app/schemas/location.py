@@ -49,10 +49,10 @@ class LocationUpdate(LocationBase):
     All fields are optional.
     """
 
-    name: str | None = None
+    name: str | None = None  # type: ignore
     address: str | None = None
-    latitude: float | None = None
-    longitude: float | None = None
+    latitude: float | None = None  # type: ignore
+    longitude: float | None = None  # type: ignore
     opening_hours: str | None = None
     is_pharmacy: bool | None = None
     location_type: str | None = None

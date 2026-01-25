@@ -161,7 +161,7 @@ def read_user_by_id(
     user = db.query(UserModel).filter(UserModel.id == user_id).first()
     if user == current_user:
         return user
-    if not current_user.is_superuser:
+    if not current_user.is_superuser:  # type: ignore
         raise HTTPException(
             status_code=400, detail="The user doesn't have enough privileges"
         )
@@ -240,7 +240,7 @@ def delete_user(
             status_code=404,
             detail="The user with this id does not exist in the system",
         )
-    if user.id == current_user.id:
+    if user.id == current_user.id:  # type: ignore
         raise HTTPException(status_code=400, detail="Users cannot delete themselves")
 
     # Manually delete associated data to avoid foreign key violations

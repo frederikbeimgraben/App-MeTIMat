@@ -42,7 +42,7 @@ class UserCreate(UserBase):
         password: Plain text password to be hashed.
     """
 
-    email: EmailStr
+    email: EmailStr  # type: ignore
     password: str
 
 
