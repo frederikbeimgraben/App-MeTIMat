@@ -26,6 +26,8 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+      args:
+        - COMMIT_SHA=${GITHUB_SHA:-${CI_COMMIT_SHA:-${COMMIT_SHA:-dev}}}
     container_name: metimat-backend
     restart: always
     environment:

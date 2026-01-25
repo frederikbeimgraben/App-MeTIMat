@@ -26,4 +26,4 @@ jobs:
             git pull
             # Restart containers to apply changes
             docker compose down
-            docker compose up -d --build
+            COMMIT_SHA=$(git rev-parse --short HEAD) docker compose up -d --build
