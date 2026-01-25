@@ -2,6 +2,9 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
+ARG COMMIT_SHA=dev
+ENV COMMIT_SHA=${COMMIT_SHA}
+
 # Install system dependencies for psycopg2 and other packages
 RUN apt-get update && apt-get install -y \
     build-essential \
@@ -23,4 +26,4 @@ ENV PYTHONPATH=/app
 EXPOSE 8000
 
 # Start script to initialize DB and run the server
-CMD python app/initial_data.py && uvicorn app.main:app --host 0.0.0.0 --port 8000
+CMD ["sh", "-c", "./prestart.sh && uvicorn app.main:app --host 0.0.0.0 --port 8000"]

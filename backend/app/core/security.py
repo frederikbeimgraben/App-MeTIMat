@@ -3,6 +3,7 @@ from typing import Any, Optional, Union
 
 from app.core.config import settings
 from jose import jwt
+from jose.jwt.exceptions import JWTError
 from passlib.context import CryptContext
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -11,9 +12,9 @@ ALGORITHM = "HS256"
 
 
 def create_access_token(
-    subject: Union[str, Any], expires_delta: timedelta = None
+    subject: Union[str, Any], expires_delta: Optional[timedelta] = None
 ) -> str:
-    if expires_delta:
+    if expires_delta is not None:
         expire = datetime.now(timezone.utc) + expires_delta
     else:
         expire = datetime.now(timezone.utc) + timedelta(
@@ -47,5 +48,5 @@ def verify_verification_token(token: str) -> Optional[str]:
     try:
         decoded_token = jwt.decode(token, settings.SECRET_KEY, algorithms=[ALGORITHM])
         return decoded_token["sub"]
-    except jwt.JWTError:
+    except JWTError:
         return None

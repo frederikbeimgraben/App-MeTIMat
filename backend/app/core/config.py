@@ -1,12 +1,29 @@
 import os
+import subprocess
 from typing import List, Optional
 
 from pydantic import EmailStr
 from pydantic_settings import BaseSettings
 
 
+def get_commit_sha() -> str:
+    """Attempt to get the current git commit SHA."""
+    sha = os.getenv("COMMIT_SHA")
+    if sha:
+        return sha
+    try:
+        return (
+            subprocess.check_output(["git", "rev-parse", "--short", "HEAD"])
+            .decode("ascii")
+            .strip()
+        )
+    except Exception:
+        return "dev"
+
+
 class Settings(BaseSettings):
     PROJECT_NAME: str = "MeTIMat"
+    COMMIT_SHA: str = get_commit_sha()
     API_V1_STR: str = "/api/v1"
     SECRET_KEY: str = os.environ["SECRET_KEY"]
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8  # 8 days

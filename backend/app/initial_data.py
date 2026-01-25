@@ -1,9 +1,10 @@
 import logging
+import sys
 import time
 
 from app.core.config import settings
 from app.core.security import get_password_hash
-from app.db.session import Base, SessionLocal, engine
+from app.db.session import SessionLocal
 from app.models.inventory import Inventory
 from app.models.location import Location
 from app.models.medication import Medication
@@ -15,70 +16,31 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
+def wait_for_db() -> None:
+    """
+    Wait for the database to be ready by attempting to execute a simple query.
+    """
+    max_retries = 60
+    retry_interval = 2
+    attempts = 0
+
+    while attempts < max_retries:
+        try:
+            db = SessionLocal()
+            db.execute(text("SELECT 1"))
+            logger.info("Database connection established.")
+            return
+        except (OperationalError, Exception) as e:
+            attempts += 1
+            logger.info(f"Waiting for database... (Attempt {attempts}/{max_retries})")
+            time.sleep(retry_interval)
+
+    logger.error("Database was never ready. Exiting.")
+    sys.exit(1)
+
+
 def init_db() -> None:
-    # Create tables
-    Base.metadata.create_all(bind=engine)
-
     db = SessionLocal()
-
-    # Manual Migration for Users table: ensure is_verified column exists
-    logger.info("Checking for missing columns in 'users' table...")
-    try:
-        db.execute(
-            text(
-                "ALTER TABLE users ADD COLUMN IF NOT EXISTS is_verified BOOLEAN DEFAULT FALSE"
-            )
-        )
-        db.execute(
-            text(
-                "ALTER TABLE users ADD COLUMN IF NOT EXISTS newsletter BOOLEAN DEFAULT FALSE"
-            )
-        )
-        db.execute(
-            text(
-                "ALTER TABLE users ADD COLUMN IF NOT EXISTS accepted_terms BOOLEAN DEFAULT FALSE"
-            )
-        )
-        db.commit()
-        logger.info("Checked/Added missing columns to 'users' table.")
-    except Exception as e:
-        db.rollback()
-        logger.warning(f"Note during users table migration: {e}")
-
-    # Manual Migration for Medications table
-    logger.info("Checking for missing columns in 'medications' table...")
-    try:
-        db.execute(
-            text(
-                "ALTER TABLE medications ADD COLUMN IF NOT EXISTS category VARCHAR DEFAULT 'all'"
-            )
-        )
-        db.execute(
-            text(
-                "ALTER TABLE medications ADD COLUMN IF NOT EXISTS prescription_required BOOLEAN DEFAULT FALSE"
-            )
-        )
-        db.execute(
-            text("ALTER TABLE medications ADD COLUMN IF NOT EXISTS dosage VARCHAR")
-        )
-        db.execute(
-            text("ALTER TABLE medications ADD COLUMN IF NOT EXISTS dosage_form VARCHAR")
-        )
-        db.execute(
-            text(
-                "ALTER TABLE medications ADD COLUMN IF NOT EXISTS manufacturer VARCHAR"
-            )
-        )
-        db.execute(
-            text(
-                "ALTER TABLE medications ADD COLUMN IF NOT EXISTS package_size VARCHAR"
-            )
-        )
-        db.commit()
-        logger.info("Checked/Added missing columns to 'medications' table.")
-    except Exception as e:
-        db.rollback()
-        logger.warning(f"Note during medications table migration: {e}")
     try:
         # Check if admin user exists
         admin_user = db.query(User).filter(User.email == "admin@metimat.de").first()
@@ -168,29 +130,9 @@ def init_db() -> None:
 
 
 if __name__ == "__main__":
-    max_retries = 20
-    retry_interval = 3
-    attempts = 0
-
-    logger.info("Starting database initialization script...")
-
-    while attempts < max_retries:
-        try:
-            logger.info(
-                f"Attempting to initialize database... (Attempt {attempts + 1}/{max_retries})"
-            )
-            init_db()
-            logger.info("Database initialization finished successfully.")
-            break
-        except (OperationalError, Exception) as e:
-            attempts += 1
-            if attempts >= max_retries:
-                logger.error(
-                    f"Final attempt failed. Could not connect to database: {e}"
-                )
-                exit(1)
-
-            logger.warning(
-                f"Database connection or initialization failed: {e}. Retrying in {retry_interval} seconds..."
-            )
-            time.sleep(retry_interval)
+    if len(sys.argv) > 1 and sys.argv[1] == "wait":
+        wait_for_db()
+    else:
+        logger.info("Starting database seeding...")
+        init_db()
+        logger.info("Database seeding finished successfully.")
