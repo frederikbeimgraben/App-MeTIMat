@@ -1,6 +1,6 @@
 # MeTIMat Project - Technische Dokumentation
 
-Dieses Repository enthält den Quellcode für das MeTIMat-System, eine integrierte Lösung zur Verwaltung und Ausgabe von Materialien/Medikamenten, bestehend aus einem Backend, einem Web-Frontend und einer dedizierten Maschinen-Firmware.
+Dieses Repository enthält den Quellcode für das MeTIMat-System, eine integrierte Lösung zur Verwaltung und Ausgabe von Medikamenten, bestehend aus einem Backend, einem Web-Frontend und einer dedizierten Maschinen-Firmware.
 
 ## Projektübersicht
 
@@ -13,17 +13,9 @@ Das System ist in drei Hauptkomponenten unterteilt:
 
 ```text
 .
-├── backend/                # FastAPI Anwendung (Python)
-│   ├── app/                # Kernlogik (API, Modelle, Schemas, Services)
-│   ├── alembic/            # Datenbank-Migrationen
-│   └── tests/              # Backend-Tests
+├── backend/                # FastAPI Backend
 ├── frontend/               # Angular Web-Applikation
-│   ├── src/                # Quellcode (Components, Services, Styles)
-│   └── tailwind.config.js  # Styling-Konfiguration
 ├── machine-firmware/       # Python-Steuerung für die Hardware
-│   ├── led/                # LED-Controller Logik
-│   ├── gui.py              # PyQt6-basierte Benutzeroberfläche
-│   └── scanner.py          # QR-Code Scanner Integration (OpenCV)
 ├── db-data/                # Persistente Datenbank-Dateien (lokal)
 ├── docker-compose.yml      # Orchestrierung der Container
 └── nginx.conf              # Webserver-Konfiguration für das Frontend
@@ -36,19 +28,17 @@ Das Backend basiert auf **FastAPI** und bietet eine performante Schnittstelle.
 - **Datenbank**: PostgreSQL, angebunden über **SQLAlchemy**.
 - **Migrationen**: Verwaltet durch **Alembic**.
 - **Validierung**: Pydantic-Modelle für Request/Response-Validierung.
-- **Features**: FHIR-Kompatibilität (fhir.resources), QR-Code Generierung, E-Mail Versand.
 
 ### 2. Frontend
 Ein modernes Single-Page-Application (SPA) Framework.
 - **Framework**: **Angular**.
 - **Styling**: **Tailwind CSS** für responsives Design.
-- **Deployment**: Wird über Nginx ausgeliefert (siehe `nginx.conf`).
+- **Deployment**: Wird vom Dockerfile in einem NGINX-Container deployed.
 
 ### 3. Machine-Firmware
 Die Firmware ist für den Betrieb auf einem lokalen Terminal konzipiert.
 - **GUI**: Erstellt mit **PyQt6**.
 - **Scanning**: Nutzt **OpenCV** zur Echtzeit-Erkennung von QR-Codes über die Kamera.
-- **Hardware-Steuerung**: Schnittstellen zur Ansteuerung von LED-Streifen zur Benutzerführung.
 - **Kommunikation**: Interagiert via REST-API mit dem zentralen Backend.
 
 ## Technologie-Stack
@@ -78,8 +68,10 @@ Das Frontend ist anschließend standardmäßig unter `http://localhost:8081` err
 Die Firmware wird normalerweise lokal auf der Zielhardware ausgeführt:
 ```bash
 cd machine-firmware
+python3 -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
-python main.py
+sudo ./run.sh
 ```
 
 ## Datenbank-Migrationen
@@ -88,6 +80,6 @@ Bei Änderungen am Datenmodell müssen Migrationen erstellt und angewendet werde
 cd backend
 # Migration erstellen
 alembic revision --autogenerate -m "Beschreibung der Änderung"
-# Migration anwenden
+# Migration anwenden (Passiert bei CI-Deployment automatisch)
 alembic upgrade head
 ```
