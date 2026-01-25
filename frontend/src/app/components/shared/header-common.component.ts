@@ -38,6 +38,16 @@ import { AuthService } from '../../services/auth.service';
 
           @if (authService.isAdmin()) {
             <button
+              (click)="goToScannerDemo()"
+              class="h-10 w-10 flex items-center justify-center text-blue-900 hover:bg-gray-100 rounded-full transition-colors"
+              title="Scanner Demo"
+              aria-label="Scanner Demo"
+            >
+              <mat-icon style="width: 24px; height: 24px; font-size: 24px"
+                >qr_code_scanner</mat-icon
+              >
+            </button>
+            <button
               (click)="goToAdmin()"
               class="h-10 w-10 flex items-center justify-center text-blue-900 hover:bg-gray-100 rounded-full transition-colors"
               aria-label="Admin"
@@ -97,5 +107,9 @@ export class HeaderCommonComponent {
 
   goToAdmin(): void {
     this.router.navigate(['/admin']);
+  }
+
+  goToScannerDemo(): void {
+    this.router.navigate(['/scanner-demo']);
   }
 }

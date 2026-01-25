@@ -1,0 +1,134 @@
+<div class="min-h-screen bg-gray-50 p-4 pb-20">
+  <!-- Header -->
+  <div class="max-w-md mx-auto mb-6 flex items-center justify-between">
+    <button (click)="goBack()" class="p-2 -ml-2 text-gray-600 hover:text-blue-900 transition-colors">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h1 class="text-xl font-bold text-gray-900">Scanner Demo Modus</h1>
+    <div class="w-10"></div>
+    <!-- Spacer -->
+  </div>
+
+  <div class="max-w-md mx-auto space-y-6">
+    <!-- Intro Card -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+      <div class="flex items-center space-x-3 mb-4">
+        <div class="p-2 bg-blue-100 rounded-lg text-blue-600">
+          <mat-icon>qr_code_scanner</mat-icon>
+        </div>
+        <h2 class="font-semibold text-gray-800">Hardware-Simulation</h2>
+      </div>
+      <p class="text-sm text-gray-600 leading-relaxed">
+        Dieser Modus simuliert die QR-Code Scanner Hardware des Automaten.
+        Geben Sie einen Order-Token ein und wählen Sie einen Automaten aus, um den Abholprozess zu testen.
+      </p>
+    </div>
+
+    <!-- Controls -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-4">
+      <!-- Location Selector -->
+      <div>
+        <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">
+          Abholautomat (Standort)
+        </label>
+        <select
+          [ngModel]="selectedLocation()"
+          (ngModelChange)="selectedLocation.set($event)"
+          class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+        >
+          @for (loc of locations(); track loc.id) {
+          <option [ngValue]="loc">{{ loc.name }}</option>
+          } @empty {
+          <option disabled>Keine Automaten mit Token gefunden</option>
+          }
+        </select>
+        @if (selectedLocation()) {
+        <p class="mt-1 text-[10px] text-gray-400 font-mono">
+          Token: {{ selectedLocation()?.validation_key?.substring(0, 8) }}...
+        </p>
+        }
+      </div>
+
+      <!-- QR Input -->
+      <div>
+        <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">
+          Gescannter QR-Code / Token
+        </label>
+        <div class="relative">
+          <input
+            type="text"
+            [ngModel]="qrData()"
+            (ngModelChange)="qrData.set($event)"
+            placeholder="z.B. order_abc123"
+            class="w-full p-3 pl-10 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all font-mono text-sm"
+          />
+          <mat-icon class="absolute left-3 top-3 text-gray-400" style="font-size: 20px; width: 20px; height: 20px;">
+            vpn_key
+          </mat-icon>
+        </div>
+      </div>
+
+      <!-- Action Button -->
+      <button
+        (click)="onScan()"
+        [disabled]="status() === 'loading' || !qrData()"
+        class="w-full py-4 bg-blue-900 text-white rounded-xl font-bold shadow-lg shadow-blue-900/20 active:scale-95 transition-all disabled:opacity-50 disabled:active:scale-100 flex items-center justify-center space-x-2"
+      >
+        @if (status() === 'loading') {
+        <div class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+        <span>Verarbeite Scan...</span>
+        } @else {
+        <mat-icon>sensors</mat-icon>
+        <span>Scan simulieren</span>
+        }
+      </button>
+    </div>
+
+    <!-- Status Output -->
+    @if (status() !== 'idle') {
+    <div
+      class="rounded-2xl p-6 border animate-in fade-in slide-in-from-bottom-4 duration-300"
+      [ngClass]="{
+        'bg-green-50 border-green-100 text-green-800': status() === 'success',
+        'bg-red-50 border-red-100 text-red-800': status() === 'error',
+        'bg-blue-50 border-blue-100 text-blue-800': status() === 'loading'
+      }"
+    >
+      <div class="flex items-start space-x-3">
+        <mat-icon class="mt-0.5">
+          {{ status() === 'success' ? 'check_circle' : (status() === 'error' ? 'error' : 'hourglass_empty') }}
+        </mat-icon>
+        <div class="flex-1">
+          <h3 class="font-bold mb-1">
+            {{ status() === 'success' ? 'Erfolg' : (status() === 'error' ? 'Fehler' : 'Status') }}
+          </h3>
+          <p class="text-sm opacity-90">{{ message() }}</p>
+
+          @if (lastOrder(); as order) {
+          <div class="mt-4 p-3 bg-white/50 rounded-lg border border-current/10">
+            <p class="text-xs font-bold uppercase tracking-tight mb-2 opacity-70">Bestellinhalt:</p>
+            <ul class="text-sm space-y-1">
+              @for (name of getMedicationNames(order); track name) {
+              <li class="flex items-center space-x-2">
+                <span class="w-1.5 h-1.5 rounded-full bg-current opacity-40"></span>
+                <span>{{ name }}</span>
+              </li>
+              }
+            </ul>
+          </div>
+          }
+        </div>
+      </div>
+
+      @if (status() !== 'loading') {
+      <button
+        (click)="reset()"
+        class="mt-4 w-full py-2 bg-black/5 hover:bg-black/10 rounded-lg text-xs font-bold transition-colors"
+      >
+        Zurücksetzen
+      </button>
+      }
+    </div>
+    }
+  </div>
+</div>

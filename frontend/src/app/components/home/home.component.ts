@@ -32,6 +32,10 @@ export class HomeComponent implements OnInit {
     this.router.navigate(['/admin']);
   }
 
+  goToScannerDemo(): void {
+    this.router.navigate(['/scanner-demo']);
+  }
+
   ngOnInit(): void {
     this.loadDashboardData();
   }

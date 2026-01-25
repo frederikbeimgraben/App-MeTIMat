@@ -121,6 +121,14 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./components/admin/admin.component').then((m) => m.AdminComponent),
       },
+      {
+        path: 'scanner-demo',
+        canActivate: [adminGuard],
+        loadComponent: () =>
+          import('./components/scanner-demo/scanner-demo.component').then(
+            (m) => m.ScannerDemoComponent,
+          ),
+      },
     ],
   },
   {
