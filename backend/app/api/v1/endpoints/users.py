@@ -6,8 +6,7 @@ from app.models.order import Order as OrderModel
 from app.models.prescription import Prescription as PrescriptionModel
 from app.models.user import User as UserModel
 from app.schemas.user import User, UserCreate, UserUpdate
-from fastapi import APIRouter, Depends, HTTPException, status
-from jose import JWTError, jwt
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 router = APIRouter()
@@ -74,20 +73,20 @@ def read_user_me(
 def update_user_me(
     *,
     db: Session = Depends(deps.get_db),
-    password: str = None,
-    full_name: str = None,
-    email: str = None,
+    password: str | None = None,
+    full_name: str | None = None,
+    email: str | None = None,
     current_user: UserModel = Depends(deps.get_current_user),
 ) -> Any:
     """
     Update own user profile.
     """
     if password:
-        current_user.hashed_password = security.get_password_hash(password)
+        current_user.hashed_password = security.get_password_hash(password)  # type: ignore
     if full_name:
-        current_user.full_name = full_name
+        current_user.full_name = full_name  # type: ignore
     if email:
-        current_user.email = email
+        current_user.email = email  # type: ignore
 
     db.add(current_user)
     db.commit()
@@ -136,7 +135,7 @@ def update_user(
     if "password" in update_data:
         hashed_password = security.get_password_hash(update_data["password"])
         del update_data["password"]
-        user.hashed_password = hashed_password
+        user.hashed_password = hashed_password  # type: ignore
 
     for field, value in update_data.items():
         setattr(user, field, value)

@@ -7,7 +7,7 @@ from app.models.medication import Medication as MedicationModel
 from app.models.order import Order as OrderModel
 from app.models.prescription import Prescription as PrescriptionModel
 from app.models.user import User as UserModel
-from app.schemas.prescription import Prescription, PrescriptionCreate
+from app.schemas.prescription import Prescription
 from app.services.fhir_service import fhir_service
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.encoders import jsonable_encoder
@@ -67,9 +67,7 @@ def import_egk_prescriptions(
 
     # 1. Select a random prescription-required medication from the DB
     rx_medications = (
-        db.query(MedicationModel)
-        .filter(MedicationModel.prescription_required == True)
-        .all()
+        db.query(MedicationModel).filter(MedicationModel.prescription_required).all()
     )
 
     if not rx_medications:
@@ -82,9 +80,9 @@ def import_egk_prescriptions(
 
     # 2. Generate mock FHIR data
     bundle = fhir_service.create_mock_prescription(
-        patient_name=current_user.full_name or "Max Mustermann",
-        medication_name=selected_med.name,
-        medication_pzn=selected_med.pzn,
+        patient_name=current_user.full_name or "Max Mustermann",  # type: ignore
+        medication_name=selected_med.name,  # type: ignore
+        medication_pzn=selected_med.pzn,  # type: ignore
     )
 
     imported_prescriptions = []
@@ -130,9 +128,7 @@ def import_scanned_prescription(
 
     # 1. Select a random prescription-required medication from the DB
     rx_medications = (
-        db.query(MedicationModel)
-        .filter(MedicationModel.prescription_required == True)
-        .all()
+        db.query(MedicationModel).filter(MedicationModel.prescription_required).all()
     )
 
     if not rx_medications:
@@ -145,9 +141,9 @@ def import_scanned_prescription(
 
     # 2. Generate mock FHIR
     bundle = fhir_service.create_mock_prescription(
-        patient_name=current_user.full_name or "Max Mustermann",
-        medication_name=selected_med.name,
-        medication_pzn=selected_med.pzn,
+        patient_name=current_user.full_name or "Max Mustermann",  # type: ignore
+        medication_name=selected_med.name,  # type: ignore
+        medication_pzn=selected_med.pzn,  # type: ignore
     )
 
     # Take the first MedicationRequest from the bundle

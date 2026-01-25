@@ -4,7 +4,7 @@ from app.api import deps
 from app.models.medication import Medication as MedicationModel
 from app.models.user import User as UserModel
 from app.schemas.medication import Medication, MedicationCreate, MedicationUpdate
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 router = APIRouter()

@@ -1,0 +1,12 @@
+{
+  "exclude": ["**/node_modules", "**/__pycache__", "backend/venv"],
+  "ignore": ["backend/venv"],
+  "venvPath": "backend",
+  "venv": "venv",
+  "typeCheckingMode": "basic",
+  "reportMissingTypeStubs": false,
+  "reportGeneralTypeIssues": false,
+  "reportUnknownMemberType": false,
+  "reportUnknownVariableType": false,
+  "reportUnknownArgumentType": false,
+}

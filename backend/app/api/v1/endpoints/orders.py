@@ -77,12 +77,12 @@ def create_order(
             db.query(MedicationModel)
             .filter(
                 MedicationModel.id.in_(order_in.medication_ids),
-                MedicationModel.prescription_required == True,
+                MedicationModel.prescription_required,
             )
             .all()
         )
         if forbidden_meds:
-            names = ", ".join([m.name for m in forbidden_meds])
+            names = ", ".join([m.name for m in forbidden_meds])  # type: ignore
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"The following medications require a prescription and cannot be ordered directly: {names}",
@@ -108,9 +108,9 @@ def create_order(
         for p in prescriptions:
             # Update FHIR status to completed to invalidate for future use
             if p.fhir_data:
-                updated_data = dict(p.fhir_data)
-                updated_data["status"] = "completed"
-                p.fhir_data = updated_data
+                updated_data = dict(p.fhir_data)  # type: ignore
+                updated_data["status"] = "completed"  # type: ignore
+                p.fhir_data = updated_data  # type: ignore
 
     # Link direct medications and calculate price using quantities
     if order_in.medication_ids:
@@ -132,11 +132,11 @@ def create_order(
                 order_id=db_obj.id, medication_id=m.id, quantity=qty
             )
             db.add(assoc)
-            db_obj.total_price += float(m.price) * qty
+            db_obj.total_price += float(m.price) * qty  # type: ignore
 
     # Add prescription fees (assumed 5.00€ flat fee per prescription)
     if order_in.prescription_ids:
-        db_obj.total_price += len(order_in.prescription_ids) * 5.0
+        db_obj.total_price += len(order_in.prescription_ids) * 5.0  # type: ignore
 
     db.commit()
 
@@ -157,11 +157,11 @@ def create_order(
     # Send order confirmation email
     try:
         items = []
-        total_price = float(db_obj.total_price)
+        total_price = float(db_obj.total_price)  # type: ignore
 
         # Add prescriptions to items list (grouped by name)
         prescription_counts = {}
-        for p in db_obj.prescriptions:
+        for p in db_obj.prescriptions:  # type: ignore
             med_name = (
                 p.medication_name
                 or (p.fhir_data.get("medication_name") if p.fhir_data else None)
@@ -173,7 +173,7 @@ def create_order(
             items.append({"name": name, "quantity": count, "price": 5.0 * count})
 
         # Add OTC medications using the stored quantities
-        for item in db_obj.medication_items:
+        for item in db_obj.medication_items:  # type: ignore
             m = item.medication
             items.append(
                 {
@@ -184,8 +184,8 @@ def create_order(
             )
 
         send_order_confirmation_email(
-            email_to=current_user.email,
-            order_id=db_obj.id,
+            email_to=current_user.email,  # type: ignore
+            order_id=db_obj.id,  # type: ignore
             items=items,
             total_price=total_price,
         )
@@ -193,7 +193,7 @@ def create_order(
         logger.error(f"Failed to send order confirmation email: {e}")
 
     logger.info(
-        f"Order {db_obj.id} created successfully with access token {db_obj.access_token[:8]}..."
+        f"Order {db_obj.id} created successfully with access token {db_obj.access_token[:8]}..."  # type: ignore
     )
     return db_obj
 
@@ -282,7 +282,7 @@ def complete_order(
             detail="Machine authorization failed",
         )
 
-    order.status = "completed"
+    order.status = "completed"  # type: ignore
     db.add(order)
     db.commit()
 
@@ -302,8 +302,8 @@ def complete_order(
                 items.append({"name": item.medication.name, "quantity": item.quantity})
 
             send_pickup_confirmation_email(
-                email_to=user.email,
-                order_id=order.id,
+                email_to=user.email,  # type: ignore
+                order_id=order.id,  # type: ignore
                 items=items,
             )
     except Exception as e:
@@ -387,10 +387,10 @@ def update_order(
                     order.location.name if order.location else "MeTIMat Station"
                 )
                 send_pickup_ready_email(
-                    email_to=user.email,
-                    order_id=order.id,
+                    email_to=user.email,  # type: ignore
+                    order_id=order.id,  # type: ignore
                     pickup_location=location_name,
-                    pickup_code=order.access_token,
+                    pickup_code=order.access_token,  # type: ignore
                 )
         except Exception as e:
             logger.error(f"Failed to send pickup ready email: {e}")
