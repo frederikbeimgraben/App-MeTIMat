@@ -66,8 +66,10 @@ Das Backend basiert auf **FastAPI** in **Python**:
 - **Migrationen**: Verwaltet durch **Alembic**.
 - **Validierung**: Pydantic-Modelle für Request/Response-Validierung.
 
+Eine API-Doku findet sich unter: [app.metimat.de/api/v1/docs](https://app.metimat.de/api/v1/docs#/)
+
 ### 2. Frontend
-Das Frontend ist eine als PWA installierbare Single Page Application. Sie enthält ein Admin-Interface unter /app/admin
+Das Frontend ist eine als PWA installierbare Single Page Application. Sie enthält ein Admin-Interface unter /app/admin.
 - **Framework**: **Angular**.
 - **Styling**: **Tailwind CSS** für responsives Design.
 - **Deployment**: Wird vom Dockerfile in einem NGINX-Container deployed.
