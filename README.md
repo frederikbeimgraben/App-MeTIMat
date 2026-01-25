@@ -18,7 +18,42 @@ Das System ist in drei Hauptkomponenten unterteilt:
 ├── machine-firmware/       # Python-Steuerung für die Hardware
 ├── db-data/                # Persistente Datenbank-Dateien (lokal)
 ├── docker-compose.yml      # Orchestrierung der Container
+├── .env                    # Konfiguration
 └── nginx.conf              # Webserver-Konfiguration für das Frontend
+```
+
+## Konfiguration
+
+Die Konfiguration läuft über ein `.env`-File. Ein Beispiel befindet sich in `.env.example`.
+
+```env
+# Database Configuration
+DB_USERNAME=postgres
+DB_PASSWORD=postgres
+DB_DATABASE=metimat
+POSTGRES_SERVER=postgresql
+
+# Security
+# Generate a real one using: openssl rand -hex 32
+SECRET_KEY=your-super-secret-key
+
+# Features
+# Set to False to disable the ability to create mock prescriptions via WebNFC/Mock scan
+ENABLE_MOCK_PRESCRIPTIONS=True
+
+ADMIN_PW=super-secret-key
+
+# SMTP Settings
+SMTP_HOST=smtp.your-provider.com
+SMTP_PORT=587
+SMTP_TLS=True
+SMTP_USER=your-email@example.com
+SMTP_PASSWORD=your-password
+EMAILS_FROM_EMAIL=noreply@metimat.de
+EMAILS_FROM_NAME=MeTIMat
+
+# Frontend Host (used for verification links in emails)
+FRONTEND_HOST=http://localhost:8081
 ```
 
 ## Komponenten-Details
