@@ -1,3 +1,11 @@
+"""
+Prescription management endpoints for the MeTIMat API.
+
+This module provides routes for retrieving user prescriptions and simulating
+the importation of electronic prescriptions (e-Rezept) from various sources
+like electronic health cards (eGK) or scanned QR codes.
+"""
+
 import random
 from typing import Any, List
 
@@ -19,6 +27,13 @@ router = APIRouter()
 
 
 class QRImportRequest(BaseModel):
+    """
+    Schema for a prescription import request via QR code.
+
+    Attributes:
+        qr_data: The encoded string data from the scanned QR code.
+    """
+
     qr_data: str
 
 
@@ -30,7 +45,19 @@ def read_prescriptions(
     current_user: UserModel = Depends(deps.get_current_user),
 ) -> Any:
     """
-    Retrieve prescriptions belonging to the current user's orders.
+    Retrieve prescriptions associated with the current user.
+
+    Fetches prescriptions that either directly belong to the user or are linked
+    to one of the user's orders.
+
+    Args:
+        db: Database session.
+        skip: Number of records to skip for pagination.
+        limit: Maximum number of records to return.
+        current_user: The currently authenticated user.
+
+    Returns:
+        List[Prescription]: A list of prescription objects.
     """
     prescriptions = (
         db.query(PrescriptionModel)
@@ -55,9 +82,20 @@ def import_egk_prescriptions(
     current_user: UserModel = Depends(deps.get_current_user),
 ) -> Any:
     """
-    Simulates importing prescriptions from an electronic health card (eGK).
-    In a real scenario, this would interface with the TI connector.
-    This creates a mock order and populates it with prescriptions from the mock FHIR bundle.
+    Simulate importing prescriptions from an electronic health card (eGK).
+
+    In a production scenario, this would interface with the Telematics Infrastructure (TI).
+    Currently, it generates mock prescriptions based on available medications in the database.
+
+    Args:
+        db: Database session.
+        current_user: The currently authenticated user.
+
+    Returns:
+        List[Prescription]: A list of the imported mock prescriptions.
+
+    Raises:
+        HTTPException: If mock prescriptions are disabled or no suitable medications exist.
     """
     if not settings.ENABLE_MOCK_PRESCRIPTIONS:
         raise HTTPException(
@@ -117,8 +155,20 @@ def import_scanned_prescription(
     current_user: UserModel = Depends(deps.get_current_user),
 ) -> Any:
     """
-    Simulates scanning a physical prescription (e.g. via QR or NFC).
-    Creates a mock prescription in the database.
+    Simulate scanning a physical prescription QR code.
+
+    Creates a mock prescription in the database using the provided QR data.
+
+    Args:
+        db: Database session.
+        import_in: Data from the scanned QR code.
+        current_user: The currently authenticated user.
+
+    Returns:
+        Prescription: The newly created mock prescription.
+
+    Raises:
+        HTTPException: If mock prescriptions are disabled or no suitable medications exist.
     """
     if not settings.ENABLE_MOCK_PRESCRIPTIONS:
         raise HTTPException(
@@ -174,7 +224,10 @@ def import_scanned_prescription(
 @router.get("/config")
 def get_prescription_config():
     """
-    Returns frontend relevant configuration for prescriptions.
+    Get prescription-related configuration for the frontend.
+
+    Returns:
+        dict: Configuration settings including mock status and FHIR version.
     """
     return {
         "mock_enabled": settings.ENABLE_MOCK_PRESCRIPTIONS,

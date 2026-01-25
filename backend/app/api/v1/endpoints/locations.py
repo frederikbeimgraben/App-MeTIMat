@@ -1,3 +1,11 @@
+"""
+Physical location management endpoints for the MeTIMat API.
+
+This module provides routes for retrieving pharmacies and vending machines,
+checking inventory availability at locations, and administrative routes
+for managing location data.
+"""
+
 from typing import Any, List
 
 from app.api import deps
@@ -19,8 +27,20 @@ def read_locations(
     current_user: UserModel = Depends(deps.get_current_user),
 ) -> Any:
     """
-    Retrieve locations (Pharmacies/Vending Machines).
-    If medication_ids (comma-separated) is provided, calculates availability.
+    Retrieve a list of locations (Pharmacies/Vending Machines).
+
+    If a comma-separated list of medication IDs is provided, the service
+    calculates whether all those items are currently in stock at each location.
+
+    Args:
+        db: Database session.
+        skip: Number of records to skip for pagination.
+        limit: Maximum number of records to return.
+        medication_ids: Optional comma-separated string of Medication IDs to check for availability.
+        current_user: The currently authenticated user.
+
+    Returns:
+        List[Location]: A list of location objects, each with an 'is_available' flag.
     """
     locations = db.query(LocationModel).offset(skip).limit(limit).all()
 
@@ -59,7 +79,15 @@ def create_location(
     current_user: UserModel = Depends(deps.get_current_active_superuser),
 ) -> Any:
     """
-    Create new location (Admin only).
+    Create a new location entry. Accessible only by superusers.
+
+    Args:
+        db: Database session.
+        location_in: Location creation schema.
+        current_user: The authenticated superuser.
+
+    Returns:
+        Location: The newly created location object.
     """
     location = LocationModel(**location_in.model_dump())
     db.add(location)
@@ -77,7 +105,19 @@ def update_location(
     current_user: UserModel = Depends(deps.get_current_active_superuser),
 ) -> Any:
     """
-    Update a location (Admin only).
+    Update an existing location entry. Accessible only by superusers.
+
+    Args:
+        db: Database session.
+        id: The ID of the location to update.
+        location_in: Location update schema.
+        current_user: The authenticated superuser.
+
+    Returns:
+        Location: The updated location object.
+
+    Raises:
+        HTTPException: If the location with the specified ID does not exist.
     """
     location = db.query(LocationModel).filter(LocationModel.id == id).first()
     if not location:
@@ -101,7 +141,18 @@ def delete_location(
     current_user: UserModel = Depends(deps.get_current_active_superuser),
 ) -> Any:
     """
-    Delete a location (Admin only).
+    Delete a location entry. Accessible only by superusers.
+
+    Args:
+        db: Database session.
+        id: The ID of the location to delete.
+        current_user: The authenticated superuser.
+
+    Returns:
+        Location: The deleted location object.
+
+    Raises:
+        HTTPException: If the location with the specified ID does not exist.
     """
     location = db.query(LocationModel).filter(LocationModel.id == id).first()
     if not location:

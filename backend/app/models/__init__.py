@@ -1,3 +1,10 @@
+"""
+SQLAlchemy models for the MeTIMat application.
+
+This package collects all database models to ensure they are registered
+with the SQLAlchemy Base and easily accessible for imports elsewhere in the application.
+"""
+
 from app.db.session import Base  # noqa
 from app.models.inventory import Inventory
 from app.models.location import Location

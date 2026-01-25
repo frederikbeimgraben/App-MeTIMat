@@ -1,3 +1,10 @@
+"""
+Configuration module for the MeTIMat application.
+
+This module defines the Settings class using Pydantic's BaseSettings to handle
+environment variables, database connection strings, FHIR settings, and SMTP configuration.
+"""
+
 import os
 import subprocess
 
@@ -6,7 +13,15 @@ from pydantic_settings import BaseSettings
 
 
 def get_commit_sha() -> str:
-    """Attempt to get the current git commit SHA."""
+    """
+    Attempt to get the current git commit SHA.
+
+    First checks for a COMMIT_SHA environment variable, then tries to execute
+    'git rev-parse' to find the short SHA of the current HEAD.
+
+    Returns:
+        str: The git commit SHA or "dev" if not found or in case of error.
+    """
     sha = os.getenv("COMMIT_SHA")
     if sha:
         return sha
@@ -21,6 +36,36 @@ def get_commit_sha() -> str:
 
 
 class Settings(BaseSettings):
+    """
+    Application settings and environment variable management.
+
+    Attributes:
+        PROJECT_NAME: Name of the project.
+        COMMIT_SHA: Current build version/commit hash.
+        API_V1_STR: Prefix for version 1 of the API.
+        SECRET_KEY: Secret key for security (JWT signing, etc).
+        ACCESS_TOKEN_EXPIRE_MINUTES: Duration for which access tokens are valid.
+        FRONTEND_HOST: URL of the frontend application.
+        ENABLE_MOCK_PRESCRIPTIONS: Toggle for using mock data in prescription endpoints.
+        MOCK_PRESCRIPTION_PZN: Mock PZN for testing.
+        MOCK_PRESCRIPTION_NAME: Mock medication name for testing.
+        ADMIN_PASS: Admin password for sensitive operations.
+        POSTGRES_SERVER: Database server host.
+        POSTGRES_USER: Database username.
+        POSTGRES_PASSWORD: Database password.
+        POSTGRES_DB: Database name.
+        SQLALCHEMY_DATABASE_URI: Generated SQLAlchemy connection string.
+        FHIR_PROFILE_VERSION: Version of the FHIR profile used.
+        FHIR_BASE_URL: Base URL for FHIR e-rezept workflow.
+        SMTP_TLS: Whether to use TLS for email.
+        SMTP_PORT: Port for SMTP server.
+        SMTP_HOST: Hostname of SMTP server.
+        SMTP_USER: Username for SMTP server.
+        SMTP_PASSWORD: Password for SMTP server.
+        EMAILS_FROM_EMAIL: Sender email address.
+        EMAILS_FROM_NAME: Sender name.
+    """
+
     PROJECT_NAME: str = "MeTIMat"
     COMMIT_SHA: str = get_commit_sha()
     API_V1_STR: str = "/api/v1"

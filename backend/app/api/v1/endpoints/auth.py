@@ -1,3 +1,10 @@
+"""
+Authentication endpoints for the MeTIMat API.
+
+This module provides routes for user login (issuing JWT tokens),
+registration, token testing, and email verification.
+"""
+
 from datetime import timedelta
 from typing import Any
 
@@ -21,6 +28,16 @@ def login_access_token(
 ) -> Any:
     """
     OAuth2 compatible token login, get an access token for future requests.
+
+    Args:
+        db: Database session.
+        form_data: OAuth2 password request form containing username (email) and password.
+
+    Returns:
+        Token: A dictionary containing the access token and token type.
+
+    Raises:
+        HTTPException: If credentials are incorrect, user is inactive, or email is not verified.
     """
     user = db.query(UserModel).filter(UserModel.email == form_data.username).first()
     if not user or not security.verify_password(
@@ -54,7 +71,13 @@ def login_access_token(
 @router.post("/test-token", response_model=UserSchema)
 def test_token(current_user: UserModel = Depends(deps.get_current_user)) -> Any:
     """
-    Test access token.
+    Test access token by returning the current user.
+
+    Args:
+        current_user: The currently authenticated user.
+
+    Returns:
+        UserSchema: The user object.
     """
     return current_user
 
@@ -66,7 +89,17 @@ def register_user(
     user_in: UserCreate,
 ) -> Any:
     """
-    Register a new user and send verification email.
+    Register a new user and send a verification email.
+
+    Args:
+        db: Database session.
+        user_in: User creation schema.
+
+    Returns:
+        UserSchema: The newly created user object.
+
+    Raises:
+        HTTPException: If a user with the provided email already exists.
     """
     user = db.query(UserModel).filter(UserModel.email == user_in.email).first()
     if user:
@@ -101,7 +134,17 @@ def verify_email(
     db: Session = Depends(deps.get_db),
 ) -> Any:
     """
-    Verify email address using a token.
+    Verify a user's email address using a verification token.
+
+    Args:
+        token: The verification JWT token from the email link.
+        db: Database session.
+
+    Returns:
+        dict: A success message.
+
+    Raises:
+        HTTPException: If the token is invalid/expired or the user does not exist.
     """
     email = security.verify_verification_token(token)
     if not email:

@@ -1,3 +1,11 @@
+"""
+FHIR Service module for the MeTIMat application.
+
+This module provides services for handling FHIR (Fast Healthcare Interoperability Resources)
+compliant data, specifically for e-prescriptions (e-Rezept) following the Gematik
+specifications. It includes methods for QR code validation and mock prescription generation.
+"""
+
 # pyright: reportCallIssue=false
 import uuid
 from datetime import datetime, timezone
@@ -28,12 +36,22 @@ class FHIRService:
     """
 
     def __init__(self):
+        """
+        Initialize the FHIR service with profile settings from the application configuration.
+        """
         self.profile_base = settings.FHIR_BASE_URL
         self.version = settings.FHIR_PROFILE_VERSION
 
     def validate_qr_data(self, qr_content: str) -> Dict[str, Any]:
         """
         Validates QR code data against FHIR / Gematik e-Prescription standards.
+
+        Args:
+            qr_content: The raw string content decoded from a prescription QR code.
+
+        Returns:
+            Dict[str, Any]: A dictionary containing the validation result,
+            success/error messages, and the profile version used.
         """
         if not qr_content or len(qr_content) < 10:
             return {"valid": False, "error": "Invalid QR format or content too short"}
@@ -56,6 +74,17 @@ class FHIRService:
         """
         Generates a mock FHIR Bundle containing a MedicationRequest,
         compliant with de.gematik.erezept-workflow.r4.
+
+        This creates a collection bundle including the MedicationRequest, a Patient,
+        and a Practitioner resource.
+
+        Args:
+            patient_name: Name of the patient for the mock record.
+            medication_name: Optional name of the medication.
+            medication_pzn: Optional PZN (Pharma-Zentral-Nummer).
+
+        Returns:
+            Dict[str, Any]: A dictionary representation of the FHIR Bundle resource.
         """
         prescription_id = str(uuid.uuid4())
 

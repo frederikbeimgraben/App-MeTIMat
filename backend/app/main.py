@@ -1,3 +1,10 @@
+"""
+Main entry point for the MeTIMat FastAPI application.
+
+This module initializes the FastAPI application, configures middleware (CORS),
+defines health check routes, and includes the API versioned routers.
+"""
+
 from app import models  # noqa
 from app.api.v1.api import api_router
 from app.core.config import settings
@@ -23,6 +30,12 @@ app.add_middleware(
 
 @app.get("/")
 def root():
+    """
+    Root endpoint providing basic API information.
+
+    Returns:
+        dict: A dictionary containing a welcome message and the current build commit SHA.
+    """
     return {
         "message": "Welcome to MeTIMat API",
         "build": settings.COMMIT_SHA,
@@ -31,6 +44,12 @@ def root():
 
 @app.get("/api/health")
 def health_check():
+    """
+    Health check endpoint to monitor the status of the service.
+
+    Returns:
+        dict: A dictionary containing the status and whether mock prescriptions are enabled.
+    """
     return {"status": "healthy", "mock_enabled": settings.ENABLE_MOCK_PRESCRIPTIONS}
 
 

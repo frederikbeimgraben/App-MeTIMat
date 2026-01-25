@@ -1,3 +1,11 @@
+"""
+Database initialization and seeding module for the MeTIMat application.
+
+This module provides utilities to wait for the database connection to become
+available and to seed the database with initial master data such as an admin
+user, default locations, medications, and inventory levels.
+"""
+
 import logging
 import sys
 import time
@@ -19,6 +27,9 @@ logger = logging.getLogger(__name__)
 def wait_for_db() -> None:
     """
     Wait for the database to be ready by attempting to execute a simple query.
+
+    Retries the connection for a specified number of attempts before exiting
+    the application if the database remains unreachable.
     """
     max_retries = 60
     retry_interval = 2
@@ -40,6 +51,13 @@ def wait_for_db() -> None:
 
 
 def init_db() -> None:
+    """
+    Initialize the database with default data.
+
+    Checks if an administrator exists and creates one if necessary.
+    If the database is empty, it also populates initial master data for
+    locations, medications, and stock inventory.
+    """
     db = SessionLocal()
     try:
         # Check if admin user exists

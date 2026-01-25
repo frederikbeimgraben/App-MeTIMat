@@ -1,3 +1,11 @@
+"""
+Order management and fulfillment endpoints for the MeTIMat API.
+
+This module provides routes for creating, retrieving, updating, and completing customer orders.
+It also includes specialized endpoints for QR code validation by automated vending machines
+and handles order-related email notifications.
+"""
+
 import logging
 import secrets
 from typing import Any, List
@@ -35,7 +43,18 @@ def read_orders(
     current_user: UserModel = Depends(deps.get_current_user),
 ) -> Any:
     """
-    Retrieve orders for the current user, or all orders if superuser.
+    Retrieve a list of orders.
+
+    Normal users see only their own orders, while superusers can see all orders in the system.
+
+    Args:
+        db: Database session.
+        skip: Number of records to skip for pagination.
+        limit: Maximum number of records to return.
+        current_user: The currently authenticated user.
+
+    Returns:
+        List[Order]: A list of order objects with related data (user, location, medications).
     """
     query = db.query(OrderModel)
     if not current_user.is_superuser:
@@ -65,7 +84,22 @@ def create_order(
     current_user: UserModel = Depends(deps.get_current_user),
 ) -> Any:
     """
-    Create a new order.
+    Create a new order for medications and prescriptions.
+
+    Validates that prescription-only medications are not ordered without a linked prescription.
+    Calculates the total price and generates a unique access token for pickup.
+    Sends a confirmation email upon successful creation.
+
+    Args:
+        db: Database session.
+        order_in: Order creation schema containing location and item IDs.
+        current_user: The currently authenticated user.
+
+    Returns:
+        Order: The newly created order object.
+
+    Raises:
+        HTTPException: If prescription-required medications are ordered directly.
     """
     logger.info(
         f"Creating new order for user {current_user.id} at location {order_in.location_id}"
@@ -206,8 +240,21 @@ def validate_qr_order(
     x_machine_token: str | None = Header(None, alias="X-Machine-Token"),
 ) -> Any:
     """
-    Validates an order via its QR access token and returns order info.
-    This endpoint is used by the station/hardware to verify an order.
+    Validate an order's QR code token.
+
+    Used by the vending machine hardware to check if a scanned QR code corresponds
+    to a valid order that is ready for pickup at that specific machine.
+
+    Args:
+        db: Database session.
+        request: The QR scan payload containing the access token.
+        x_machine_token: Authorization token from the machine's header.
+
+    Returns:
+        QRValidationResponse: Validation result and order details if successful.
+
+    Raises:
+        HTTPException: If the machine's token does not match the order's location.
     """
     order = (
         db.query(OrderModel)
@@ -253,7 +300,21 @@ def complete_order(
     x_machine_token: str | None = Header(None, alias="X-Machine-Token"),
 ) -> Any:
     """
-    Mark an order as completed. Used by the machine after successful dispensing.
+    Mark an order as completed.
+
+    Used by the vending machine hardware to signal that the items have been dispensed.
+    Triggers a pickup confirmation email to the user.
+
+    Args:
+        db: Database session.
+        order_id: The ID of the order to complete.
+        x_machine_token: Authorization token from the machine's header.
+
+    Returns:
+        Order: The updated order object.
+
+    Raises:
+        HTTPException: If the order is not found or machine authorization fails.
     """
     order = (
         db.query(OrderModel)
@@ -319,7 +380,20 @@ def read_order_by_id(
     current_user: UserModel = Depends(deps.get_current_user),
 ) -> Any:
     """
-    Get a specific order by ID.
+    Retrieve a specific order by its ID.
+
+    Users can only retrieve their own orders unless they are superusers.
+
+    Args:
+        order_id: The ID of the order to retrieve.
+        db: Database session.
+        current_user: The currently authenticated user.
+
+    Returns:
+        Order: The order object.
+
+    Raises:
+        HTTPException: If the order is not found or the user lacks permission.
     """
     order = (
         db.query(OrderModel)
@@ -350,7 +424,22 @@ def update_order(
     current_user: UserModel = Depends(deps.get_current_user),
 ) -> Any:
     """
-    Update an existing order.
+    Update an existing order's status or details.
+
+    If the status changes to 'available for pickup', an automated email
+    with the pickup QR code is sent to the user.
+
+    Args:
+        db: Database session.
+        order_id: The ID of the order to update.
+        order_in: Order update schema.
+        current_user: The currently authenticated user.
+
+    Returns:
+        Order: The updated order object.
+
+    Raises:
+        HTTPException: If the order is not found or the user lacks permission.
     """
     order = (
         db.query(OrderModel)
@@ -407,6 +496,19 @@ def delete_order(
 ) -> Any:
     """
     Delete an order.
+
+    Users can only delete their own orders unless they are superusers.
+
+    Args:
+        db: Database session.
+        order_id: The ID of the order to delete.
+        current_user: The currently authenticated user.
+
+    Returns:
+        Order: The deleted order object.
+
+    Raises:
+        HTTPException: If the order is not found or the user lacks permission.
     """
     order = db.query(OrderModel).filter(OrderModel.id == order_id).first()
     if not order:

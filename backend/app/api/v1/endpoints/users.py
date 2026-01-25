@@ -1,3 +1,10 @@
+"""
+User management endpoints for the MeTIMat API.
+
+This module provides routes for administrators to manage users (list, create, update, delete)
+and for users to manage their own profiles.
+"""
+
 from typing import Any, List
 
 from app.api import deps
@@ -20,7 +27,16 @@ def read_users(
     current_user: UserModel = Depends(deps.get_current_active_superuser),
 ) -> Any:
     """
-    Retrieve users (Admin only).
+    Retrieve a list of all users. Accessible only by superusers.
+
+    Args:
+        db: Database session.
+        skip: Number of records to skip for pagination.
+        limit: Maximum number of records to return.
+        current_user: The authenticated superuser.
+
+    Returns:
+        List[User]: A list of user objects.
     """
     users = db.query(UserModel).offset(skip).limit(limit).all()
     return users
@@ -34,7 +50,18 @@ def create_user(
     current_user: UserModel = Depends(deps.get_current_active_superuser),
 ) -> Any:
     """
-    Create new user (Admin only).
+    Create a new user. Accessible only by superusers.
+
+    Args:
+        db: Database session.
+        user_in: User creation schema.
+        current_user: The authenticated superuser.
+
+    Returns:
+        User: The newly created user object.
+
+    Raises:
+        HTTPException: If a user with the same email already exists.
     """
     user = db.query(UserModel).filter(UserModel.email == user_in.email).first()
     if user:
@@ -64,7 +91,13 @@ def read_user_me(
     current_user: UserModel = Depends(deps.get_current_user),
 ) -> Any:
     """
-    Get current user.
+    Get the profile information of the currently authenticated user.
+
+    Args:
+        current_user: The currently authenticated user.
+
+    Returns:
+        User: The user object.
     """
     return current_user
 
@@ -79,7 +112,17 @@ def update_user_me(
     current_user: UserModel = Depends(deps.get_current_user),
 ) -> Any:
     """
-    Update own user profile.
+    Update the profile of the currently authenticated user.
+
+    Args:
+        db: Database session.
+        password: New password (optional).
+        full_name: New full name (optional).
+        email: New email address (optional).
+        current_user: The currently authenticated user.
+
+    Returns:
+        User: The updated user object.
     """
     if password:
         current_user.hashed_password = security.get_password_hash(password)  # type: ignore
@@ -101,7 +144,19 @@ def read_user_by_id(
     db: Session = Depends(deps.get_db),
 ) -> Any:
     """
-    Get a specific user by id.
+    Get a specific user by ID. Users can view their own profile,
+    but only superusers can view others.
+
+    Args:
+        user_id: The ID of the user to retrieve.
+        current_user: The currently authenticated user.
+        db: Database session.
+
+    Returns:
+        User: The user object.
+
+    Raises:
+        HTTPException: If the user is not a superuser and tries to access another's profile.
     """
     user = db.query(UserModel).filter(UserModel.id == user_id).first()
     if user == current_user:
@@ -122,7 +177,19 @@ def update_user(
     current_user: UserModel = Depends(deps.get_current_active_superuser),
 ) -> Any:
     """
-    Update a user (Admin only).
+    Update a user's information. Accessible only by superusers.
+
+    Args:
+        db: Database session.
+        user_id: The ID of the user to update.
+        user_in: User update schema.
+        current_user: The authenticated superuser.
+
+    Returns:
+        User: The updated user object.
+
+    Raises:
+        HTTPException: If the user with the specified ID does not exist.
     """
     user = db.query(UserModel).filter(UserModel.id == user_id).first()
     if not user:
@@ -154,7 +221,18 @@ def delete_user(
     current_user: UserModel = Depends(deps.get_current_active_superuser),
 ) -> Any:
     """
-    Delete a user (Admin only).
+    Delete a user and their associated data. Accessible only by superusers.
+
+    Args:
+        db: Database session.
+        user_id: The ID of the user to delete.
+        current_user: The authenticated superuser.
+
+    Returns:
+        User: The deleted user object.
+
+    Raises:
+        HTTPException: If the user does not exist or if a superuser tries to delete themselves.
     """
     user = db.query(UserModel).filter(UserModel.id == user_id).first()
     if not user:

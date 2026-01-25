@@ -1,3 +1,11 @@
+"""
+Email service module for the MeTIMat application.
+
+This module provides functionality for generating and sending HTML emails
+using SMTP. It includes templates for registration verification, order
+confirmation, pickup readiness (with QR code generation), and pickup confirmation.
+"""
+
 import base64
 import io
 import smtplib
@@ -15,7 +23,13 @@ from .logo import LOGO_SVG_BASE64_DATA
 
 def get_base_template(content: str) -> str:
     """
-    Returns a consistent HTML wrapper for all emails including the MeTIMat logo as CID.
+    Returns a consistent HTML wrapper for all emails including the MeTIMat logo.
+
+    Args:
+        content: The HTML content to be placed inside the template body.
+
+    Returns:
+        str: A complete HTML document string.
     """
     return f"""
     <!DOCTYPE html>
@@ -63,6 +77,16 @@ def send_email(
     subject: str = "",
     html_content: str = "",
 ) -> None:
+    """
+    Low-level utility to send an email using the configured SMTP server.
+
+    If SMTP settings are missing, it prints the email content to stdout for debugging.
+
+    Args:
+        email_to: Recipient email address.
+        subject: Subject line of the email.
+        html_content: Full HTML body of the email.
+    """
     if not settings.SMTP_HOST or not settings.EMAILS_FROM_EMAIL:
         print(
             f"DEBUG: Email configuration incomplete, skipping actual send to {email_to}"
@@ -117,6 +141,13 @@ def send_email(
 
 
 def send_verification_email(email_to: str, token: str) -> None:
+    """
+    Sends an email to a new user with a verification link.
+
+    Args:
+        email_to: The user's email address.
+        token: The verification JWT token to be included in the link.
+    """
     subject = f"{settings.PROJECT_NAME} - E-Mail Verifizierung"
     verification_url = f"{settings.FRONTEND_HOST}/app/verify-email?token={token}"
 
@@ -136,6 +167,15 @@ def send_verification_email(email_to: str, token: str) -> None:
 def send_order_confirmation_email(
     email_to: str, order_id: int, items: List[Dict[str, Any]], total_price: float
 ) -> None:
+    """
+    Sends an order confirmation email listing the purchased items and total price.
+
+    Args:
+        email_to: Recipient email address.
+        order_id: The ID of the order.
+        items: A list of dictionaries representing order items (name, quantity, price).
+        total_price: The total cost of the order.
+    """
     subject = f"{settings.PROJECT_NAME} - Bestelleingang #{order_id}"
 
     items_html = ""
@@ -170,6 +210,16 @@ def send_order_confirmation_email(
 def send_pickup_ready_email(
     email_to: str, order_id: int, pickup_location: str, pickup_code: str
 ) -> None:
+    """
+    Sends an email notifying the user that their order is ready for pickup.
+    Includes a generated QR code for the vending machine.
+
+    Args:
+        email_to: Recipient email address.
+        order_id: The ID of the order.
+        pickup_location: The name/address of the pickup location.
+        pickup_code: The access token to be encoded in the QR code.
+    """
     subject = f"{settings.PROJECT_NAME} - Bereit zur Abholung #{order_id}"
 
     # Generate QR Code
@@ -205,6 +255,14 @@ def send_pickup_ready_email(
 def send_pickup_confirmation_email(
     email_to: str, order_id: int, items: List[Dict[str, Any]]
 ) -> None:
+    """
+    Sends an email confirming that the order has been successfully picked up.
+
+    Args:
+        email_to: Recipient email address.
+        order_id: The ID of the order.
+        items: A list of items that were picked up.
+    """
     subject = f"{settings.PROJECT_NAME} - Abholung bestätigt #{order_id}"
 
     items_html = ""

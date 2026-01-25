@@ -1,8 +1,33 @@
+"""
+Medication model for the MeTIMat application.
+
+This module defines the SQLAlchemy model for medications, storing information
+such as PZN, dosage, price, and prescription requirements.
+"""
+
 from app.db.session import Base
 from sqlalchemy import Boolean, Column, Float, Integer, String
 
 
 class Medication(Base):
+    """
+    SQLAlchemy model representing a Medication in the system.
+
+    Attributes:
+        id: Unique identifier for the medication.
+        name: Common name of the medication.
+        pzn: Pharma-Zentral-Nummer (unique identification number for medicinal products in Germany).
+        description: Detailed description of the medication.
+        dosage: Strength of the medication (e.g., "400mg").
+        dosage_form: Physical form (e.g., "Tablet", "Syrup").
+        manufacturer: Company that produces the medication.
+        package_size: Quantity per package (e.g., "N1", "50 Stk").
+        price: Unit price of the medication.
+        category: Therapeutic or storage category (defaults to "all").
+        prescription_required: Whether the medication requires a prescription to dispense.
+        is_active: Whether the medication is currently available in the system catalog.
+    """
+
     __tablename__ = "medications"
 
     id = Column(Integer, primary_key=True, index=True)
